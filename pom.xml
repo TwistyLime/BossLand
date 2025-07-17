@@ -6,7 +6,7 @@
 
     <groupId>com.twistylime</groupId>
     <artifactId>bossland2-0</artifactId>
-    <version>2.0</version>
+    <version>2.1</version>
     <packaging>jar</packaging>
 
     <name>bossland2-0</name>
