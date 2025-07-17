@@ -1,0 +1,35 @@
+# Compiled class files
+target/
+out/
+
+# Maven
+.log
+.mvn/timing.properties
+dependency-reduced-pom.xml
+
+# IntelliJ IDEA
+.idea/
+*.iml
+*.iws
+
+# Eclipse
+.project
+.classpath
+.settings/
+
+# VS Code
+.vscode/
+
+# OS-specific
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log
+
+# Backup files
+*.swp
+*.swo
+*~
+
