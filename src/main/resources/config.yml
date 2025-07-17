@@ -1053,7 +1053,6 @@ bosses:
     minion3: ZOMBIE
     minion4: ZOMBIE
     amountSpecial: 3
-    specialDamage2: 6
     dropedXP: 50000
     name: "§5§lDeath"
     health: 2048
