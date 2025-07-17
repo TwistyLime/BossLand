@@ -12,6 +12,18 @@ BossLand is a comprehensive Minecraft plugin that extends vanilla gameplay by ad
 
 This continuation aims to maintain the original vision while updating compatibility and adding new features for current Minecraft versions.
 
+## Downloads
+
+| Minecraft Version | BossLand Version          | Download Link                                                               | Notes                                  |
+| ----------------- | ------------------------- | --------------------------------------------------------------------------- | -------------------------------------- |
+| 1.21.3            | 2.0                       | [Download v2.0](https://github.com/TwistyLime/BossLand/releases/download/v2.0-1.21.3/bossland2-0-2.0.jar) | Latest update with new API and support |
+| 1.19.x            | 0.8 (Final by Eliminator) | [Download v0.8](https://www.spigotmc.org/resources/boss-land.68320/)       | Original discontinued version          |
+| 1.18.x            | 0.7                       | [Download v0.7](https://www.spigotmc.org/resources/boss-land.68320/)       | Last version before 1.19               |
+| 1.16 – 1.17       | 0.5 – 0.6                 | [View Releases](https://www.spigotmc.org/resources/boss-land.68320/)       | May have limited feature set           |
+| 1.13 – 1.15       | 0.1 – 0.4                 | [View Releases](https://www.spigotmc.org/resources/boss-land.68320/)       | Legacy builds, minimal support         |
+
+
+
 ## Features
 
 ### Core Concept
