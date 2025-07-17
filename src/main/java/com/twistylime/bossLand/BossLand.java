@@ -172,6 +172,7 @@ public class BossLand extends JavaPlugin implements Listener {
         }
         addRecipes();
         timer();
+        Objects.requireNonNull(this.getCommand("bossland")).setTabCompleter(new BossLandTabCompleter());
     }
 
     private void reloadLang() {
