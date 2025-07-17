@@ -113,6 +113,9 @@ public class BossLand extends JavaPlugin implements Listener {
     File langYML = new File(getDataFolder(), "lang.yml");
     YamlConfiguration langFile = YamlConfiguration.loadConfiguration(langYML);
 
+    File bookYML = new File(getDataFolder(), "book.yml");
+    YamlConfiguration bookFile = YamlConfiguration.loadConfiguration(bookYML);
+
     HashMap<Entity, BossBar> bossMap = new HashMap<>();
     HashMap<Entity, Entity> targetMap = new HashMap<>();
     HashMap<Entity, UUID> controlMap = new HashMap<>();
@@ -151,6 +154,13 @@ public class BossLand extends JavaPlugin implements Listener {
             // File(this.getDataFolder(), "lang.yml"));
             this.getLogger().log(Level.INFO, Bukkit.getVersion() + " Lang successfully generated!");
             reloadLang();
+        }
+        // Register Guide book
+        if (!bookYML.exists()) {
+            this.getLogger().log(Level.INFO, "No book.yml found, generating...");
+            // Generate Book
+            this.saveResource("book.yml", false);
+            this.getLogger().log(Level.INFO, Bukkit.getVersion() + " Book successfully generated!");
         }
         // Metrics
         try {
@@ -4329,15 +4339,21 @@ public class BossLand extends JavaPlugin implements Listener {
         int min = (int) (mind * 10.0D);
         int max = (int) (maxd * 10.0D);
         int r = rand(min, max);
-        double rd = r / 10.0D;
-        return rd;
+        return r / 10.0D;
     }
 
     @SuppressWarnings("unchecked")
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
         if ((cmd.getName().equals("bossland")) || (cmd.getName().equals("bl"))) {
             try {
-                if (args[0].equals("reload")) {
+                if (args[0].equals("guide")) {
+                    if (sender instanceof Player p) {
+                        YamlConfiguration config = YamlConfiguration.loadConfiguration(bookYML);
+                        ItemStack guideBook = config.getItemStack("guidebook");
+                        p.getInventory().addItem(guideBook);
+                    }
+                    return true;
+                }else if (args[0].equals("reload")) {
                     reloadConfig();
                     reloadLang();
                     sender.sendMessage("§eBossLand: Reloaded config!");
@@ -4455,6 +4471,7 @@ public class BossLand extends JavaPlugin implements Listener {
             sender.sendMessage("§6--- Boss Land v"
                     + Bukkit.getServer().getPluginManager().getPlugin("BossLand").getDescription().getVersion()
                     + " ---");
+            sender.sendMessage("§e/bl guide <- Provides Guide");
             sender.sendMessage("§e/bl spawn <boss> <- Spawns a Boss");
             sender.sendMessage("§e/bl cspawn <boss> <x> <y> <z> <world>");
             sender.sendMessage("§e/bl loot <boss>   <- Drops a random loot");
