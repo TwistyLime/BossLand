@@ -129,10 +129,6 @@ Ultimate endgame encounters:
 
 This is a continuation of Eliminator's original work. Contributions are welcome to help maintain and enhance the plugin for newer Minecraft versions.
 
-## License
-
-This project continues the work of the original BossLand plugin by Eliminator. Please respect the original author's contributions and vision.
-
 ## Support
 
 For issues, suggestions, or questions about this continuation of the BossLand project, please use the repository's issue tracker.
