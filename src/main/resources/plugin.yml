@@ -1,0 +1,14 @@
+name: BossLand
+version: '2.0'
+main: com.twistylime.bossLand.BossLand
+api-version: '1.21'
+author: TwistyLime / Eliminator
+description: A plugin that adds boss-related mechanics and commands to your Minecraft world. This is a fork of original repository from Eliminator.
+
+commands:
+  bossland:
+    aliases: [bl]
+    description: Base Boss Land command.
+    usage: /<command>
+    permission: bl.cmds
+    permission-message: You don't have <permission>
