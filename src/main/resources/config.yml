@@ -2,6 +2,7 @@ bossRange: 35
 bossLimit: 99
 waterLevel: 40
 skyLevel: 200
+maxKBEnchantLevel: 10
 deathNoteConsumeChance: 10
 disabledWorlds:
   - MyTownWorld

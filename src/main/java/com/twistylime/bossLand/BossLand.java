@@ -2624,7 +2624,7 @@ public class BossLand extends JavaPlugin implements Listener {
             if (c != null) {
                 c.getKey();
                 if (!c.equals(Enchantment.MENDING)) {
-                    ItemStack b = (getItem(Material.ENCHANTED_BOOK, "§eAdd Echantment", 1, null));
+                    ItemStack b = (getItem(Material.ENCHANTED_BOOK, "§eAdd Enchantment", 1, null));
                     b.addUnsafeEnchantment(c, 1);
                     inv.addItem(b);
                 }
@@ -2641,7 +2641,7 @@ public class BossLand extends JavaPlugin implements Listener {
             inv.setItem(i, getItem(Material.GRAY_STAINED_GLASS_PANE, "§l", 1, null));
         inv.setItem(4, s);
         for (Map.Entry<Enchantment, Integer> hm : s.getEnchantments().entrySet()) {
-            ItemStack b = (getItem(Material.ENCHANTED_BOOK, "§eRemove Echantment", 1, null));
+            ItemStack b = (getItem(Material.ENCHANTED_BOOK, "§eRemove Enchantment", 1, null));
             b.addUnsafeEnchantment(hm.getKey(), hm.getValue());
             inv.addItem(b);
         }
@@ -2682,29 +2682,33 @@ public class BossLand extends JavaPlugin implements Listener {
                     case "§l" -> e.setCancelled(true);
                 }
             } else if (name.contains("§0§lAdd Enchantments") || name.contains("§0§lRemove Enchantments")) {
-                if (n.equals("§eAdd Echantment")) {
+                if (n.equals("§eAdd Enchantment")) {
                     e.setCancelled(true);
-                    int lvl = Integer.parseInt(e.getView().getItem(49).getItemMeta().getDisplayName().split(": ")[1]);
+                    int lvl = Integer.parseInt(Objects.requireNonNull(Objects.requireNonNull(Objects.requireNonNull(e.getView().getItem(49)).getItemMeta())).getDisplayName().split(": ")[1]);
                     int need = 3 + (lvl);
                     if (p.getLevel() >= need) {
                         p.setLevel(p.getLevel() - need);
                         p.getWorld().playSound(p.getLocation(), Sound.BLOCK_ENCHANTMENT_TABLE_USE, 1, 1);
                         ItemStack s = e.getView().getItem(4);
-                        for (Map.Entry<Enchantment, Integer> hm : e.getCurrentItem().getEnchantments().entrySet()) {
-                            p.sendMessage(hm.getKey().toString());
+                        assert s != null;
+                        EnchantmentStorageMeta sMeta = (EnchantmentStorageMeta) e.getCurrentItem().getItemMeta();
+                        for (Map.Entry<Enchantment, Integer> hm : sMeta.getStoredEnchants().entrySet()) {
                             s.addUnsafeEnchantment(hm.getKey(), lvl);
                         }
                     } else {
                         p.sendMessage(getLang("needXP").replace("<xp>", need + ""));
                         p.closeInventory();
                     }
-                } else if (n.equals("§eRemove Echantment")) {
+                } else if (n.equals("§eRemove Enchantment")) {
                     e.setCancelled(true);
                     // e.getCurrentItem()
                     p.getWorld().playSound(p.getLocation(), Sound.BLOCK_GRINDSTONE_USE, 1, 1);
                     ItemStack s = e.getView().getItem(4);
-                    for (Map.Entry<Enchantment, Integer> hm : e.getCurrentItem().getEnchantments().entrySet())
+                    assert s != null;
+                    EnchantmentStorageMeta sMeta = (EnchantmentStorageMeta) e.getCurrentItem().getItemMeta();
+                    for (Map.Entry<Enchantment, Integer> hm : sMeta.getStoredEnchants().entrySet()) {
                         s.removeEnchantment(hm.getKey());
+                    }
                     noList.add(p.getUniqueId());
                     p.closeInventory();
                     openDisEnchantGUI(p, s);
@@ -2712,8 +2716,9 @@ public class BossLand extends JavaPlugin implements Listener {
                 } else if (n.contains("§eLevel: ")) {
                     e.setCancelled(true);
                     // ItemStack s = e.getView().getItem(49);
-                    int i = Integer.parseInt(e.getView().getItem(49).getItemMeta().getDisplayName().split(": ")[1]) + 1;
-                    if (i > 10)
+                    int i = Integer.parseInt(Objects.requireNonNull(Objects.requireNonNull(e.getView().getItem(49))).getItemMeta().getDisplayName().split(": ")[1]) + 1;
+                    int maxLevel = getConfig().getInt("maxKBEnchantLevel", 10);
+                    if (i > maxLevel)
                         i = 1;
                     e.getView().setItem(49, getItem(Material.EXPERIENCE_BOTTLE, "§eLevel: " + i, 1, null));
                 } else if (n.equals("§cDone")) {
