@@ -137,6 +137,13 @@ This project continues the work of the original BossLand plugin by Eliminator. P
 
 For issues, suggestions, or questions about this continuation of the BossLand project, please use the repository's issue tracker.
 
+## License
+
+This project continues the work of the original [BossLand plugin](https://bitbucket.org/Eliminator/bossland/) by Eliminator, which appears to be discontinued.
+
+Unless stated otherwise, this continuation is released under the MIT License. If you are the original author and wish for changes to be made regarding usage rights or attribution, please contact us via the repository’s issue tracker.
+
+
 ---
 
 *"Your journey beyond the Ender Dragon starts here. Face the challenge, claim the rewards, and become the ultimate boss hunter!"*
