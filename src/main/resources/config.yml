@@ -15,7 +15,7 @@ bosses:
     health: 500
     specialChance: 10
     potionChance: 20
-    maxSpecial: 10bo
+    maxSpecial: 10
     amountSpecial2: 5
     attackParticle: "FLAME:0:3:0.3"
     deathParticle: "CLOUD:1:25:0"
@@ -163,14 +163,14 @@ bosses:
     deathParticle: "CLOUD:1:25:0"
     attackParticle: "FLAME:0:3:0.6"
     barColor: "RED"
-    barStyle: "SEGMENTED_6"
+    barStyle: "SOLID"
     hurtPotions:
       - "JUMP:3:15"
       - "CONFUSION:1:15"
     loot:
       0:
         item: ENCHANTED_GOLDEN_APPLE
-        amount: "8-16"
+        amount: 8-16
       1:
         item: clay_ball
         amount: 1
@@ -213,7 +213,7 @@ bosses:
     maxSpecial: 9
     deathParticle: "CLOUD:1:25:0"
     barColor: "GREEN"
-    barStyle: "SEGMENTED_6"
+    barStyle: "SOLID"
     hurtPotions:
       - "CONFUSION:3:15"
     loot:
@@ -264,7 +264,7 @@ bosses:
     deathParticle: "SMOKE_NORMAL:1:25:0"
     attackParticle: "SMOKE_NORMAL:0:2:0.2"
     barColor: "WHITE"
-    barStyle: "SEGMENTED_10"
+    barStyle: "SOLID"
     hurtPotions:
       - "WITHER:1:15"
       - "BLINDNESS:1:5"
@@ -359,7 +359,7 @@ bosses:
     deathParticle: "SMOKE_NORMAL:1:25:0"
     attackParticle: "SMOKE_NORMAL:0:2:0.2"
     barColor: "WHITE"
-    barStyle: "SEGMENTED_10"
+    barStyle: "SEGMENTED_6"
     hurtPotions:
       - "WITHER:1:15"
       - "BLINDNESS:1:5"
@@ -460,14 +460,14 @@ bosses:
     minion3: Witch
     dropedXP: 8000
     name: "§9§lEvil Wizard"
-    health: 2000
+    health: 1400
     specialChance: 20
     potionChance: 20
     maxSpecial: 12
     deathParticle: "CRIT_MAGIC:1:25:0"
     attackParticle: "CRIT_MAGIC:0:3:0.2"
     barColor: "BLUE"
-    barStyle: "SEGMENTED_10"
+    barStyle: "SEGMENTED_6"
     hurtPotions:
       - "SLOW:2:30"
     attackPotions:
@@ -593,6 +593,7 @@ bosses:
             level: 4
           4:
             enchantment: quick_charge
+            level: 4
   "Giant":
     entity: GIANT
     minion: Zombie
@@ -782,7 +783,7 @@ bosses:
         amount: 1
         name: "&e&lThe Cursed Skull"
         lore1: "&6Immortality, a fate worse than death"
-        lore2: "&eWorks like a totem (only in offhand)"
+        lore2: "&eWorks like a totem (only in offhand) *15min cooldown*"
         lore3: "&4Dropped by Pharaoh God"
         texture: "http://textures.minecraft.net/texture/4ad0476e8671696af3a8949afa2a814b9bdde65eccd1a8b593aeeff5a0318d"
         enchantments: 
@@ -795,8 +796,8 @@ bosses:
         name: "&e&lStaff of Brimstone"
         lore1: "&6Rain upon them fire and brimstone"
         lore2: "&6Their ruin will be great"
-        lore3: "&eSummons &lDESCRUCTIVE &r&efireballs"
-        lore5: "&4Dropped by Pharaoh God"
+        lore3: "&eSummons &lDESTRUCTIVE &r&efireballs"
+        lore4: "&4Dropped by Pharaoh God"
         enchantments: 
           1:
             enchantment: LOYALTY
@@ -923,9 +924,9 @@ bosses:
     minion3: SKELETON
     minion4: SKELETON
     amountSpecial: 3
-    dropedXP: 20000
+    dropedXP: 15000
     name: "§c§lDemon"
-    health: 1111
+    health: 1250
     specialChance: 35
     minionChance: 20
     potionChance: 33
@@ -956,7 +957,7 @@ bosses:
         item: DIAMOND_AXE
         amount: 1
         name: '&kxxx &r&c&lDemonic Axe &r&kxxx'
-        lore1: "&cHERE'S JOHHNY!"
+        lore1: "&cHERE'S JOHNNY!"
         lore2: "&8Dropped by Demon"
         enchantments:
           '1':
@@ -988,7 +989,7 @@ bosses:
     minion4: WITHER_SKELETON
     minion3Mount: BAT
     amountSpecial: 3
-    dropedXP: 20000
+    dropedXP: 40000
     name: "§c§lThe Devil"
     health: 2048
     specialChance: 35
@@ -1053,7 +1054,7 @@ bosses:
     minion4: ZOMBIE
     amountSpecial: 3
     specialDamage2: 6
-    dropedXP: 20000
+    dropedXP: 50000
     name: "§5§lDeath"
     health: 2048
     specialChance: 40
@@ -1110,7 +1111,7 @@ bosses:
         lore1: "Life and death are one"
         lore2: "just as the river and the sea become one"
         lore3: "&eDeals a shit ton of &lDAMAGE"
-        lore4: "&eexept to players and Death boss"
+        lore4: "&eexept to players and &lDeath &eboss"
         lore5: "&4Dropped by the &lDEATH"
         enchantments: 
           '1':
