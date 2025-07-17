@@ -36,12 +36,10 @@ items:
   giantpotion: "§2§lPotion of Giant Growth"
   giantpotionlore:
     - "Drink at your own peril"
-  greenshard: "§a§lGreen Boss Shard"
   brownshard: "§4§lBrown Boss Shard"
   elderegg: "§5§lElder Dragon Egg"
   elderegglore:
     - "An ancient egg from the depths"
-  blackshard: "§8§lBlack Boss Shard"
   forbiddenfruit: "§6§lForbidden Fruit"
   forbiddenfruitlore:
     - "Thou shalt not eat of this flesh"
