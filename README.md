@@ -1,4 +1,4 @@
-# BossLand 2.0
+# BossLand v2.1 - MC 1.21.3
 
 ## Overview
 
@@ -16,7 +16,7 @@ This continuation aims to maintain the original vision while updating compatibil
 
 | Minecraft Version | BossLand Version          | Download Link                                                               | Notes                                  |
 | ----------------- | ------------------------- | --------------------------------------------------------------------------- | -------------------------------------- |
-| 1.21.3            | 2.0                       | [Download v2.0](https://github.com/TwistyLime/BossLand/releases/download/v2.0-1.21.3/bossland2-0-2.0.jar) | Latest update with new API and support |
+| 1.21.3            | 2.1                       | [Download v2.1](https://github.com/TwistyLime/BossLand/releases/download/v2.1-1.21.3/bossland2-0-2.1.jar) | Latest update with new API and support |
 | 1.19.x            | 0.8 (Final by Eliminator) | [Download v0.8](https://www.spigotmc.org/resources/boss-land.68320/)       | Original discontinued version          |
 | 1.18.x            | 0.7                       | [Download v0.7](https://www.spigotmc.org/resources/boss-land.68320/)       | Last version before 1.19               |
 | 1.16 – 1.17       | 0.5 – 0.6                 | [View Releases](https://www.spigotmc.org/resources/boss-land.68320/)       | May have limited feature set           |
