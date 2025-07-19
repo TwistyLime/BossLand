@@ -118,6 +118,7 @@ public class BossLand extends JavaPlugin implements Listener {
     YamlConfiguration langFile = YamlConfiguration.loadConfiguration(langYML);
 
     File bookYML = new File(getDataFolder(), "book.yml");
+    YamlConfiguration bookFile = YamlConfiguration.loadConfiguration(bookYML);
 
     HashMap<Entity, BossBar> bossMap = new HashMap<>();
     HashMap<Entity, Entity> targetMap = new HashMap<>();
@@ -4334,8 +4335,7 @@ public class BossLand extends JavaPlugin implements Listener {
                 if (args[0].equals("guide")) {
                     if (sender instanceof Player) {
                         Player p = (Player)sender;
-                        YamlConfiguration config = YamlConfiguration.loadConfiguration(bookYML);
-                        ItemStack guideBook = config.getItemStack("guidebook");
+                        ItemStack guideBook = bookFile.getItemStack("guidebook");
                         p.getInventory().addItem(guideBook);
                     }
                     return true;
