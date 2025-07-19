@@ -10,8 +10,8 @@ commands:
     aliases: [bl-admin]
     description: Boss Land Admin commands.
     usage: /<command>
-    permission: bl.cmds
-    permission-message: You don't have <permission>
+    permission: bl-admin.cmds
+    permission-message: You don't have permission access for type <permission>
   bossland:
     aliases: [bl]
     description: Boss Land basic commands.
