@@ -1,6 +1,7 @@
 package com.twistylime.bossLand;
 
 import java.io.File;
+import java.io.*;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -107,6 +108,9 @@ import org.bukkit.util.BlockIterator;
 import org.bukkit.util.Vector;
 
 public class BossLand extends JavaPlugin implements Listener {
+
+    String version = Version.getServerVersion();
+
     File saveYML = new File(getDataFolder(), "save.yml");
     YamlConfiguration saveFile = YamlConfiguration.loadConfiguration(saveYML);
 
@@ -132,6 +136,7 @@ public class BossLand extends JavaPlugin implements Listener {
 
     @Override
     public void onEnable() {
+        this.getLogger().log(Level.INFO, "The Server version is: "+version);
         getServer().getPluginManager().registerEvents(this, this);
         if (!new File(getDataFolder(), "config.yml").exists()) {
             saveDefaultConfig();
