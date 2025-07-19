@@ -1,10 +1,9 @@
 package com.twistylime.bossLand;
 
 import java.io.File;
-import java.io.*;
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
+//import java.net.MalformedURLException;
+//import java.net.URL;
 import java.util.*;
 import java.util.logging.Level;
 
@@ -21,7 +20,6 @@ import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.World;
 import org.bukkit.World.Environment;
-import org.bukkit.attribute.Attribute;
 import org.bukkit.block.Banner;
 
 import org.bukkit.block.Block;
@@ -102,10 +100,12 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionType;
-import org.bukkit.profile.PlayerProfile;
-import org.bukkit.profile.PlayerTextures;
+//import org.bukkit.profile.PlayerProfile;
+//import org.bukkit.profile.PlayerTextures;
 import org.bukkit.util.BlockIterator;
 import org.bukkit.util.Vector;
+
+//import javax.management.ConstructorParameters;
 
 public class BossLand extends JavaPlugin implements Listener {
 
@@ -251,8 +251,8 @@ public class BossLand extends JavaPlugin implements Listener {
                             repairItem(p.getInventory().getLeggings());
                         } else if (p.getInventory().getLeggings().getItemMeta().getDisplayName()
                                 .equals(getBossItemName("KillerBunny", 2))) {
-                            p.removePotionEffect(PotionEffectType.JUMP_BOOST);
-                            p.addPotionEffect(new PotionEffect(PotionEffectType.JUMP_BOOST, 20 * 5, 3));
+                            p.removePotionEffect(CompatibilityResolver.resolvePotionEffect("JUMP_BOOST","JUMP"));
+                            p.addPotionEffect(new PotionEffect(CompatibilityResolver.resolvePotionEffect("JUMP_BOOST","JUMP"), 20 * 5, 3));
                             repairItem(p.getInventory().getLeggings());
                         } else if (p.getInventory().getLeggings().getItemMeta().getDisplayName()
                                 .equals(getBossItemName("Devil", 0))) {
@@ -272,8 +272,8 @@ public class BossLand extends JavaPlugin implements Listener {
                             // p.removePotionEffect(PotionEffectType.DAMAGE_RESISTANCE);
                             // p.addPotionEffect(new
                             // PotionEffect(PotionEffectType.DAMAGE_RESISTANCE,20*5,2));
-                            p.removePotionEffect(PotionEffectType.STRENGTH);
-                            p.addPotionEffect(new PotionEffect(PotionEffectType.STRENGTH, 20 * 5, 1));
+                            p.removePotionEffect(CompatibilityResolver.resolvePotionEffect("STRENGTH","INCREASE_DAMAGE"));
+                            p.addPotionEffect(new PotionEffect(CompatibilityResolver.resolvePotionEffect("STRENGTH","INCREASE_DAMAGE"), 20 * 5, 1));
                             repairItem(p.getInventory().getChestplate());
                         }
                     } catch (Exception x2) {
@@ -281,10 +281,10 @@ public class BossLand extends JavaPlugin implements Listener {
                     try {
                         if (Objects.requireNonNull(Objects.requireNonNull(p.getInventory().getBoots()).getItemMeta()).getDisplayName()
                                 .equals(getBossItemName("PharaohGod", 2))) {
-                            p.removePotionEffect(PotionEffectType.HASTE);
-                            p.addPotionEffect(new PotionEffect(PotionEffectType.HASTE, 20 * 5, 2));
-                            p.removePotionEffect(PotionEffectType.JUMP_BOOST);
-                            p.addPotionEffect(new PotionEffect(PotionEffectType.JUMP_BOOST, 20 * 5, 2));
+                            p.removePotionEffect(CompatibilityResolver.resolvePotionEffect("HASTE","FAST_DIGGING"));
+                            p.addPotionEffect(new PotionEffect(CompatibilityResolver.resolvePotionEffect("HASTE","FAST_DIGGING"), 20 * 5, 2));
+                            p.removePotionEffect(CompatibilityResolver.resolvePotionEffect("JUMP_BOOST","JUMP"));
+                            p.addPotionEffect(new PotionEffect(CompatibilityResolver.resolvePotionEffect("JUMP_BOOST","JUMP"), 20 * 5, 2));
                             p.removePotionEffect(PotionEffectType.SPEED);
                             p.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 20 * 5, 2));
                             repairItem(p.getInventory().getBoots());
@@ -364,7 +364,8 @@ public class BossLand extends JavaPlugin implements Listener {
         try {
             final String bossType = saveFile.getString("bosses." + e.getEntity().getUniqueId());
             if (e.getEntity().getShooter() != null) {
-                if (e.getEntity().getShooter() instanceof Player p) {
+                if (e.getEntity().getShooter() instanceof Player) {
+                    Player p = (Player) e.getEntity().getShooter();
                     // Check For Trident
                     if (Objects.requireNonNull(p.getInventory().getItemInMainHand().getItemMeta()).getDisplayName()
                             .equals(getBossItemName("DrownedGod", 0))) {
@@ -373,7 +374,8 @@ public class BossLand extends JavaPlugin implements Listener {
                             .equals(getBossItemName("AetherGod", 2))) {
                         Arrow a = (Arrow) e.getEntity();
                         a.setGlowing(true);
-                        a.setBasePotionType(PotionType.SLOWNESS);
+                        CompatibilityResolver.setArrowBasePotionType(a,CompatibilityResolver.resolvePotionTypeEffect("SLOWNESS","SLOW"));
+//                        a.setBasePotionType(CompatibilityResolver.resolvePotionEffect("SLOWNESS","SLOW"));
                         makeTrail(a, "CLOUD:0:1:0");
                         Entity t = getTarget(p);
                         if (t != null)
@@ -392,7 +394,7 @@ public class BossLand extends JavaPlugin implements Listener {
     public void onBlockBreak(BlockBreakEvent e) {
         Player p = e.getPlayer();
         try {
-            List<Material> list = Arrays.asList(Material.DIRT, Material.GRASS_BLOCK, Material.DIRT_PATH,
+            List<Material> list = Arrays.asList(Material.DIRT, Material.GRASS_BLOCK, CompatibilityResolver.resolveMaterial("GRASS_PATH","DIRT_PATH"),
                     Material.GRAVEL, Material.SAND, Material.RED_SAND, Material.SOUL_SAND, Material.FARMLAND,
                     Material.CLAY, Material.MYCELIUM, Material.PODZOL, Material.COARSE_DIRT, Material.SNOW_BLOCK,
                     Material.SNOW);
@@ -450,7 +452,8 @@ public class BossLand extends JavaPlugin implements Listener {
 
     @EventHandler(priority = EventPriority.HIGH)
     public void onEntityDamaged(EntityDamageEvent e) {
-        if (e.getEntity() instanceof Player p) {
+        if (e.getEntity() instanceof Player) {
+            Player p = (Player) e.getEntity();
             // Slime Boots
             try {
                 if (e.getCause().equals(DamageCause.FALL) && Objects.requireNonNull(Objects.requireNonNull(p.getInventory().getBoots()).getItemMeta()).getDisplayName()
@@ -520,7 +523,8 @@ public class BossLand extends JavaPlugin implements Listener {
     public void onEntityDamagedByEntity(EntityDamageByEntityEvent e) {
         // Check if is Boss
         final String bossType = saveFile.getString("bosses." + e.getEntity().getUniqueId());
-        if (bossType != null && (e.getEntity() instanceof LivingEntity ent)) {
+        if (bossType != null && (e.getEntity() instanceof LivingEntity )) {
+            LivingEntity ent = (LivingEntity) e.getEntity();
             // Make Sure Real Boss
             if (!bossMap.containsKey(ent))
                 makeBoss(ent, bossType);
@@ -553,12 +557,12 @@ public class BossLand extends JavaPlugin implements Listener {
                 }
             }
             // Check Player
-            if (!(dmgr instanceof Player p))
+            if (!(dmgr instanceof Player))
                 return;
             // Do Boss Stuff
             int c = getConfig().getInt("bosses." + bossType + ".specialChance");
             int mc = getConfig().getInt("bosses." + bossType + ".minionChance");
-            double maxHealth = Objects.requireNonNull(ent.getAttribute(Attribute.MAX_HEALTH)).getBaseValue();
+            double maxHealth = Objects.requireNonNull(ent.getAttribute(CompatibilityResolver.resolveAttribute("MAX_HEALTH", "GENERIC_MAX_HEALTH"))).getBaseValue();
             switch (bossType) {
                 case "GhastLord" -> {
                     // Stop Instant Death
@@ -610,6 +614,7 @@ public class BossLand extends JavaPlugin implements Listener {
                     }
                     if (rand(1, 100) <= c && ent.getHealth() <= maxHealth / 2) {
                         // Phase 2
+                        Player p = (Player) dmgr;
                         int s = rand(1, 4);
                         try {
                             if (s == 1 && p.getInventory().getHelmet() != null) {
@@ -702,7 +707,7 @@ public class BossLand extends JavaPlugin implements Listener {
                         // mount.addPassenger(ent);
                         // }
                         // Other Effects
-                        TNTPrimed tnt = (TNTPrimed) ent.getWorld().spawnEntity(ent.getEyeLocation(), EntityType.TNT);
+                        TNTPrimed tnt = (TNTPrimed) ent.getWorld().spawnEntity(ent.getEyeLocation(), CompatibilityResolver.resolveEntityType("TNT", "PRIMED_TNT"));
                         moveToward(tnt, dmgr.getLocation(), 0.5);
                     }
                 }
@@ -758,7 +763,7 @@ public class BossLand extends JavaPlugin implements Listener {
                                 true);
                         item.setItemMeta(meta);
                         ThrownPotion thrownPotion = (ThrownPotion) ent.getWorld().spawnEntity(dmgr.getLocation(),
-                                EntityType.POTION);
+                                CompatibilityResolver.resolveEntityType("POTION", "SPLASH_POTION"));
                         thrownPotion.setItem(item);
                     }
                     if (rand(1, 100) <= c && ent.getHealth() <= maxHealth / 3) {
@@ -837,7 +842,7 @@ public class BossLand extends JavaPlugin implements Listener {
                                             tmp.getBlock().setType(Material.AIR);
                                     }
                                     Objects.requireNonNull(loc.getWorld()).playSound(loc, Sound.BLOCK_STONE_BREAK, 1, 1);
-                                    displayParticle(Particle.LARGE_SMOKE.toString(), loc, 0.3, 0, 3);
+                                    displayParticle(CompatibilityResolver.resolveParticle("SMOKE_LARGE", "LARGE_SMOKE").toString(), loc, 0.3, 0, 3);
                                 }, t);
                                 t = t + 1;
                                 length += space;
@@ -883,7 +888,7 @@ public class BossLand extends JavaPlugin implements Listener {
                         // Phase 2
                         Projectile pj = ent.launchProjectile(Trident.class);
                         lightningList.add(pj);
-                        moveToward(p, dmgr.getLocation(), 0.7);
+                        moveToward(pj, dmgr.getLocation(), 0.7);
                     }
                     if (rand(1, 100) <= c && ent.getHealth() <= maxHealth / 4 * 2) {
                         // Phase 3
@@ -1119,8 +1124,10 @@ public class BossLand extends JavaPlugin implements Listener {
                         // Phase 1 attack 2
                         Location l = dmgr.getLocation().clone();
                         l.setY(l.getY() - 1);
-                        l.getBlock().setType(Material.END_STONE);
-                        dmgr.getLocation().getBlock().setType(Material.WITHER_ROSE);
+                        if(l.getBlock().getType() != Material.BEDROCK){
+                            l.getBlock().setType(Material.END_STONE);
+                            dmgr.getLocation().getBlock().setType(Material.WITHER_ROSE);
+                        }
                     }
                     if (rand(1, 100) <= c && ent.getHealth() <= maxHealth / 5 * 4) {
                         // Phase 2
@@ -1235,9 +1242,9 @@ public class BossLand extends JavaPlugin implements Listener {
         } else if (!e.getEntity().getPassengers().isEmpty()) {
             // Mount Damage Stop
             final String bossType2 = saveFile
-                    .getString("bosses." + e.getEntity().getPassengers().getFirst().getUniqueId());
+                    .getString("bosses." + e.getEntity().getPassengers().get(0).getUniqueId());
             if (bossType2 != null) {
-                LivingEntity boss = (LivingEntity) e.getEntity().getPassengers().getFirst();
+                LivingEntity boss = (LivingEntity) e.getEntity().getPassengers().get(0);
                 if (!boss.isDead()) {
                     boss.damage(e.getDamage(), e.getDamager());
                     e.setDamage(0);
@@ -1245,7 +1252,8 @@ public class BossLand extends JavaPlugin implements Listener {
             }
         }
         // Item
-        if ((e.getDamager() instanceof Player p) && (!(e.getEntity() instanceof Player))) {
+        if ((e.getDamager() instanceof Player ) && (!(e.getEntity() instanceof Player))) {
+            Player p = (Player) e.getDamager();
             try {
                 if (Objects.requireNonNull(p.getInventory().getItemInMainHand().getItemMeta()).getDisplayName().equals("§5§lScythe of Death")
                         && (bossType == null || (!bossType.equals("Death")))) {
@@ -1255,8 +1263,9 @@ public class BossLand extends JavaPlugin implements Listener {
             }
         }
         // Death Stop
-        if (e.getEntity() instanceof Player p) {
+        if (e.getEntity() instanceof Player) {
             try {
+                final Player p = (Player) e.getEntity();
                 // System.out.println("D1");
                 if ((!diedList.contains(p.getUniqueId())) && Objects.requireNonNull(p.getInventory().getItemInOffHand().getItemMeta())
                         .getDisplayName().equals("§e§lThe Cursed Skull")) {
@@ -1296,9 +1305,9 @@ public class BossLand extends JavaPlugin implements Listener {
 
     private boolean checkDeath(final Player p, double fd) {
         if ((p.getHealth() - fd) <= 0) {
-            // System.out.println("D3");
+            // System.out.println("D3");    
             p.sendMessage(getLang("curse"));
-            double maxHealth = Objects.requireNonNull(p.getAttribute(Attribute.MAX_HEALTH)).getBaseValue();
+            double maxHealth = Objects.requireNonNull(p.getAttribute(CompatibilityResolver.resolveAttribute("MAX_HEALTH", "GENERIC_MAX_HEALTH"))).getBaseValue();
             p.setHealth(maxHealth);
             p.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 10 * 40, 1));
             final GameMode gm = p.getGameMode();
@@ -1360,7 +1369,7 @@ public class BossLand extends JavaPlugin implements Listener {
         int balls = 1;
         // EntityType bt = EntityType.FIREBALL;
         Class c = Fireball.class;
-        double maxHealth = Objects.requireNonNull(ent.getAttribute(Attribute.MAX_HEALTH)).getBaseValue();
+        double maxHealth = Objects.requireNonNull(ent.getAttribute(CompatibilityResolver.resolveAttribute("MAX_HEALTH", "GENERIC_MAX_HEALTH"))).getBaseValue();
         if (ent.getHealth() <= ((maxHealth / 4) * 3)) {
             // Phase 2
             balls = getConfig().getInt("bosses." + bossType + ".amountSpecial2");
@@ -1395,7 +1404,7 @@ public class BossLand extends JavaPlugin implements Listener {
     private void spawnTornado(Location l, LivingEntity target, int dmg, String type) {
         LivingEntity bat = (LivingEntity) Objects.requireNonNull(l.getWorld()).spawnEntity(l, EntityType.BAT);
         bat.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, 999 * 999, 1));
-        Objects.requireNonNull(bat.getAttribute(Attribute.MAX_HEALTH)).setBaseValue(2000);
+        Objects.requireNonNull(bat.getAttribute(CompatibilityResolver.resolveAttribute("MAX_HEALTH", "GENERIC_MAX_HEALTH"))).setBaseValue(2000);
         bat.setHealth(2000);
         moveTowardConstant(bat, target, 0.2);
         boomTimer(bat, 30);
@@ -1461,7 +1470,7 @@ public class BossLand extends JavaPlugin implements Listener {
                         ((LivingEntity) x).addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 20 * 20, 1));
                     }
                     case "fire" -> {
-                        ((LivingEntity) x).addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, 10 * 20, 5));
+                        ((LivingEntity) x).addPotionEffect(new PotionEffect(CompatibilityResolver.resolvePotionEffect("SLOW","SLOWNESS"), 10 * 20, 5));
                         x.setFireTicks(60 * 20);
                     }
                     case "magic" -> {
@@ -1504,7 +1513,7 @@ public class BossLand extends JavaPlugin implements Listener {
 
     private Entity getMount(Entity boss) {
         for (Entity m : boss.getNearbyEntities(4, 4, 4))
-            if (!m.getPassengers().isEmpty() && m.getPassengers().getFirst().equals(boss))
+            if (!m.getPassengers().isEmpty() && m.getPassengers().get(0).equals(boss))
                 return m;
         return null;
     }
@@ -1618,7 +1627,7 @@ public class BossLand extends JavaPlugin implements Listener {
         EntityType minType = EntityType.valueOf(getConfig().getString("bosses." + bossType + ".minion"));
         EntityType mountType = null;
         int phase = 1;
-        double maxHealth = Objects.requireNonNull(ent.getAttribute(Attribute.MAX_HEALTH)).getBaseValue();
+        double maxHealth = Objects.requireNonNull(ent.getAttribute(CompatibilityResolver.resolveAttribute("MAX_HEALTH", "GENERIC_MAX_HEALTH"))).getBaseValue();
         if (ent.getHealth() <= (maxHealth / 4)) {
             // Phase 4
             if (getConfig().getString("bosses." + bossType + ".minion4") != null)
@@ -1692,11 +1701,11 @@ public class BossLand extends JavaPlugin implements Listener {
                                     "http://textures.minecraft.net/texture/85ef46255c156b465dbf83c41ca145e9f57b0e87a4e6a2a143abab7f854b98");
                             assert ee != null;
                             ee.setHelmet(head);
-                            chest.addEnchantment(Enchantment.PROTECTION, 2);
+                            chest.addEnchantment(CompatibilityResolver.resolveEnchantment("PROTECTION","PROTECTION_ENVIRONMENTAL"), 2);
                             ee.setChestplate(chest);
-                            pants.addEnchantment(Enchantment.PROTECTION, 2);
+                            pants.addEnchantment(CompatibilityResolver.resolveEnchantment("PROTECTION","PROTECTION_ENVIRONMENTAL"), 2);
                             ee.setLeggings(pants);
-                            boots.addEnchantment(Enchantment.PROTECTION, 2);
+                            boots.addEnchantment(CompatibilityResolver.resolveEnchantment("PROTECTION","PROTECTION_ENVIRONMENTAL"), 2);
                             ee.setBoots(boots);
                             ee.setItemInMainHand(hand);
                         } else if (phase == 4) {
@@ -1706,11 +1715,11 @@ public class BossLand extends JavaPlugin implements Listener {
                                     "http://textures.minecraft.net/texture/296343dcc59df35552f46d3ffc50ea2c4269dac139da2a581228cb3601bfe");
                             assert ee != null;
                             ee.setHelmet(head);
-                            chest.addEnchantment(Enchantment.PROTECTION, 4);
+                            chest.addEnchantment(CompatibilityResolver.resolveEnchantment("PROTECTION","PROTECTION_ENVIRONMENTAL"), 4);
                             ee.setChestplate(chest);
-                            pants.addEnchantment(Enchantment.PROTECTION, 4);
+                            pants.addEnchantment(CompatibilityResolver.resolveEnchantment("PROTECTION","PROTECTION_ENVIRONMENTAL"), 4);
                             ee.setLeggings(pants);
-                            boots.addEnchantment(Enchantment.PROTECTION, 4);
+                            boots.addEnchantment(CompatibilityResolver.resolveEnchantment("PROTECTION","PROTECTION_ENVIRONMENTAL"), 4);
                             ee.setBoots(boots);
                             ee.setItemInMainHand(hand);
                         }
@@ -1727,33 +1736,33 @@ public class BossLand extends JavaPlugin implements Listener {
                             dye(s, Color.BLACK);
                         if (phase == 2) {
                             minion.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 999 * 999, 2));
-                            minion.addPotionEffect(new PotionEffect(PotionEffectType.STRENGTH, 999 * 999, 2));
+                            minion.addPotionEffect(new PotionEffect(CompatibilityResolver.resolvePotionEffect("INCREASE_DAMAGE","STRENGTH"), 999 * 999, 2));
                             ItemStack head = getSkull(
                                     "http://textures.minecraft.net/texture/d48935509b5dee1e0daa28f51a3cc741b2b2e18b4efa1aab5883a5378623");
                             ee.setHelmet(head);
                         } else if (phase == 3) {
                             ItemStack head = getSkull(
                                     "http://textures.minecraft.net/texture/badfc62ff19950a9afd6c23291d0b25e19c74eb922c184e5edd3255f3fad9565");
-                            minion.addPotionEffect(new PotionEffect(PotionEffectType.STRENGTH, 999 * 999, 5));
+                            minion.addPotionEffect(new PotionEffect(CompatibilityResolver.resolvePotionEffect("INCREASE_DAMAGE","STRENGTH"), 999 * 999, 5));
                             ee.setHelmet(head);
-                            chest.addUnsafeEnchantment(Enchantment.PROTECTION, 5);
+                            chest.addUnsafeEnchantment(CompatibilityResolver.resolveEnchantment("PROTECTION","PROTECTION_ENVIRONMENTAL"), 5);
                             ee.setChestplate(chest);
-                            pants.addUnsafeEnchantment(Enchantment.PROTECTION, 5);
+                            pants.addUnsafeEnchantment(CompatibilityResolver.resolveEnchantment("PROTECTION","PROTECTION_ENVIRONMENTAL"), 5);
                             ee.setLeggings(pants);
-                            boots.addUnsafeEnchantment(Enchantment.PROTECTION, 5);
+                            boots.addUnsafeEnchantment(CompatibilityResolver.resolveEnchantment("PROTECTION","PROTECTION_ENVIRONMENTAL"), 5);
                             ee.setBoots(boots);
                             ItemStack hand = new ItemStack(Material.STONE_SWORD);
                             ee.setItemInMainHand(hand);
                         } else if (phase == 4) {
                             ItemStack head = getSkull(
                                     "http://textures.minecraft.net/texture/463a23a813b3d57d8964a859a7fb97ed5818279b708572d178e98252bd2b7f3d");
-                            minion.addPotionEffect(new PotionEffect(PotionEffectType.STRENGTH, 999 * 999, 6));
+                            minion.addPotionEffect(new PotionEffect(CompatibilityResolver.resolvePotionEffect("INCREASE_DAMAGE","STRENGTH"), 999 * 999, 6));
                             ee.setHelmet(head);
-                            chest.addUnsafeEnchantment(Enchantment.PROTECTION, 7);
+                            chest.addUnsafeEnchantment(CompatibilityResolver.resolveEnchantment("PROTECTION","PROTECTION_ENVIRONMENTAL"), 7);
                             ee.setChestplate(chest);
-                            pants.addUnsafeEnchantment(Enchantment.PROTECTION, 7);
+                            pants.addUnsafeEnchantment(CompatibilityResolver.resolveEnchantment("PROTECTION","PROTECTION_ENVIRONMENTAL"), 7);
                             ee.setLeggings(pants);
-                            boots.addUnsafeEnchantment(Enchantment.PROTECTION, 7);
+                            boots.addUnsafeEnchantment(CompatibilityResolver.resolveEnchantment("PROTECTION","PROTECTION_ENVIRONMENTAL"), 7);
                             ee.setBoots(boots);
                             ItemStack hand = new ItemStack(Material.GOLDEN_SWORD);
                             ee.setItemInMainHand(hand);
@@ -1774,21 +1783,21 @@ public class BossLand extends JavaPlugin implements Listener {
                         ItemStack hand = new ItemStack(Material.BOW);
                         if (phase == 2) {
                             minion.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 999 * 999, 1));
-                            minion.addPotionEffect(new PotionEffect(PotionEffectType.STRENGTH, 999 * 999, 2));
+                            minion.addPotionEffect(new PotionEffect(CompatibilityResolver.resolvePotionEffect("INCREASE_DAMAGE","STRENGTH"), 999 * 999, 2));
                         } else if (phase == 3) {
                             // ItemStack head = getHead("b182e3c7-1560-4573-abda-4e4b91b806e5","Sky Knight
                             // Head");//"Ryse93_YT"
                             ItemStack head = getSkull(
                                     "http://textures.minecraft.net/texture/1ab2d069a0027cda3341b5e8549ab6b214ecbc6080e1f779e7434a8e6fa253c1");
-                            minion.addPotionEffect(new PotionEffect(PotionEffectType.STRENGTH, 999 * 999, 4));
+                            minion.addPotionEffect(new PotionEffect(CompatibilityResolver.resolvePotionEffect("INCREASE_DAMAGE","STRENGTH"), 999 * 999, 4));
                             ee.setHelmet(head);
-                            chest.addUnsafeEnchantment(Enchantment.PROTECTION, 5);
+                            chest.addUnsafeEnchantment(CompatibilityResolver.resolveEnchantment("PROTECTION","PROTECTION_ENVIRONMENTAL"), 5);
                             ee.setChestplate(chest);
-                            pants.addUnsafeEnchantment(Enchantment.PROTECTION, 5);
+                            pants.addUnsafeEnchantment(CompatibilityResolver.resolveEnchantment("PROTECTION","PROTECTION_ENVIRONMENTAL"), 5);
                             ee.setLeggings(pants);
-                            boots.addUnsafeEnchantment(Enchantment.PROTECTION, 5);
+                            boots.addUnsafeEnchantment(CompatibilityResolver.resolveEnchantment("PROTECTION","PROTECTION_ENVIRONMENTAL"), 5);
                             ee.setBoots(boots);
-                            hand.addUnsafeEnchantment(Enchantment.POWER, 5);
+                            hand.addUnsafeEnchantment(CompatibilityResolver.resolveEnchantment("ARROW_DAMAGE","POWER"), 5);
                             ee.setItemInMainHand(hand);
                             makeTrail(minion, getConfig().getString("bosses." + bossType + ".minionAuraParticle"));
                             levitate(minion, true);
@@ -1796,20 +1805,20 @@ public class BossLand extends JavaPlugin implements Listener {
                         } else if (phase == 4) {
                             ItemStack head = getSkull(
                                     "http://textures.minecraft.net/texture/a3c38235da73e12c5339ead444db8122dd63f9e8ea6a6329419cf160d3");
-                            minion.addPotionEffect(new PotionEffect(PotionEffectType.STRENGTH, 999 * 999, 5));
+                            minion.addPotionEffect(new PotionEffect(CompatibilityResolver.resolvePotionEffect("INCREASE_DAMAGE","STRENGTH"), 999 * 999, 5));
                             ee.setHelmet(head);
-                            chest.addUnsafeEnchantment(Enchantment.PROTECTION, 7);
+                            chest.addUnsafeEnchantment(CompatibilityResolver.resolveEnchantment("PROTECTION","PROTECTION_ENVIRONMENTAL"), 7);
                             ee.setChestplate(chest);
-                            pants.addUnsafeEnchantment(Enchantment.PROTECTION, 7);
+                            pants.addUnsafeEnchantment(CompatibilityResolver.resolveEnchantment("PROTECTION","PROTECTION_ENVIRONMENTAL"), 7);
                             ee.setLeggings(pants);
-                            boots.addUnsafeEnchantment(Enchantment.PROTECTION, 7);
+                            boots.addUnsafeEnchantment(CompatibilityResolver.resolveEnchantment("PROTECTION","PROTECTION_ENVIRONMENTAL"), 7);
                             ee.setBoots(boots);
-                            hand.addUnsafeEnchantment(Enchantment.POWER, 7);
+                            hand.addUnsafeEnchantment(CompatibilityResolver.resolveEnchantment("ARROW_DAMAGE","POWER"), 7);
                             ee.setItemInMainHand(hand);
                             makeTrail(minion, getConfig().getString("bosses." + bossType + ".minionAuraParticle"));
                         } else {
-                            minion.addPotionEffect(new PotionEffect(PotionEffectType.STRENGTH, 999 * 999, 4));
-                            minion.addPotionEffect(new PotionEffect(PotionEffectType.RESISTANCE, 999 * 999, 4));
+                            minion.addPotionEffect(new PotionEffect(CompatibilityResolver.resolvePotionEffect("INCREASE_DAMAGE","STRENGTH"), 999 * 999, 4));
+                            minion.addPotionEffect(new PotionEffect(CompatibilityResolver.resolvePotionEffect("DAMAGE_RESISTANCE","RESISTANCE"), 999 * 999, 4));
                             noFireList.add(minion.getUniqueId());
                         }
                     }
@@ -1825,24 +1834,24 @@ public class BossLand extends JavaPlugin implements Listener {
                             dye(s, Color.BLACK);
                         if (phase == 2) {
                             minion.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 999 * 999, 1));
-                            minion.addPotionEffect(new PotionEffect(PotionEffectType.STRENGTH, 999 * 999, 2));
-                            minion.addPotionEffect(new PotionEffect(PotionEffectType.RESISTANCE, 999 * 999, 2));
+                            minion.addPotionEffect(new PotionEffect(CompatibilityResolver.resolvePotionEffect("INCREASE_DAMAGE","STRENGTH"), 999 * 999, 2));
+                            minion.addPotionEffect(new PotionEffect(CompatibilityResolver.resolvePotionEffect("DAMAGE_RESISTANCE","RESISTANCE"), 999 * 999, 2));
                             ItemStack head = getSkull(
                                     "http://textures.minecraft.net/texture/7e4359dca2542729753661b44b79bcd25775d8432c72745547cf4c5af58e3a");
                             ee.setHelmet(head);
                             ItemStack hand = new ItemStack(Material.IRON_AXE);
                             hand.addUnsafeEnchantment(Enchantment.FIRE_ASPECT, 5);
-                            hand.addUnsafeEnchantment(Enchantment.SHARPNESS, 5);
+                            hand.addUnsafeEnchantment(CompatibilityResolver.resolveEnchantment("DAMAGE_ALL","SHARPNESS"), 5);
                             ee.setItemInMainHand(hand);
                         } else if (phase == 3) {
                             ItemStack head = getSkull(
                                     "http://textures.minecraft.net/texture/74fe948a6f7f81d9b7df6c7a7dcf66da6133f184b64f5c7068d0189a212a8b61");
-                            minion.addPotionEffect(new PotionEffect(PotionEffectType.STRENGTH, 999 * 999, 3));
-                            minion.addPotionEffect(new PotionEffect(PotionEffectType.RESISTANCE, 999 * 999, 3));
+                            minion.addPotionEffect(new PotionEffect(CompatibilityResolver.resolvePotionEffect("INCREASE_DAMAGE","STRENGTH"), 999 * 999, 3));
+                            minion.addPotionEffect(new PotionEffect(CompatibilityResolver.resolvePotionEffect("DAMAGE_RESISTANCE","RESISTANCE"), 999 * 999, 3));
                             ee.setHelmet(head);
                             ItemStack hand = new ItemStack(Material.BOW);
-                            hand.addUnsafeEnchantment(Enchantment.FLAME, 5);
-                            hand.addUnsafeEnchantment(Enchantment.POWER, 5);
+                            hand.addUnsafeEnchantment(CompatibilityResolver.resolveEnchantment("ARROW_FIRE","FLAME"), 5);
+                            hand.addUnsafeEnchantment(CompatibilityResolver.resolveEnchantment("ARROW_DAMAGE","POWER"), 5);
                             ee.setItemInMainHand(hand);
                             ee.setChestplate(chest);
                             ee.setLeggings(pants);
@@ -1851,12 +1860,12 @@ public class BossLand extends JavaPlugin implements Listener {
                             ItemStack head = getSkull(
                                     "http://textures.minecraft.net/texture/74fe948a6f7f81d9b7df6c7a7dcf66da6133f184b64f5c7068d0189a212a8b61");
                             minion.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 999 * 999, 2));
-                            minion.addPotionEffect(new PotionEffect(PotionEffectType.STRENGTH, 999 * 999, 4));
-                            minion.addPotionEffect(new PotionEffect(PotionEffectType.RESISTANCE, 999 * 999, 4));
+                            minion.addPotionEffect(new PotionEffect(CompatibilityResolver.resolvePotionEffect("INCREASE_DAMAGE","STRENGTH"), 999 * 999, 4));
+                            minion.addPotionEffect(new PotionEffect(CompatibilityResolver.resolvePotionEffect("DAMAGE_RESISTANCE","RESISTANCE"), 999 * 999, 4));
                             ee.setHelmet(head);
                             ItemStack hand = new ItemStack(Material.BOW);
-                            hand.addUnsafeEnchantment(Enchantment.FLAME, 8);
-                            hand.addUnsafeEnchantment(Enchantment.POWER, 8);
+                            hand.addUnsafeEnchantment(CompatibilityResolver.resolveEnchantment("ARROW_FIRE","FLAME"), 8);
+                            hand.addUnsafeEnchantment(CompatibilityResolver.resolveEnchantment("ARROW_DAMAGE","POWER"), 8);
                             ee.setItemInMainHand(hand);
                             ee.setChestplate(chest);
                             ee.setLeggings(pants);
@@ -1877,21 +1886,21 @@ public class BossLand extends JavaPlugin implements Listener {
                         ItemStack boots = new ItemStack(Material.LEATHER_BOOTS, 1);
                         if (phase == 2) {
                             minion.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 999 * 999, 1));
-                            minion.addPotionEffect(new PotionEffect(PotionEffectType.STRENGTH, 999 * 999, 2));
-                            minion.addPotionEffect(new PotionEffect(PotionEffectType.RESISTANCE, 999 * 999, 3));
+                            minion.addPotionEffect(new PotionEffect(CompatibilityResolver.resolvePotionEffect("INCREASE_DAMAGE","STRENGTH"), 999 * 999, 2));
+                            minion.addPotionEffect(new PotionEffect(CompatibilityResolver.resolvePotionEffect("DAMAGE_RESISTANCE","RESISTANCE"), 999 * 999, 3));
                             equipMob(minion, "IRON");
                             ItemStack head = getSkull(
                                     "http://textures.minecraft.net/texture/883fea591637eff42d7f62b30adb6f1fbce63641750de8b9dd933fbb26f5ae6");
                             ee.setHelmet(head);
                             ItemStack hand = new ItemStack(Material.IRON_SWORD);
                             hand.addUnsafeEnchantment(Enchantment.FIRE_ASPECT, 6);
-                            hand.addUnsafeEnchantment(Enchantment.SHARPNESS, 6);
+                            hand.addUnsafeEnchantment(CompatibilityResolver.resolveEnchantment("DAMAGE_ALL","SHARPNESS"), 6);
                             ee.setItemInMainHand(hand);
                         } else if (phase == 3) {
                             ItemStack head = getSkull(
                                     "http://textures.minecraft.net/texture/ccb94263f712d902dd136251fd4d8d005890c657ab5ee490ccc9bf6ec09b8f57");
-                            minion.addPotionEffect(new PotionEffect(PotionEffectType.STRENGTH, 999 * 999, 3));
-                            minion.addPotionEffect(new PotionEffect(PotionEffectType.RESISTANCE, 999 * 999, 3));
+                            minion.addPotionEffect(new PotionEffect(CompatibilityResolver.resolvePotionEffect("INCREASE_DAMAGE","STRENGTH"), 999 * 999, 3));
+                            minion.addPotionEffect(new PotionEffect(CompatibilityResolver.resolvePotionEffect("DAMAGE_RESISTANCE","RESISTANCE"), 999 * 999, 3));
                             minion.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, 999 * 999, 3));
                             ee.setHelmet(head);
                             dye(chest, Color.MAROON);
@@ -1904,7 +1913,7 @@ public class BossLand extends JavaPlugin implements Listener {
                             ItemStack head = getSkull(
                                     "http://textures.minecraft.net/texture/e00cd37a4ebcbb28cb85d75bbde7b7aad5a0f42bf4842f8da77dffdea18c1356");
                             ItemStack hand = new ItemStack(Material.DIAMOND_AXE);
-                            hand.addUnsafeEnchantment(Enchantment.SHARPNESS, 10);
+                            hand.addUnsafeEnchantment(CompatibilityResolver.resolveEnchantment("DAMAGE_ALL","SHARPNESS"), 10);
                             hand.addUnsafeEnchantment(Enchantment.KNOCKBACK, 3);
                             hand.addUnsafeEnchantment(Enchantment.FIRE_ASPECT, 10);
                             ee.setHelmet(head);
@@ -1913,8 +1922,8 @@ public class BossLand extends JavaPlugin implements Listener {
                             ee.setBoots(boots);
                             ee.setItemInMainHand(hand);
                             minion.addPotionEffect(new PotionEffect(PotionEffectType.FIRE_RESISTANCE, 999 * 999, 1));
-                            minion.addPotionEffect(new PotionEffect(PotionEffectType.STRENGTH, 999 * 999, 5));
-                            Objects.requireNonNull(minion.getAttribute(Attribute.MAX_HEALTH)).setBaseValue(200);
+                            minion.addPotionEffect(new PotionEffect(CompatibilityResolver.resolvePotionEffect("INCREASE_DAMAGE","STRENGTH"), 999 * 999, 5));
+                            Objects.requireNonNull(minion.getAttribute(CompatibilityResolver.resolveAttribute("MAX_HEALTH", "GENERIC_MAX_HEALTH"))).setBaseValue(200);
                             minion.setHealth(200);
                             makeTrail(minion, getConfig().getString("bosses." + bossType + ".minionAuraParticle"));
                             autoBalls(minion, "Devil");
@@ -1937,11 +1946,11 @@ public class BossLand extends JavaPlugin implements Listener {
                         ItemStack chest = new ItemStack(Material.LEATHER_CHESTPLATE, 1);
                         if (phase == 2) {
                             minion.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 999 * 999, 2));
-                            minion.addPotionEffect(new PotionEffect(PotionEffectType.RESISTANCE, 999 * 999, 2));
+                            minion.addPotionEffect(new PotionEffect(CompatibilityResolver.resolvePotionEffect("DAMAGE_RESISTANCE","RESISTANCE"), 999 * 999, 2));
                         } else if (phase == 3) {
                             ItemStack head = getSkull(
                                     "http://textures.minecraft.net/texture/4e7a68d1d52b71af013b88c8be5028ff273a209e622f505e472c6b3d9d0e9059");
-                            minion.addPotionEffect(new PotionEffect(PotionEffectType.RESISTANCE, 999 * 999, 3));
+                            minion.addPotionEffect(new PotionEffect(CompatibilityResolver.resolvePotionEffect("DAMAGE_RESISTANCE","RESISTANCE"), 999 * 999, 3));
                             minion.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, 999 * 999, 3));
                             ee.setHelmet(head);
                             dye(chest, Color.fromRGB(51, 0, 51));
@@ -1953,10 +1962,10 @@ public class BossLand extends JavaPlugin implements Listener {
                         } else if (phase == 4) {
                             ItemStack head = getSkull(
                                     "http://textures.minecraft.net/texture/a459ee21aff7ed216b04bd6c486dd807d9edc99e0724ef4f4d2c4cee1a092296");
-                            minion.addPotionEffect(new PotionEffect(PotionEffectType.STRENGTH, 999 * 999, 5));
+                            minion.addPotionEffect(new PotionEffect(CompatibilityResolver.resolvePotionEffect("INCREASE_DAMAGE","STRENGTH"), 999 * 999, 5));
                             minion.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, 999 * 999, 3));
                             ee.setHelmet(head);
-                            chest.addUnsafeEnchantment(Enchantment.PROTECTION, 10);
+                            chest.addUnsafeEnchantment(CompatibilityResolver.resolveEnchantment("PROTECTION","PROTECTION_ENVIRONMENTAL"), 10);
                             dye(chest, Color.fromRGB(127, 0, 255));
                             ee.setChestplate(chest);
                             makeTrail(minion, getConfig().getString("bosses." + bossType + ".minionAuraParticle"));
@@ -1964,14 +1973,14 @@ public class BossLand extends JavaPlugin implements Listener {
                             target(minion, 0.4);
                             autoBalls(minion, "Death");
                         } else {
-                            minion.addPotionEffect(new PotionEffect(PotionEffectType.STRENGTH, 999 * 999, 9));
-                            minion.addPotionEffect(new PotionEffect(PotionEffectType.RESISTANCE, 999 * 999, 3));
+                            minion.addPotionEffect(new PotionEffect(CompatibilityResolver.resolvePotionEffect("INCREASE_DAMAGE","STRENGTH"), 999 * 999, 9));
+                            minion.addPotionEffect(new PotionEffect(CompatibilityResolver.resolvePotionEffect("DAMAGE_RESISTANCE","RESISTANCE"), 999 * 999, 3));
                         }
                     }
                     case "Anger" -> {
                         // Make Baby
                         if (minion instanceof Zombie)
-                            ((Zombie) minion).setBaby();
+                            CompatibilityResolver.resolveSetBaby((Zombie) minion);
                         // Equipment
                         EntityEquipment ee = minion.getEquipment();
                         assert ee != null;
@@ -1992,9 +2001,9 @@ public class BossLand extends JavaPlugin implements Listener {
                                     "http://textures.minecraft.net/texture/ef4fcdff157a36d32061cb7dd0b69f7f7885fd3ddf99de471b67a84cc8677cb3");
                             // minion.addPotionEffect(new
                             // PotionEffect(PotionEffectType.INCREASE_DAMAGE,999*999,4));
-                            // chest.addUnsafeEnchantment(Enchantment.PROTECTION_ENVIRONMENTAL, 5);
-                            // pants.addUnsafeEnchantment(Enchantment.PROTECTION_ENVIRONMENTAL, 5);
-                            // boots.addUnsafeEnchantment(Enchantment.PROTECTION_ENVIRONMENTAL, 5);
+                            // chest.addUnsafeEnchantment(CompatibilityResolver.resolveEnchantment("PROTECTION","PROTECTION_ENVIRONMENTAL")_ENVIRONMENTAL, 5);
+                            // pants.addUnsafeEnchantment(CompatibilityResolver.resolveEnchantment("PROTECTION","PROTECTION_ENVIRONMENTAL")_ENVIRONMENTAL, 5);
+                            // boots.addUnsafeEnchantment(CompatibilityResolver.resolveEnchantment("PROTECTION","PROTECTION_ENVIRONMENTAL")_ENVIRONMENTAL, 5);
                             // hand.addUnsafeEnchantment(Enchantment.ARROW_DAMAGE, 5);
                             // ee.setItemInMainHand(hand);
                             // makeTrail(minion,getConfig().getString("bosses."+bossType+".minionAuraParticle"));
@@ -2003,16 +2012,16 @@ public class BossLand extends JavaPlugin implements Listener {
                         } else {
                             head = getSkull(
                                     "http://textures.minecraft.net/texture/d013ce27c241682a2361714a41bbe58fb671d00e5ea95cdc277bb53be9bef81c");
-                            minion.addPotionEffect(new PotionEffect(PotionEffectType.STRENGTH, 999 * 999, 3));
+                            minion.addPotionEffect(new PotionEffect(CompatibilityResolver.resolvePotionEffect("INCREASE_DAMAGE","STRENGTH"), 999 * 999, 3));
                             minion.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 999 * 999, 1));
                             minion.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, 999 * 999, 1));
                             Color c = Color.fromRGB(255, 80, 0);
                             dye(chest, c);
                             dye(pants, c);
                             dye(boots, c);
-                            // chest.addUnsafeEnchantment(Enchantment.PROTECTION_ENVIRONMENTAL, 7);
-                            // pants.addUnsafeEnchantment(Enchantment.PROTECTION_ENVIRONMENTAL, 7);
-                            // boots.addUnsafeEnchantment(Enchantment.PROTECTION_ENVIRONMENTAL, 7);
+                            // chest.addUnsafeEnchantment(CompatibilityResolver.resolveEnchantment("PROTECTION","PROTECTION_ENVIRONMENTAL")_ENVIRONMENTAL, 7);
+                            // pants.addUnsafeEnchantment(CompatibilityResolver.resolveEnchantment("PROTECTION","PROTECTION_ENVIRONMENTAL")_ENVIRONMENTAL, 7);
+                            // boots.addUnsafeEnchantment(CompatibilityResolver.resolveEnchantment("PROTECTION","PROTECTION_ENVIRONMENTAL")_ENVIRONMENTAL, 7);
                             // hand.addUnsafeEnchantment(Enchantment.ARROW_DAMAGE, 7);
                             // ee.setItemInMainHand(hand);
                             // makeTrail(minion,getConfig().getString("bosses."+bossType+".minionAuraParticle"));
@@ -2076,38 +2085,14 @@ public class BossLand extends JavaPlugin implements Listener {
     }
 
     public ItemStack getSkull(String url) {
-        ItemStack head = new ItemStack(Material.PLAYER_HEAD);
-        if (url.isEmpty())
-            return head;
-
-        SkullMeta headMeta = (SkullMeta) head.getItemMeta();
-
-        try {
-            // Create a player profile with random UUID
-            PlayerProfile profile = Bukkit.createPlayerProfile(UUID.randomUUID(), null);
-            PlayerTextures textures = profile.getTextures();
-
-            // Set the skin URL
-            textures.setSkin(new URL(url));
-            profile.setTextures(textures);
-
-            // Apply the profile to the skull
-            assert headMeta != null;
-            headMeta.setOwnerProfile(profile);
-            head.setItemMeta(headMeta);
-
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        }
-
-        return head;
+        return SkullCreator.getSkull(url);
     }
 
     private void spawnMinions(LivingEntity ent, String bossType, int distance, boolean mount) {
         // Get Type
         EntityType mt;
         EntityType mountType = null;
-        double maxHealth = Objects.requireNonNull(ent.getAttribute(Attribute.MAX_HEALTH)).getBaseValue();
+        double maxHealth = Objects.requireNonNull(ent.getAttribute(CompatibilityResolver.resolveAttribute("MAX_HEALTH", "GENERIC_MAX_HEALTH"))).getBaseValue();
         if (getConfig().getString("bosses." + bossType + ".minion3") != null
                 && (ent.getHealth() <= ((maxHealth / 3)))) {
             mt = EntityType.valueOf(getConfig().getString("bosses." + bossType + ".minion3"));
@@ -2147,11 +2132,11 @@ public class BossLand extends JavaPlugin implements Listener {
                 } else if (minion.getType().equals(EntityType.RABBIT) && bossType.equals("KillerBunny")) {
                     ((Rabbit) minion).setRabbitType(Type.THE_KILLER_BUNNY);
                 } else if (minion.getType().equals(EntityType.ZOMBIE) && bossType.equals("ZombieKing")) {
-                    ((Zombie) minion).setBaby();
+                    CompatibilityResolver.resolveSetBaby(((Zombie) minion));
                     ItemStack helm = new ItemStack(Material.CHAINMAIL_HELMET, 1);
                     ItemStack chest = new ItemStack(Material.CHAINMAIL_CHESTPLATE, 1);
                     ItemStack sword = new ItemStack(Material.IRON_SWORD, 1);
-                    sword.addUnsafeEnchantment(Enchantment.SHARPNESS, 4);
+                    sword.addUnsafeEnchantment(CompatibilityResolver.resolveEnchantment("DAMAGE_ALL","SHARPNESS"), 4);
                     EntityEquipment ee = ((LivingEntity) minion).getEquipment();
                     assert ee != null;
                     ee.setHelmetDropChance(0.0F);
@@ -2169,7 +2154,7 @@ public class BossLand extends JavaPlugin implements Listener {
                     ItemStack leggings = new ItemStack(Material.IRON_LEGGINGS, 1);
                     ItemStack boots = new ItemStack(Material.IRON_BOOTS, 1);
                     ItemStack sword = new ItemStack(Material.IRON_SWORD, 1);
-                    sword.addUnsafeEnchantment(Enchantment.SHARPNESS, 5);
+                    sword.addUnsafeEnchantment(CompatibilityResolver.resolveEnchantment("DAMAGE_ALL","SHARPNESS"), 5);
                     EntityEquipment ee = ((LivingEntity) minion).getEquipment();
                     assert ee != null;
                     ee.setHelmetDropChance(0.0F);
@@ -2275,7 +2260,7 @@ public class BossLand extends JavaPlugin implements Listener {
             if (s != null)
                 try {
                     if (Objects.requireNonNull(s.getItemMeta()).getDisplayName().equals(getBossItemName("AetherGod", 1))) {
-                        String[] sp = Objects.requireNonNull(s.getItemMeta().getLore()).getFirst().split(": ");
+                        String[] sp = Objects.requireNonNull(s.getItemMeta().getLore()).get(0).split(": ");
                         return sp[1].trim();
                     }
                 } catch (Exception x) {
@@ -3213,7 +3198,7 @@ public class BossLand extends JavaPlugin implements Listener {
         try {
             BossBar bar = bossMap.get(e);
             float health = (float) ((Damageable) e).getHealth();
-            float maxHealth = (float) ((LivingEntity) e).getAttribute(Attribute.MAX_HEALTH).getBaseValue();
+            float maxHealth = (float) ((LivingEntity) e).getAttribute(CompatibilityResolver.resolveAttribute("MAX_HEALTH", "GENERIC_MAX_HEALTH")).getBaseValue();
             float setHealth = (health * 100.0f) / maxHealth;
             bar.setProgress(setHealth / 100.0f);
         } catch (Exception x) {
@@ -3257,7 +3242,7 @@ public class BossLand extends JavaPlugin implements Listener {
             } else if (boss instanceof Rabbit) {
                 ((Rabbit) boss).setRabbitType(Type.THE_KILLER_BUNNY);
                 ((Rabbit) boss).addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 999 * 999, 1));
-                ((Rabbit) boss).addPotionEffect(new PotionEffect(PotionEffectType.JUMP_BOOST, 999 * 999, 1));
+                ((Rabbit) boss).addPotionEffect(new PotionEffect(CompatibilityResolver.resolvePotionEffect("JUMP_BOOST","JUMP"), 999 * 999, 1));
                 ((Rabbit) boss).addPotionEffect(new PotionEffect(PotionEffectType.FIRE_RESISTANCE, 999 * 999, 1));
                 // ((Rabbit)boss).setFireTicks(999*999);
                 // ((Rabbit) boss).setCustomName(null);
@@ -3291,13 +3276,13 @@ public class BossLand extends JavaPlugin implements Listener {
                         "http://textures.minecraft.net/texture/51182cf65d180ecf08fab2311abed0cfcee960e6df5a3ba528f7ea47cc41f0a2");
                 ItemStack hand = new ItemStack(Material.BLAZE_ROD);
                 hand.addUnsafeEnchantment(Enchantment.KNOCKBACK, 5);
-                hand.addUnsafeEnchantment(Enchantment.SHARPNESS, 10);
+                hand.addUnsafeEnchantment(CompatibilityResolver.resolveEnchantment("DAMAGE_ALL","SHARPNESS"), 10);
                 EntityEquipment ee = ((LivingEntity) boss).getEquipment();
                 ee.setItemInMainHandDropChance(0.0F);
                 ee.setHelmet(head);
                 ee.setItemInMainHand(hand);
-                ((LivingEntity) boss).addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, 999 * 999, 1));
-                ((LivingEntity) boss).addPotionEffect(new PotionEffect(PotionEffectType.RESISTANCE, 999 * 999, 2));
+                ((LivingEntity) boss).addPotionEffect(new PotionEffect(CompatibilityResolver.resolvePotionEffect("SLOW","SLOWNESS"), 999 * 999, 1));
+                ((LivingEntity) boss).addPotionEffect(new PotionEffect(CompatibilityResolver.resolvePotionEffect("DAMAGE_RESISTANCE","RESISTANCE"), 999 * 999, 2));
             } else if (bossType.equals("AetherGod")) {
                 // System.out.println("Aether God 1");
                 equipMob(boss, "DIAMOND");
@@ -3306,9 +3291,9 @@ public class BossLand extends JavaPlugin implements Listener {
                 ItemStack head = getSkull(
                         "http://textures.minecraft.net/texture/6545210b810f3d2db27c87f443a5fb812bb85d14d1922d08f50a2ebb1b248788");
                 ItemStack hand = new ItemStack(Material.BOW);
-                hand.addUnsafeEnchantment(Enchantment.POWER, 10);
-                hand.addUnsafeEnchantment(Enchantment.PUNCH, 3);
-                hand.addUnsafeEnchantment(Enchantment.FLAME, 3);
+                hand.addUnsafeEnchantment(CompatibilityResolver.resolveEnchantment("ARROW_DAMAGE","POWER"), 10);
+                hand.addUnsafeEnchantment(CompatibilityResolver.resolveEnchantment("ARROW_KNOCKBACK","PUNCH"), 3);
+                hand.addUnsafeEnchantment(CompatibilityResolver.resolveEnchantment("ARROW_FIRE","FLAME"), 3);
                 EntityEquipment ee = ((LivingEntity) boss).getEquipment();
                 ee.setItemInMainHandDropChance(0.0F);
                 ee.setHelmet(head);
@@ -3325,7 +3310,7 @@ public class BossLand extends JavaPlugin implements Listener {
                 ItemStack head = getSkull(
                         "http://textures.minecraft.net/texture/e00cd37a4ebcbb28cb85d75bbde7b7aad5a0f42bf4842f8da77dffdea18c1356");
                 ItemStack hand = new ItemStack(Material.IRON_HOE);
-                hand.addUnsafeEnchantment(Enchantment.SHARPNESS, 10);
+                hand.addUnsafeEnchantment(CompatibilityResolver.resolveEnchantment("DAMAGE_ALL","SHARPNESS"), 10);
                 hand.addUnsafeEnchantment(Enchantment.KNOCKBACK, 3);
                 hand.addUnsafeEnchantment(Enchantment.FIRE_ASPECT, 10);
                 EntityEquipment ee = ((LivingEntity) boss).getEquipment();
@@ -3337,7 +3322,7 @@ public class BossLand extends JavaPlugin implements Listener {
                 ee.setBoots(boots);
                 ee.setItemInMainHand(hand);
                 ((LivingEntity) boss).addPotionEffect(new PotionEffect(PotionEffectType.FIRE_RESISTANCE, 999 * 999, 1));
-                ((LivingEntity) boss).addPotionEffect(new PotionEffect(PotionEffectType.STRENGTH, 999 * 999, 5));
+                ((LivingEntity) boss).addPotionEffect(new PotionEffect(CompatibilityResolver.resolvePotionEffect("INCREASE_DAMAGE","STRENGTH"), 999 * 999, 5));
             } else if (bossType.equals("Devil")) {
                 ((PigZombie) boss).setAngry(true);
                 ((PigZombie) boss).setAnger(999 * 999);
@@ -3345,7 +3330,7 @@ public class BossLand extends JavaPlugin implements Listener {
                 ItemStack head = getSkull(
                         "http://textures.minecraft.net/texture/9da39269ef45f825ec61bb4f8aa09bd3cf07996fb6fac338a6e91d6699ae425");
                 ItemStack hand = new ItemStack(Material.ENCHANTED_BOOK);
-                hand.addUnsafeEnchantment(Enchantment.SHARPNESS, 999);
+                hand.addUnsafeEnchantment(CompatibilityResolver.resolveEnchantment("DAMAGE_ALL","SHARPNESS"), 999);
                 EntityEquipment ee = ((LivingEntity) boss).getEquipment();
                 ee.setItemInMainHandDropChance(0.0F);
                 ee.setHelmet(head);
@@ -3361,7 +3346,7 @@ public class BossLand extends JavaPlugin implements Listener {
                 ItemStack head = getSkull(
                         "http://textures.minecraft.net/texture/69e2f33eb180f0434916dc5d2bb326a6ea22fc9bbf988bc31a241fd4278023");
                 ItemStack hand = new ItemStack(Material.IRON_HOE);
-                hand.addUnsafeEnchantment(Enchantment.SHARPNESS, 999);
+                hand.addUnsafeEnchantment(CompatibilityResolver.resolveEnchantment("DAMAGE_ALL","SHARPNESS"), 999);
                 EntityEquipment ee = ((LivingEntity) boss).getEquipment();
                 ee.setItemInMainHandDropChance(0.0F);
                 ee.setHelmet(head);
@@ -3378,14 +3363,14 @@ public class BossLand extends JavaPlugin implements Listener {
                         EntityType.valueOf(getConfig().getString("bosses." + bossType + ".mount").toUpperCase()));
                 mount.addPassenger(boss);
                 int h = getConfig().getInt("bosses." + bossType + ".health");
-                mount.getAttribute(Attribute.MAX_HEALTH).setBaseValue(h);
+                mount.getAttribute(CompatibilityResolver.resolveAttribute("MAX_HEALTH", "GENERIC_MAX_HEALTH")).setBaseValue(h);
                 mount.setHealth(h);
-                mount.addPotionEffect(new PotionEffect(PotionEffectType.RESISTANCE, 999 * 999, 10));
+                mount.addPotionEffect(new PotionEffect(CompatibilityResolver.resolvePotionEffect("DAMAGE_RESISTANCE","RESISTANCE"), 999 * 999, 10));
                 if (mount.getType().equals(EntityType.BAT)) {
                     mount.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, 999 * 999, 1));
                     mount.setInvulnerable(true);
                     if (bossType.equals("AetherGod"))
-                        mount.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, 999 * 999, 2));
+                        mount.addPotionEffect(new PotionEffect(CompatibilityResolver.resolvePotionEffect("SLOW","SLOWNESS"), 999 * 999, 2));
                 }
                 // mount.setPersistent(true);
             }
@@ -3463,7 +3448,7 @@ public class BossLand extends JavaPlugin implements Listener {
         ItemStack pants = new ItemStack(Material.valueOf(type + "_LEGGINGS"), 1);
         ItemStack boots = new ItemStack(Material.valueOf(type + "_BOOTS"), 1);
         ItemStack sword = new ItemStack(Material.valueOf(type + "_SWORD"), 1);
-        sword.addUnsafeEnchantment(Enchantment.SHARPNESS, 4);
+        sword.addUnsafeEnchantment(CompatibilityResolver.resolveEnchantment("DAMAGE_ALL","SHARPNESS"), 4);
         EntityEquipment ee = ((LivingEntity) mob).getEquipment();
         ee.setHelmetDropChance(0.0F);
         ee.setChestplateDropChance(0.0F);
@@ -3487,9 +3472,9 @@ public class BossLand extends JavaPlugin implements Listener {
         bar.setVisible(true);
         bossMap.put(ent, bar);
         int maxHP = getConfig().getInt("bosses." + bossType + ".health");
-        double maxHealth = ((LivingEntity) ent).getAttribute(Attribute.MAX_HEALTH).getBaseValue();
+        double maxHealth = ((LivingEntity) ent).getAttribute(CompatibilityResolver.resolveAttribute("MAX_HEALTH", "GENERIC_MAX_HEALTH")).getBaseValue();
         if (maxHealth != maxHP) {
-            ((LivingEntity) ent).getAttribute(Attribute.MAX_HEALTH).setBaseValue(maxHP);
+            ((LivingEntity) ent).getAttribute(CompatibilityResolver.resolveAttribute("MAX_HEALTH", "GENERIC_MAX_HEALTH")).setBaseValue(maxHP);
             ((Damageable) ent).setHealth(maxHP);
         }
         // Name
@@ -3590,6 +3575,9 @@ public class BossLand extends JavaPlugin implements Listener {
                 }
             }
         } while (s == null && i > 0);
+        if(s == null){
+            s = getItem(bossType, list.get(rand(1, list.size()) - 1));
+        }
         return s;
     }
 
@@ -3764,7 +3752,8 @@ public class BossLand extends JavaPlugin implements Listener {
                         || stack.getType().equals(Material.LINGERING_POTION)) {
                     PotionMeta pMeta = (PotionMeta) stack.getItemMeta();
                     String pn = getConfig().getString("bosses." + bossType + ".loot." + loot + ".potion");
-                    pMeta.setBasePotionType(PotionType.valueOf(pn));
+                    CompatibilityResolver.setBasePotion(pMeta,PotionType.valueOf(pn));
+//                    pMeta.setBasePotionType(PotionType.valueOf(pn));
                     stack.setItemMeta(pMeta);
                 }
             int enchAmount = 0;
@@ -3811,6 +3800,9 @@ public class BossLand extends JavaPlugin implements Listener {
                                     "bosses." + bossType + ".loot." + loot + ".enchantments." + j + ".level");
                             int level = getIntFromString(levelString);
                             NamespacedKey k = NamespacedKey.minecraft(enchantment.toLowerCase());
+                            if(Enchantment.getByKey(k) == null && enchantment.equals("sweeping")){
+                                k = NamespacedKey.minecraft(("sweeping_edge"));
+                            }
                             if (Enchantment.getByKey(k) != null) {
                                 // if (Enchantment.getByName(enchantment) != null) {
                                 if (level < 1) {
@@ -4328,7 +4320,8 @@ public class BossLand extends JavaPlugin implements Listener {
         if ((cmd.getName().equals("bossland")) || (cmd.getName().equals("bl"))) {
             try {
                 if (args[0].equals("guide")) {
-                    if (sender instanceof Player p) {
+                    if (sender instanceof Player) {
+                        Player p = (Player)sender;
                         YamlConfiguration config = YamlConfiguration.loadConfiguration(bookYML);
                         ItemStack guideBook = config.getItemStack("guidebook");
                         p.getInventory().addItem(guideBook);

@@ -60,6 +60,11 @@ public class BossLandTabCompleter implements TabCompleter {
             }
         }
 
+        if (args.length > 0) {
+            String currentArg = args[args.length - 1].toLowerCase();
+            suggestions.removeIf(s -> !s.toLowerCase().startsWith(currentArg));
+        }
+
         return suggestions;
     }
 }
