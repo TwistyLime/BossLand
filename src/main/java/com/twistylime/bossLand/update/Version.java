@@ -1,4 +1,4 @@
-package com.twistylime.bossLand;
+package com.twistylime.bossLand.update;
 
 import org.bukkit.Bukkit;
 

@@ -1,4 +1,4 @@
-package com.twistylime.bossLand;
+package com.twistylime.bossLand.utility;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;

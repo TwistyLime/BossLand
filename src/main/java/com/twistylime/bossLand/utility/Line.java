@@ -1,4 +1,4 @@
-package com.twistylime.bossLand;
+package com.twistylime.bossLand.utility;
 
 import java.util.Iterator;
 
