@@ -1,6 +1,6 @@
 guidebook:
   ==: org.bukkit.inventory.ItemStack
-  v: 4082
+  v: 2567
   type: WRITTEN_BOOK
   meta:
     ==: ItemMeta
@@ -8,207 +8,318 @@ guidebook:
     title: The Ultimate Guide to BossLand
     author: Zyczu55, plugin by Eliminator
     pages:
-    - '{"text":"","extra":[{"text":"Table of contents:","color":"black"},"\n",{"text":"0.
-      Introduction","color":"black"},"\n",{"text":"1. ","color":"black"},{"text":"Tier
-      1 Bosses","color":"black","bold":true},{"text":"\n 1.1 ","color":"black"},{"text":"Papa
-      Panda","italic":true,"color":"#A52A2A"},"\n",{"text":" 1.2 ","color":"black"},{"text":"Slime
-      King","italic":true,"color":"dark_green"},"\n",{"text":" 1.3 ","color":"black"},{"text":"Killer
-      Bunny","italic":true,"color":"dark_gray"},"\n",{"text":" 1.4 ","color":"black"},{"text":"Zombie
-      King","italic":true,"color":"dark_red"},"\n",{"text":" 1.5 ","color":"black"},{"text":"Ghast
-      Lord","italic":true,"color":"gray"},"\n",{"text":" 1.6 ","color":"black"},{"text":"Wither
-      Skeleton","italic":true,"color":"black"},"\n",{"text":"2.","color":"black"},{"text":"
-      Tier 2 Bosses","color":"black","bold":true},{"text":"\n 2.1 ","color":"black"},{"text":"Giant","italic":true,"color":"dark_green"},"\n",{"text":"
-      2.2 ","color":"black"},{"text":"Illager King","italic":true,"color":"gold"},"\n",{"text":"
-      2.3 ","color":"black"},{"text":"Evil Wizard","italic":true,"color":"dark_blue"},"\n",{"text":"
-      2.4 ","color":"black"},{"text":"Demon","italic":true,"color":"dark_red"}]}'
-    - '{"text":"","extra":[{"text":"Table of contents:\n3. ","color":"black"},{"text":"The
-      Gods","bold":true},"\n",{"text":" 3.1 ","color":"black"},{"text":"Aether God","italic":true,"color":"aqua"},"\n",{"text":"
-      3.2 ","color":"black"},{"text":"Pharaoh God","italic":true,"color":"#F6BE00"},"\n",{"text":"
-      3.3 ","color":"black"},{"text":"Drowned God","italic":true,"color":"dark_aqua"},"\n",{"text":"4.
-      ","color":"black"},{"text":"Immortal Bosses","color":"black","bold":true},"\n",{"text":"
-      4.1 ","color":"black"},{"text":"Devil","italic":true,"color":"dark_red","bold":true},"\n",{"text":"
-      4.2 ","color":"black"},{"text":"Death","italic":true,"color":"dark_purple","bold":true},"\n",{"text":"5.
-      Authors Last Words","color":"black"}]}'
-    - '{"text":"","extra":[{"text":"0. Introduction","color":"black"},"\n",{"text":"This
-      mod contains currently ","color":"black"},{"text":"15 bosses,","bold":true},{"text":"
-      4 tiers","bold":true},{"text":". ","color":"black"},"Tier 1 and 2 bosses drop
-      shards",{"text":" that are required for further progression.","color":"black"},"\n",{"text":"Only","bold":true},{"text":"
-      tier 3 and 4 use ","color":"black"},{"text":"eaten","bold":true},{"text":" summon
-      items.","color":"black"},"\nItems with special effects will be marked with \"",{"text":"፠","color":"light_purple"},{"text":"\"","color":"black"},{"text":"
-      symbol","color":"black"}]}'
-    - '{"text":"","extra":[{"text":"1. ","color":"black"},{"text":"Tier 1 Bosses","bold":true},"\n",{"text":"You
-      summon ","color":"black"},"Tier 1",{"text":" by building boss specific","color":"black"},"\n",{"text":"3x1x3","bold":true},{"text":"
-      structures and clicking with the right item on the middle block.","color":"black"},"\n",{"text":"They
-      drop ","color":"black"},"shards",{"text":" and some good items.","color":"black"},"\n",{"text":"Shards","bold":true},{"text":"
-      are used to summon next tier of bosses.","color":"black"}]}'
-    - '{"text":"","extra":[{"text":"1.1 ","color":"black"},{"text":"Papa Panda","italic":true,"color":"#A52A2A"},"\n",{"text":"Biome:
-      ","color":"black"},{"text":"Bamboo","color":"green"},"\n",{"text":"Items needed:\n-
-      Mossy Cobble > ","color":"black"},{"text":"MC","color":"dark_green"},"\n",{"text":"-
-      Chiseled Stone > ","color":"black"},{"text":"CS","color":"dark_gray"},"\n",{"text":"-
-      Cake - click\nSummon structure layout on the ground:\n  ","color":"black"},{"text":"MC","color":"dark_green"},{"text":"  |  ","color":"black"},{"text":"MC","color":"dark_green"},{"text":"  |  ","color":"black"},{"text":"MC","color":"dark_green"},"\n",{"text":"-----------------\n  ","color":"black"},{"text":"MC","color":"dark_green"},{"text":"  |  ","color":"black"},{"text":"CS","color":"dark_gray"},{"text":"  |  ","color":"black"},{"text":"MC","color":"dark_green"},"\n",{"text":"-----------------\n  ","color":"black"},{"text":"MC","color":"dark_green"},{"text":"  |  ","color":"black"},{"text":"MC","color":"dark_green"},{"text":"  |  ","color":"black"},{"text":"MC","color":"dark_green"},"\n
-      "]}'
-    - '{"text":"","extra":[{"text":"1.1 ","color":"black"},{"text":"Papa Panda","italic":true,"color":"#A52A2A"},"\n",{"text":"Health:
-      1000","color":"black"},"\n",{"text":"Loot table:","color":"black"},"\n",{"text":"-
-      ","color":"black"},{"text":"Brown Shard","color":"#A52A2A"},"\n",{"text":"-
-      ","color":"black"},{"text":"፠ ","color":"light_purple"},{"text":"Panda Pants
-      ","color":"aqua"},{"text":"፠","color":"light_purple"},"\n",{"text":"- ","color":"black"},{"text":"E.
-      Golden Apples","color":"dark_purple"},{"text":" 4-8","color":"black"}]}'
-    - '{"text":"","extra":[{"text":"1.2 ","color":"black"},{"text":"Slime King","italic":true,"color":"dark_green"},"\n",{"text":"Biome:
-      ","color":"black"},{"text":"Swamp","color":"dark_green"},"\n",{"text":"Items
-      needed:\n- Slime Block > ","color":"black"},{"text":"SB","color":"green"},"\n",{"text":"-
-      Diamond Block > ","color":"black"},{"text":"DB","color":"aqua"},"\n",{"text":"-
-      Ender Eye - click\nSummon structure layout on the ground:\n  ","color":"black"},{"text":"SB","color":"green"},{"text":"  |  ","color":"black"},{"text":"SB","color":"green"},{"text":"  |  ","color":"black"},{"text":"SB","color":"green"},"\n",{"text":"-----------------\n  ","color":"black"},{"text":"SB","color":"green"},{"text":"  |  ","color":"black"},{"text":"DB","color":"aqua"},{"text":"  |  ","color":"black"},{"text":"SB","color":"green"},"\n",{"text":"-----------------\n  ","color":"black"},{"text":"SB","color":"green"},{"text":"  |  ","color":"black"},{"text":"SB","color":"green"},{"text":"  |  ","color":"black"},{"text":"SB","color":"green"}]}'
-    - '{"text":"","extra":[{"text":"1.2 ","color":"black"},{"text":"Slime King","italic":true,"color":"dark_green"},"\n",{"text":"Health:
-      1000\nLoot table:\n- ","color":"black"},{"text":"Green Shard","color":"dark_green"},"\n",{"text":"-
-      ","color":"black"},{"text":"፠ ","color":"light_purple"},{"text":"Slime Boots
-      ","color":"green"},{"text":"፠","color":"light_purple"},"\n",{"text":"- ","color":"black"},{"text":"Slime
-      Block","color":"green"},{"text":" 8-16","color":"black"}]}'
-    - '{"text":"","extra":[{"text":"1.3 ","color":"black"},{"text":"Killer Bunny","italic":true,"color":"dark_gray"},"\n",{"text":"Biome:
-      ","color":"black"},{"text":"Desert","color":"#F6BE00"},"\n",{"text":"Items needed:\n-
-      Carrot > ","color":"black"},{"text":"Cr","color":"gold"},"\n",{"text":"- Magma
-      Block > ","color":"black"},{"text":"MB","color":"dark_red"},"\n",{"text":"-
-      16 Golden Carrots          ^ click ^\nSummon structure layout on the ground:\n  ","color":"black"},{"text":"Cr","color":"gold"},{"text":"  |  ","color":"black"},{"text":"Cr","color":"gold"},{"text":"  |  ","color":"black"},{"text":"Cr","color":"gold"},"\n",{"text":"-----------------\n  ","color":"black"},{"text":"Cr","color":"gold"},{"text":"  |  ","color":"black"},{"text":"MB","color":"dark_red"},{"text":"  |  ","color":"black"},{"text":"Cr","color":"gold"},"\n",{"text":"-----------------\n  ","color":"black"},{"text":"Cr","color":"gold"},{"text":"  |  ","color":"black"},{"text":"Cr","color":"gold"},{"text":"  |  ","color":"black"},{"text":"Cr","color":"gold"}]}'
-    - '{"text":"","extra":[{"text":"1.3 ","color":"black"},{"text":"Killer Bunny","italic":true,"color":"dark_gray"},"\n",{"text":"Health:
-      300\nLoot table:\n- ","color":"black"},{"text":"Grey Shard","color":"gray"},"\n",{"text":"-
-      ","color":"black"},{"text":"፠ ","color":"light_purple"},{"text":"Bunny Pants
-      ","color":"gray"},{"text":"፠","color":"light_purple"},"\n",{"text":"- ","color":"black"},{"text":"E.
-      Golden Apple","color":"dark_purple"},{"text":" 8-16\n\n\nNote: He steals your
-      items and is very hard to hit!","color":"black"}]}'
-    - '{"text":"","extra":[{"text":"1.4 ","color":"black"},{"text":"Zombie King","italic":true,"color":"dark_red"},"\n",{"text":"Biome:
-      ","color":"black"},{"text":"Plains","color":"dark_green"},"\n",{"text":"Items
-      needed:\n- Soul Sand > ","color":"black"},{"text":"SS","color":"#A52A2A"},"\n",{"text":"-
-      Emerald Block > ","color":"black"},{"text":"EB","color":"dark_green"},"\n",{"text":"-
-      Brain Coral - click\nSummon structure layout on the ground:\n  ","color":"black"},{"text":"SS","color":"#A52A2A"},{"text":"  |  ","color":"black"},{"text":"SS","color":"#A52A2A"},{"text":"  |  ","color":"black"},{"text":"SS","color":"#A52A2A"},"\n",{"text":"-----------------\n  ","color":"black"},{"text":"SS","color":"#A52A2A"},{"text":"  |  ","color":"black"},{"text":"EB","color":"dark_green"},{"text":"  |  ","color":"black"},{"text":"SS","color":"#A52A2A"},"\n",{"text":"-----------------\n  ","color":"black"},{"text":"SS","color":"#A52A2A"},{"text":"  |  ","color":"black"},{"text":"SS","color":"#A52A2A"},{"text":"  |  ","color":"black"},{"text":"SS","color":"#A52A2A"}]}'
-    - '{"text":"","extra":[{"text":"1.4 ","color":"black"},{"text":"Zombie King","italic":true,"color":"dark_red"},"\n",{"text":"Health:
-      1000","color":"black"},"\n",{"text":"Loot table:","color":"black"},"\n",{"text":"-
-      ","color":"black"},{"text":"Red Shard","color":"dark_red"},"\n",{"text":"- ","color":"black"},{"text":"The
-      Headmans Axe","color":"dark_green"},"\n",{"text":"- ","color":"black"},{"text":"Grave
-      Digger","color":"dark_green"},"\n",{"text":"- ","color":"black"},{"text":"Pick
-      of the Undead","color":"dark_green"}]}'
-    - '{"text":"","extra":[{"text":"1.5 ","color":"black"},{"text":"Ghast Lord","italic":true,"color":"gray"},"\n",{"text":"Realm:
-      ","color":"black"},{"text":"Nether","color":"dark_red"},"\n",{"text":"Items
-      needed:\n- Redstone Dust > ","color":"black"},{"text":"RD","color":"red"},"\n",{"text":"-
-      Magma Block > ","color":"black"},{"text":"MB","color":"dark_red"},"\n",{"text":"-
-      16 Gold Ingots\n       ^ click ^\nSummon structure layout on the ground:\n  ","color":"black"},{"text":"RD","color":"red"},{"text":"  |  ","color":"black"},{"text":"RD","color":"red"},{"text":"  |  ","color":"black"},{"text":"RD","color":"red"},"\n",{"text":"-----------------\n  ","color":"black"},{"text":"RD","color":"red"},{"text":"  |  ","color":"black"},{"text":"MB","color":"dark_red"},{"text":"  |  ","color":"black"},{"text":"RD","color":"red"},"\n",{"text":"-----------------\n  ","color":"black"},{"text":"RD","color":"red"},{"text":"  |  ","color":"black"},{"text":"RD","color":"red"},{"text":"  |  ","color":"black"},{"text":"RD","color":"red"}]}'
-    - '{"text":"","extra":[{"text":"1.5 ","color":"black"},{"text":"Ghast Lord","italic":true,"color":"gray"},"\n",{"text":"Health:
-      500\nLoot Table:","color":"black"},"\n",{"text":"- ","color":"black"},{"text":"White
-      Shard","color":"gray"},"\n",{"text":"- ","color":"black"},{"text":"Flame","color":"red"},{"text":"
-      Bow","color":"gold"},"\n",{"text":"- ","color":"black"},{"text":"Flame Sword","color":"red"}]}'
-    - '{"text":"","extra":[{"text":"1.6 ","color":"black"},{"text":"Wither Skeleton
-      K.","italic":true,"color":"black"},"\n",{"text":"Realm: ","color":"black"},{"text":"Nether","color":"dark_red"},"\n",{"text":"Items
-      needed:\n- Fire > ","color":"black"},{"text":"Fi","color":"gold"},{"text":"
-      (flint steel)\n- Wither Sk. Skull > ","color":"black"},{"text":"WS","color":"dark_gray"},"\n",{"text":"-
-      Magma Cream - click\nSummon structure layout on the ground:\n  ","color":"black"},{"text":"Fi","color":"gold"},{"text":"  |  ","color":"black"},{"text":"Fi","color":"gold"},{"text":"  |  ","color":"black"},{"text":"Fi","color":"gold"},"\n",{"text":"-----------------\n  ","color":"black"},{"text":"Fi","color":"gold"},{"text":"  |  ","color":"black"},{"text":"WS","color":"dark_gray"},{"text":"  |  ","color":"black"},{"text":"Fi","color":"gold"},"\n",{"text":"-----------------\n  ","color":"black"},{"text":"Fi","color":"gold"},{"text":"  |  ","color":"black"},{"text":"Fi","color":"gold"},{"text":"  |  ","color":"black"},{"text":"Fi","color":"gold"}]}'
-    - '{"text":"","extra":[{"text":"1.6 ","color":"black"},{"text":"Wither Skeleton
-      King","italic":true},"\n",{"text":"Health: 1000\nLoot table:","color":"black"},"\n",{"text":"-
-      Black Shard","color":"black"},"\n",{"text":"- ","color":"black"},{"text":"Wither
-      Sword","color":"red"},"\n",{"text":"- ","color":"black"},{"text":"Death Mask","color":"gray"}]}'
-    - '{"text":"","extra":[{"text":"2. ","color":"black"},{"text":"Tier 2 Bosses","color":"black","bold":true},{"text":"\nThose
-      need crafted summon items from ","color":"black"},{"text":"1st tier boss shards
-      ","color":"black","bold":true},{"text":"(except ","color":"black"},{"text":"Demon","italic":true,"color":"dark_red"},{"text":").\nSummoning
-      looks the same as T1 except that all T2 bosses use the ","color":"black"},{"text":"same
-      summon structure","color":"black","bold":true},{"text":", with different click
-      items.","color":"black"},"\nT2 bosses drop shards for next tier summon items."]}'
-    - '{"text":"","extra":[{"text":"2. ","color":"black"},{"text":"2nd tier Bosses","bold":true},"\n",{"text":"Items
-      needed:\n- Redstone Torch >","color":"black"},{"text":"RT","color":"dark_red"},"\n",{"text":"-
-      Redstone Dust > ","color":"black"},{"text":"RD","color":"red"},"\n",{"text":"-
-      Campfire > ","color":"black"},{"text":"Cf","color":"gold"},"\n",{"text":"- Summon
-      item - click\nSummon structure layout on the ground:\n  ","color":"black"},{"text":"RT","color":"dark_red"},{"text":"  |  ","color":"black"},{"text":"RD","color":"red"},{"text":"  |  ","color":"black"},{"text":"RT","color":"dark_red"},"\n",{"text":"-----------------\n  ","color":"black"},{"text":"RD","color":"red"},{"text":"  |  ","color":"black"},{"text":"Cf","color":"gold"},{"text":"  |  ","color":"black"},{"text":"RD","color":"red"},"\n",{"text":"-----------------\n  ","color":"black"},{"text":"RT","color":"dark_red"},{"text":"  |  ","color":"black"},{"text":"RD","color":"red"},{"text":"  |  ","color":"black"},{"text":"RT","color":"dark_red"}]}'
-    - '{"text":"","extra":[{"text":"2.1 ","color":"black"},{"text":"Giant","italic":true,"color":"dark_green"},"\n",{"text":"Biome:
-      ","color":"black"},{"text":"Plains","color":"dark_green"},"\n",{"text":"Items
-      needed:\n- Glass > ","color":"black"},{"text":"Gl","color":"gray"},"\n",{"text":"-
-      Water Bucket > ","color":"black"},{"text":"WB","color":"dark_blue"},"\n",{"text":"-
-      Shards > first  letters of T1 bosses\nSummon item crafting:\n  ","color":"black"},{"text":"Gl","color":"gray"},{"text":"  |  ","color":"black"},{"text":"Gl","color":"gray"},{"text":"  |  ","color":"black"},{"text":"Gl","color":"gray"},"\n",{"text":"-----------------\n  ","color":"black"},{"text":"KS","color":"dark_green"},{"text":"  |  ","color":"black"},{"text":"ZK","color":"dark_red"},{"text":"  |  ","color":"black"},{"text":"PP","color":"#A52A2A"},"\n",{"text":"-----------------\n  ","color":"black"},{"text":"Gl","color":"gray"},{"text":"  |  ","color":"black"},{"text":"WB","color":"dark_blue"},{"text":"  |  ","color":"black"},{"text":"Gl","color":"gray"},"\n",{"text":"Click
-      on campfire.","color":"black"}]}'
-    - '{"text":"","extra":[{"text":"2.1 ","color":"black"},{"text":"Giant","italic":true,"color":"dark_green"},"\n",{"text":"Health:
-      2000\nLoot table:","color":"black"},"\n",{"text":"-","color":"black"},{"text":"
-      Emerald Shard","color":"dark_green"},"\n",{"text":"-","color":"black"},{"text":"
-      ፠ ","color":"light_purple"},{"text":"Giant''s Pick ","color":"dark_purple"},{"text":"፠","color":"light_purple"},"\n",{"text":"-","color":"black"},{"text":"
-      ፠ ","color":"light_purple"},{"text":"Giant''s Spade ","color":"dark_purple"},{"text":"፠","color":"light_purple"}]}'
-    - '{"text":"","extra":[{"text":"2.2 ","color":"black"},{"text":"Illager King","italic":true,"color":"gold"},"\n",{"text":"Biome:
-      ","color":"black"},{"text":"Savanna","color":"#736934"},"\n",{"text":"Items
-      needed:\n- Gold Ingot > ","color":"black"},{"text":"GI","color":"gold"},"\n",{"text":"-
-      Shards > first  letters of T1 bosses\nSummon item crafting:\n  ","color":"black"},{"text":"GI","color":"gold"},{"text":"  |  ","color":"black"},{"text":"GI","color":"gold"},{"text":"  |  ","color":"black"},{"text":"GI","color":"gold"},"\n",{"text":"-----------------\n  ","color":"black"},{"text":"GL","color":"gray"},{"text":"  |  ","color":"black"},{"text":"KS","color":"dark_green"},{"text":"  |  ","color":"black"},{"text":"KB","color":"dark_gray"},"\n",{"text":"-----------------\n  ","color":"black"},{"text":"GI","color":"gold"},{"text":"  |  ","color":"black"},{"text":"GI","color":"gold"},{"text":"  |  ","color":"black"},{"text":"GI","color":"gold"},"\n",{"text":"Click
-      on campfire.","color":"black"}]}'
-    - '{"text":"","extra":[{"text":"2.2 ","color":"black"},{"text":"Illager King","italic":true,"color":"gold"},"\n",{"text":"Health:
-      2000","color":"black"},"\n",{"text":"Loot table:\n-","color":"black"},{"text":"
-      Gold Shard","color":"gold"},"\n",{"text":"- ","color":"black"},{"text":"Plate
-      of Death","color":"gray"},"\n",{"text":"- ","color":"black"},{"text":"Witch
-      Hunter","color":"dark_blue"},"\n",{"text":"- ","color":"black"},{"text":"Emerald
-      Block","color":"dark_green"},{"text":" 12-24","color":"black"},"\n- ",{"text":"Mending
-      Book","color":"light_purple"},{"text":" 1-2","color":"black"}]}'
-    - '{"text":"","extra":[{"text":"2.3 ","color":"black"},{"text":"Evil Wizard","italic":true,"color":"dark_blue"},"\n",{"text":"Biome:
-      ","color":"black"},{"text":"Snow","color":"blue"},"\n",{"text":"Items needed:\n-
-      Leather > ","color":"black"},{"text":"Lh","color":"#A52A2A"},"\n",{"text":"-
-      Paper > ","color":"black"},{"text":"Pp","color":"gray"},"\n",{"text":"- Shards
-      > first letters of T1 bosses\nSummon item crafting:\n  ","color":"black"},{"text":"Lh","color":"#A52A2A"},{"text":"  |  ","color":"black"},{"text":"Lh","color":"#A52A2A"},{"text":"  |  ","color":"black"},{"text":"Lh","color":"#A52A2A"},"\n",{"text":"-----------------\n
-      ","color":"black"},{"text":"WSK","color":"dark_gray"},{"text":"  |  ","color":"black"},{"text":"Pp","color":"gray"},{"text":"  |  ","color":"black"},{"text":"ZK","color":"dark_red"},"\n",{"text":"-----------------\n  ","color":"black"},{"text":"Pp","color":"gray"},{"text":"  |  ","color":"black"},{"text":"Pp","color":"gray"},{"text":"  |  ","color":"black"},{"text":"Pp","color":"gray"},"\n",{"text":"Click
-      on campfire.","color":"black"}]}'
-    - '{"text":"","extra":[{"text":"2.3 ","color":"black"},{"text":"Evil Wizard","italic":true,"color":"dark_blue"},"\n",{"text":"Health:
-      1400\nLoot table:\n- ","color":"black"},{"text":"Blue Shard","color":"dark_blue"},"\n",{"text":"-
-      ","color":"black"},{"text":"፠ ","color":"light_purple"},{"text":"Magic Book
-      ","color":"dark_purple"},{"text":"፠","color":"light_purple"},"\n",{"text":"-
-      ","color":"black"},{"text":"Diamond Block","color":"aqua"},{"text":" 16-32\n-
-      ","color":"black"},{"text":"Mending Book","color":"light_purple"},{"text":"
-      1-2","color":"black"}]}'
-    - '{"text":"","extra":[{"text":"2.4 ","color":"black"},{"text":"Demon","italic":true,"color":"dark_red"},"\n",{"text":"Biome:
-      anywhere\n\nThis boss ","color":"black"},{"text":"doesn''t","color":"black","bold":true},{"text":"
-      use crafted summon item.\n\nYou only need to use ","color":"black"},{"text":"nether
-      star on campfire","color":"black","bold":true},{"text":", but after defeating
-      all ","color":"black"},{"text":"3rd tier","color":"black","bold":true},{"text":"
-      God bosses.","color":"black"}]}'
-    - '{"text":"","extra":[{"text":"2.4 ","color":"black"},{"text":"Demon","italic":true,"color":"dark_red"},"\n",{"text":"Health:
-      1250\nLoot Table:","color":"black"},"\n",{"text":"-","color":"black"},{"text":"
-      Demonic Shard","color":"dark_red"},"\n",{"text":"-","color":"black"},{"text":"
-      xxx","color":"aqua"},{"text":" Demonic Axe","color":"red"},{"text":" xxx","color":"aqua"}]}'
-    - '{"text":"","extra":[{"text":"3. ","color":"black"},{"text":"The Gods","color":"black","bold":true},{"text":"\nAll
-      Gods use the same summon item.\nItems needed:\n- Gold Block > ","color":"black"},{"text":"GB","color":"gold"},"\n",{"text":"-
-      Apple > ","color":"black"},{"text":"Ap","color":"dark_red"},"\n",{"text":"-
-      Shards > 2nd tier boss first letters\nSummon item crafting:\n  ","color":"black"},{"text":"GB","color":"gold"},{"text":"  |  ","color":"black"},{"text":"GB","color":"gold"},{"text":"  |  ","color":"black"},{"text":"GB","color":"gold"},"\n",{"text":"-----------------\n  ","color":"black"},{"text":"GB","color":"gold"},{"text":"  |  ","color":"black"},{"text":"Ap","color":"dark_red"},{"text":"  |  ","color":"black"},{"text":"GB","color":"gold"},"\n",{"text":"-----------------\n  ","color":"black"},{"text":"Gi","color":"dark_green"},{"text":"  |  ","color":"black"},{"text":"IK","color":"gold"},{"text":"  |  ","color":"black"},{"text":"EW","color":"dark_blue"}]}'
-    - '{"text":"","extra":[{"text":"3.1 ","color":"black"},{"text":"Aether God","italic":true,"color":"aqua"},"\n",{"text":"Biome:
-      ","color":"black"},{"text":"Sky >y=200","color":"blue"},"\n",{"text":"Health:
-      2048\nLoot table:\n- ","color":"black"},{"text":"!፠!፠!","underlined":true,"color":"light_purple"},{"text":"Staff
-      of Ctrl.","underlined":true,"color":"aqua"},{"text":"!፠!፠!","underlined":true,"color":"light_purple"},"\n",{"text":"-
-      ","color":"black"},{"text":"፠ ","color":"light_purple"},{"text":"Zephyr Wings
-      ","color":"aqua"},{"text":"፠","color":"light_purple"},"\n",{"text":"- ","color":"black"},{"text":"፠
-      ","color":"light_purple"},{"text":"Zephyr Bow","color":"aqua"},{"text":" ፠","color":"light_purple"}]}'
-    - '{"text":"","extra":[{"text":"3.2 ","color":"black"},{"text":"Pharaoh God","italic":true,"color":"#F6BE00"},"\n",{"text":"Biome:
-      ","color":"black"},{"text":"Desert","color":"#E6F01A"},"\n",{"text":"Health:
-      2048\nLoot table:\n-","color":"black"},{"text":"!፠","color":"light_purple"},{"text":"The
-      Cursed Skull","color":"#E6F442"},{"text":"፠!","color":"light_purple"},"\n",{"text":"-
-      ","color":"black"},{"text":"፠ ","color":"light_purple"},{"text":"Swiftfoot Boots","color":"gold"},{"text":"
-      ፠","color":"light_purple"},"\n",{"text":"-","color":"black"},{"text":"፠","color":"light_purple"},{"text":"Staff
-      of Brimstone","color":"#E6F442"},{"text":"፠","color":"light_purple"},"\n "]}'
-    - '{"text":"","extra":[{"text":"3.3 ","color":"black"},{"text":"Drowned God","italic":true,"color":"dark_aqua"},"\n",{"text":"Biome:
-      ","color":"black"},{"text":"Ocean >y=40","color":"dark_blue"},"\n",{"text":"Health:
-      2048\nLoot table:\n- ","color":"black"},{"text":"፠ ","color":"light_purple"},{"text":"Drowned
-      Helm","color":"dark_aqua"},{"text":" ፠","color":"light_purple"},"\n",{"text":"-","color":"black"},{"text":"፠","color":"light_purple"},{"text":"Trident
-      of Ult. Spd.","color":"dark_aqua"},{"text":"፠","color":"light_purple"},"\n",{"text":"-","color":"black"},{"text":"፠","color":"light_purple"},{"text":"Trident
-      of Ult. Pwr.","color":"dark_aqua"},{"text":"፠","color":"light_purple"},"\n "]}'
-    - '{"text":"","extra":[{"text":"4. ","color":"black"},{"text":"Immortal Bosses","bold":true},"\nThis
-      is the ",{"text":"last tier","bold":true}," of bosses and thus the ",{"text":"hardest","bold":true},".
-      Dont let those hp numbers fool you!\nThose bosses can even ",{"text":"one hit
-      kill you","bold":true}," so beware of that.\n",{"text":"The Cursed Skull","color":"#E6F442"},"
-      will be useful for those.\n",{"text":"The rewards will be handsome.","bold":true}]}'
-    - '{"text":"","extra":[{"text":"4.1 ","color":"black"},{"text":"Devil","italic":true,"color":"dark_red","bold":true},"\n",{"text":"Realm:
-      ","color":"black"},{"text":"Nether","color":"dark_red"},"\n",{"text":"Usage
-      in item desc.","color":"black","bold":true},{"text":"\nItems needed:\n- Demonic
-      Shard > ","color":"black"},{"text":"DS","color":"dark_red"},"\n",{"text":"-
-      ","color":"black"},{"text":"T3","color":"black","bold":true},{"text":" summon
-      item > ","color":"black"},{"text":"SI","color":"gold"},"\n",{"text":"Summon
-      item crafting:\n  --  |  ","color":"black"},{"text":"DS","color":"dark_red"},{"text":"  |  --\n-----------------\n  ","color":"black"},{"text":"DS","color":"dark_red"},{"text":"  |  ","color":"black"},{"text":"SI","color":"gold"},{"text":"  |  ","color":"black"},{"text":"DS","color":"dark_red"},"\n",{"text":"-----------------\n  --  |  ","color":"black"},{"text":"DS","color":"dark_red"},{"text":"  |  --","color":"black"}]}'
-    - '{"text":"","extra":[{"text":"4.1 ","color":"black"},{"text":"Devil","italic":true,"color":"dark_red","bold":true},"\n",{"text":"Health:
-      2048\nLoot table:\n- ","color":"black"},{"text":"፠ ","color":"light_purple"},{"text":"Devil''s
-      greaves ","color":"red"},{"text":"፠","color":"light_purple"},"\n",{"text":"-","color":"black"},{"text":"፠","color":"light_purple"},{"text":"Book
-      of Knowledge","color":"red"},{"text":"፠","color":"light_purple"},"\n "]}'
-    - '{"text":"","extra":[{"text":"4.2 ","color":"black"},{"text":"Death","italic":true,"color":"dark_purple","bold":true},"\n",{"text":"YOU","color":"black","bold":true},{"text":"
-      are summoned by ","color":"black"},{"text":"Death","italic":true,"color":"dark_purple","bold":true},{"text":"
-      with this item.\nItems needed:\n- Nether Star > ","color":"black"},{"text":"NS","color":"dark_aqua"},"\n",{"text":"-
-      ","color":"black"},{"text":"Book of Knowledge","color":"red"},{"text":" from
-      the","color":"black"},{"text":" Devil","italic":true,"color":"dark_red","bold":true},{"text":"
-      > ","color":"black"},{"text":"BK","color":"dark_red"},"\n",{"text":"Summon item
-      crafting:\n  ","color":"black"},{"text":"NS","color":"dark_aqua"},{"text":"  |  ","color":"black"},{"text":"NS","color":"dark_aqua"},{"text":"  |  ","color":"black"},{"text":"NS","color":"dark_aqua"},"\n",{"text":"-----------------\n  ","color":"black"},{"text":"NS","color":"dark_aqua"},{"text":"  |  ","color":"black"},{"text":"BK","color":"dark_red"},{"text":"  |  ","color":"black"},{"text":"NS","color":"dark_aqua"},"\n",{"text":"-----------------\n  ","color":"black"},{"text":"NS","color":"dark_aqua"},{"text":"  |  ","color":"black"},{"text":"NS","color":"dark_aqua"},{"text":"  |  ","color":"black"},{"text":"NS","color":"dark_aqua"},"\n",{"text":"The
-      item selfexplains","color":"black"}]}'
-    - '{"text":"","extra":[{"text":"4.2 ","color":"black"},{"text":"Death","italic":true,"color":"dark_purple","bold":true},"\nHealth:
-      2048\nLoot table:\n- ",{"text":"End Blade","color":"dark_purple"},"\n-",{"text":"፠፠","color":"light_purple"},{"text":"Scythe
-      of Death","color":"dark_purple"},{"text":"፠፠","color":"light_purple"}]}'
+      - |-
+        §0Table of contents:§r
+        §00. Introduction§r
+        §01. §0§lTier 1 Bosses§0
+         1.1 §x§A§5§2§A§2§A§oPapa Panda§r
+        §0 1.2 §2§oSlime King§r
+        §0 1.3 §8§oKiller Bunny§r
+        §0 1.4 §4§oZombie King§r
+        §0 1.5 §7§oGhast Lord§r
+        §0 1.6 §0§oWither Skeleton§r
+        §02.§0§l Tier 2 Bosses§0
+         2.1 §2§oGiant§r
+        §0 2.2 §6§oIllager King§r
+        §0 2.3 §1§oEvil Wizard§r
+        §0 2.4 §4§oDemon
+      - |-
+        §0Table of contents:
+        3. §r§lThe Gods§r
+        §0 3.1 §b§oAether God§r
+        §0 3.2 §x§F§6§B§E§0§0§oPharaoh God§r
+        §0 3.3 §3§oDrowned God§r
+        §04. §0§lImmortal Bosses§r
+        §0 4.1 §4§l§oDevil§r
+        §0 4.2 §5§l§oDeath§r
+      - |-
+        §00. Introduction§r
+        §0This mod contains currently §r§l15 bosses,§r§l 4 tiers§0. §rTier 1 and 2 bosses drop shards§0 that are required for further progression.§r
+        §lOnly§0 tier 3 and 4 use §r§leaten§0 summon items.§r
+        Items with special effects will be marked with "§d፠§0"§0 symbol
+      - |-
+        §01. §r§lTier 1 Bosses§r
+        §0You summon §rTier 1§0 by building boss specific§r
+        §l3x1x3§0 structures and clicking with the right item on the middle block.§r
+        §0They drop §rshards§0 and some good items.§r
+        §lShards§0 are used to summon next tier of bosses.
+      - "§01.1 §x§A§5§2§A§2§A§oPapa Panda§r\n§0Biome: §aBamboo§r\n§0Items needed:\n\
+      - Mossy Cobble > §2MC§r\n§0- Chiseled Stone > §8CS§r\n§0- Cake - click\nSummon\
+      \ structure layout on the ground:\n  §2MC§0  |  §2MC§0  |  §2MC§r\n§0-----------------\n\
+      \  §2MC§0  |  §8CS§0  |  §2MC§r\n§0-----------------\n  §2MC§0  |  §2MC§0  |\
+      \  §2MC§r\n "
+      - |-
+        §01.1 §x§A§5§2§A§2§A§oPapa Panda§r
+        §0Health: 1000§r
+        §0Loot table:§r
+        §0- §x§A§5§2§A§2§ABrown Shard§r
+        §0- §d፠ §bPanda Pants §d፠§r
+        §0- §5E. Golden Apples§0 4-8
+      - |-
+        §01.2 §2§oSlime King§r
+        §0Biome: §2Swamp§r
+        §0Items needed:
+        - Slime Block > §aSB§r
+        §0- Diamond Block > §bDB§r
+        §0- Ender Eye - click
+        Summon structure layout on the ground:
+          §aSB§0  |  §aSB§0  |  §aSB§r
+        §0-----------------
+          §aSB§0  |  §bDB§0  |  §aSB§r
+        §0-----------------
+          §aSB§0  |  §aSB§0  |  §aSB
+      - |-
+        §01.2 §2§oSlime King§r
+        §0Health: 1000
+        Loot table:
+        - §2Green Shard§r
+        §0- §d፠ §aSlime Boots §d፠§r
+        §0- §aSlime Block§0 8-16
+      - |-
+        §01.3 §8§oKiller Bunny§r
+        §0Biome: §x§F§6§B§E§0§0Desert§r
+        §0Items needed:
+        - Carrot > §6Cr§r
+        §0- Magma Block > §4MB§r
+        §0- 16 Golden Carrots          ^ click ^
+        Summon structure layout on the ground:
+          §6Cr§0  |  §6Cr§0  |  §6Cr§r
+        §0-----------------
+          §6Cr§0  |  §4MB§0  |  §6Cr§r
+        §0-----------------
+          §6Cr§0  |  §6Cr§0  |  §6Cr
+      - |-
+        §01.3 §8§oKiller Bunny§r
+        §0Health: 300
+        Loot table:
+        - §7Grey Shard§r
+        §0- §d፠ §7Bunny Pants §d፠§r
+        §0- §5E. Golden Apple§0 8-16
+        
+        
+        Note: He steals your items and is very hard to hit!
+      - |-
+        §01.4 §4§oZombie King§r
+        §0Biome: §2Plains§r
+        §0Items needed:
+        - Soul Sand > §x§A§5§2§A§2§ASS§r
+        §0- Emerald Block > §2EB§r
+        §0- Brain Coral - click
+        Summon structure layout on the ground:
+          §x§A§5§2§A§2§ASS§0  |  §x§A§5§2§A§2§ASS§0  |  §x§A§5§2§A§2§ASS§r
+        §0-----------------
+          §x§A§5§2§A§2§ASS§0  |  §2EB§0  |  §x§A§5§2§A§2§ASS§r
+        §0-----------------
+          §x§A§5§2§A§2§ASS§0  |  §x§A§5§2§A§2§ASS§0  |  §x§A§5§2§A§2§ASS
+      - |-
+        §01.4 §4§oZombie King§r
+        §0Health: 1000§r
+        §0Loot table:§r
+        §0- §4Red Shard§r
+        §0- §2The Headmans Axe§r
+        §0- §2Grave Digger§r
+        §0- §2Pick of the Undead
+      - |-
+        §01.5 §7§oGhast Lord§r
+        §0Realm: §4Nether§r
+        §0Items needed:
+        - Redstone Dust > §cRD§r
+        §0- Magma Block > §4MB§r
+        §0- 16 Gold Ingots
+               ^ click ^
+        Summon structure layout on the ground:
+          §cRD§0  |  §cRD§0  |  §cRD§r
+        §0-----------------
+          §cRD§0  |  §4MB§0  |  §cRD§r
+        §0-----------------
+          §cRD§0  |  §cRD§0  |  §cRD
+      - |-
+        §01.5 §7§oGhast Lord§r
+        §0Health: 500
+        Loot Table:§r
+        §0- §7White Shard§r
+        §0- §cFlame§6 Bow§r
+        §0- §cFlame Sword
+      - |-
+        §01.6 §0§oWither Skeleton K.§r
+        §0Realm: §4Nether§r
+        §0Items needed:
+        - Fire > §6Fi§0 (flint steel)
+        - Wither Sk. Skull > §8WS§r
+        §0- Magma Cream - click
+        Summon structure layout on the ground:
+          §6Fi§0  |  §6Fi§0  |  §6Fi§r
+        §0-----------------
+          §6Fi§0  |  §8WS§0  |  §6Fi§r
+        §0-----------------
+          §6Fi§0  |  §6Fi§0  |  §6Fi
+      - |-
+        §01.6 §r§oWither Skeleton King§r
+        §0Health: 1000
+        Loot table:§r
+        §0- Black Shard§r
+        §0- §cWither Sword§r
+        §0- §7Death Mask
+      - |-
+        §02. §0§lTier 2 Bosses§0
+        Those need crafted summon items from §0§l1st tier boss shards §0(except §4§oDemon§0).
+        Summoning looks the same as T1 except that all T2 bosses use the §0§lsame summon structure§0, with different click items.§r
+        T2 bosses drop shards for next tier summon items.
+      - |-
+        §02. §r§l2nd tier Bosses§r
+        §0Items needed:
+        - Redstone Torch >§4RT§r
+        §0- Redstone Dust > §cRD§r
+        §0- Campfire > §6Cf§r
+        §0- Summon item - click
+        Summon structure layout on the ground:
+          §4RT§0  |  §cRD§0  |  §4RT§r
+        §0-----------------
+          §cRD§0  |  §6Cf§0  |  §cRD§r
+        §0-----------------
+          §4RT§0  |  §cRD§0  |  §4RT
+      - |-
+        §02.1 §2§oGiant§r
+        §0Biome: §2Plains§r
+        §0Items needed:
+        - Glass > §7Gl§r
+        §0- Water Bucket > §1WB§r
+        §0- Shards > first  letters of T1 bosses
+        Summon item crafting:
+          §7Gl§0  |  §7Gl§0  |  §7Gl§r
+        §0-----------------
+          §2KS§0  |  §4ZK§0  |  §x§A§5§2§A§2§APP§r
+        §0-----------------
+          §7Gl§0  |  §1WB§0  |  §7Gl§r
+        §0Click on campfire.
+      - |-
+        §02.1 §2§oGiant§r
+        §0Health: 2000
+        Loot table:§r
+        §0-§2 Emerald Shard§r
+        §0-§d ፠ §5Giant's Pick §d፠§r
+        §0-§d ፠ §5Giant's Spade §d፠
+      - |-
+        §02.2 §6§oIllager King§r
+        §0Biome: §x§7§3§6§9§3§4Savanna§r
+        §0Items needed:
+        - Gold Ingot > §6GI§r
+        §0- Shards > first  letters of T1 bosses
+        Summon item crafting:
+          §6GI§0  |  §6GI§0  |  §6GI§r
+        §0-----------------
+          §7GL§0  |  §2KS§0  |  §8KB§r
+        §0-----------------
+          §6GI§0  |  §6GI§0  |  §6GI§r
+        §0Click on campfire.
+      - |-
+        §02.2 §6§oIllager King§r
+        §0Health: 2000§r
+        §0Loot table:
+        -§6 Gold Shard§r
+        §0- §7Plate of Death§r
+        §0- §1Witch Hunter§r
+        §0- §2Emerald Block§0 12-24§r
+        - §dMending Book§0 1-2
+      - |-
+        §02.3 §1§oEvil Wizard§r
+        §0Biome: §9Snow§r
+        §0Items needed:
+        - Leather > §x§A§5§2§A§2§ALh§r
+        §0- Paper > §7Pp§r
+        §0- Shards > first letters of T1 bosses
+        Summon item crafting:
+          §x§A§5§2§A§2§ALh§0  |  §x§A§5§2§A§2§ALh§0  |  §x§A§5§2§A§2§ALh§r
+        §0-----------------
+         §8WSK§0  |  §7Pp§0  |  §4ZK§r
+        §0-----------------
+          §7Pp§0  |  §7Pp§0  |  §7Pp§r
+        §0Click on campfire.
+      - |-
+        §02.3 §1§oEvil Wizard§r
+        §0Health: 1400
+        Loot table:
+        - §1Blue Shard§r
+        §0- §d፠ §5Magic Book §d፠§r
+        §0- §bDiamond Block§0 16-32
+        - §dMending Book§0 1-2
+      - |-
+        §02.4 §4§oDemon§r
+        §0Biome: anywhere
+        
+        This boss §0§ldoesn't§0 use crafted summon item.
+        
+        You only need to use §0§lnether star on campfire§0, but after defeating all §0§l3rd tier§0 God bosses.
+      - |-
+        §02.4 §4§oDemon§r
+        §0Health: 1250
+        Loot Table:§r
+        §0-§4 Demonic Shard§r
+        §0-§b xxx§c Demonic Axe§b xxx
+      - |-
+        §03. §0§lThe Gods§0
+        All Gods use the same summon item.
+        Items needed:
+        - Gold Block > §6GB§r
+        §0- Apple > §4Ap§r
+        §0- Shards > 2nd tier boss first letters
+        Summon item crafting:
+          §6GB§0  |  §6GB§0  |  §6GB§r
+        §0-----------------
+          §6GB§0  |  §4Ap§0  |  §6GB§r
+        §0-----------------
+          §2Gi§0  |  §6IK§0  |  §1EW
+      - |-
+        §03.1 §b§oAether God§r
+        §0Biome: §9Sky >y=200§r
+        §0Health: 2048
+        Loot table:
+        - §d§n!፠!፠!§b§nStaff of Ctrl.§d§n!፠!፠!§r
+        §0- §d፠ §bZephyr Wings §d፠§r
+        §0- §d፠ §bZephyr Bow§d ፠
+      - "§03.2 §x§F§6§B§E§0§0§oPharaoh God§r\n§0Biome: §x§E§6§F§0§1§ADesert§r\n§0Health:\
+      \ 2048\nLoot table:\n-§d!፠§x§E§6§F§4§4§2The Cursed Skull§d፠!§r\n§0- §d፠ §6Swiftfoot\
+      \ Boots§d ፠§r\n§0-§d፠§x§E§6§F§4§4§2Staff of Brimstone§d፠§r\n "
+      - "§03.3 §3§oDrowned God§r\n§0Biome: §1Ocean >y=40§r\n§0Health: 2048\nLoot table:\n\
+      - §d፠ §3Drowned Helm§d ፠§r\n§0-§d፠§3Trident of Ult. Spd.§d፠§r\n§0-§d፠§3Trident\
+      \ of Ult. Pwr.§d፠§r\n "
+      - |-
+        §04. §r§lImmortal Bosses§r
+        This is the §llast tier§r of bosses and thus the §lhardest§r. Dont let those hp numbers fool you!
+        Those bosses can even §lone hit kill you§r so beware of that.
+        §x§E§6§F§4§4§2The Cursed Skull§r will be useful for those.
+        §lThe rewards will be handsome.
+      - |-
+        §04.1 §4§l§oDevil§r
+        §0Realm: §4Nether§r
+        §0§lUsage in item desc.§0
+        Items needed:
+        - Demonic Shard > §4DS§r
+        §0- §0§lT3§0 summon item > §6SI§r
+        §0Summon item crafting:
+          --  |  §4DS§0  |  --
+        -----------------
+          §4DS§0  |  §6SI§0  |  §4DS§r
+        §0-----------------
+          --  |  §4DS§0  |  --
+      - "§04.1 §4§l§oDevil§r\n§0Health: 2048\nLoot table:\n- §d፠ §cDevil's greaves §\
+      d፠§r\n§0-§d፠§cBook of Knowledge§d፠§r\n "
+      - |-
+        §04.2 §5§l§oDeath§r
+        §0§lYOU§0 are summoned by §5§l§oDeath§0 with this item.
+        Items needed:
+        - Nether Star > §3NS§r
+        §0- §cBook of Knowledge§0 from the§4§l§o Devil§0 > §4BK§r
+        §0Summon item crafting:
+          §3NS§0  |  §3NS§0  |  §3NS§r
+        §0-----------------
+          §3NS§0  |  §4BK§0  |  §3NS§r
+        §0-----------------
+          §3NS§0  |  §3NS§0  |  §3NS§r
+        §0The item selfexplains
+      - |-
+        §04.2 §5§l§oDeath§r
+        Health: 2048
+        Loot table:
+        - §5End Blade§r
+        -§d፠፠§5Scythe of Death§d፠፠
