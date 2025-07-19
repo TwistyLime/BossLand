@@ -5,14 +5,14 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.twistylime</groupId>
-    <artifactId>bossland2-0</artifactId>
-    <version>2.1</version>
+    <artifactId>bossland</artifactId>
+    <version>2.2-v1.16.1-v1.21.5</version>
     <packaging>jar</packaging>
 
-    <name>bossland2-0</name>
+    <name>bossland</name>
 
     <properties>
-        <java.version>21</java.version>
+        <java.version>14</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
@@ -38,6 +38,23 @@
                         <goals>
                             <goal>shade</goal>
                         </goals>
+                        <configuration>
+                            <createDependencyReducedPom>false</createDependencyReducedPom>
+                            <filters>
+                                <filter>
+                                    <artifact>*:*</artifact>
+                                    <excludes>
+                                        <exclude>META-INF/MANIFEST.MF</exclude>
+                                        <exclude>META-INF/*.SF</exclude>
+                                        <exclude>META-INF/*.DSA</exclude>
+                                        <exclude>META-INF/*.RSA</exclude>
+                                        <exclude>META-INF/LICENSE</exclude>
+                                        <exclude>META-INF/NOTICE</exclude>
+                                    </excludes>
+                                </filter>
+                            </filters>
+                        </configuration>
+
                     </execution>
                 </executions>
             </plugin>
@@ -69,8 +86,13 @@
         <dependency>
             <groupId>org.spigotmc</groupId>
             <artifactId>spigot-api</artifactId>
-            <version>1.21.3-R0.1-SNAPSHOT</version>
+            <version>1.16.1-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
+            <version>20240303</version>
         </dependency>
     </dependencies>
 </project>
