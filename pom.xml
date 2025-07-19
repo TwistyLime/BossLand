@@ -5,11 +5,11 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.twistylime</groupId>
-    <artifactId>bossland2-0</artifactId>
-    <version>2.1</version>
+    <artifactId>bossland</artifactId>
+    <version>2.2-v1.16.1-v1.21.5</version>
     <packaging>jar</packaging>
 
-    <name>bossland2-0</name>
+    <name>bossland</name>
 
     <properties>
         <java.version>14</java.version>
