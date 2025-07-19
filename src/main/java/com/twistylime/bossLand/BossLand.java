@@ -2689,8 +2689,13 @@ public class BossLand extends JavaPlugin implements Listener {
                         p.getWorld().playSound(p.getLocation(), Sound.BLOCK_ENCHANTMENT_TABLE_USE, 1, 1);
                         ItemStack s = e.getView().getItem(4);
                         assert s != null;
-                        EnchantmentStorageMeta sMeta = (EnchantmentStorageMeta) e.getCurrentItem().getItemMeta();
-                        for (Map.Entry<Enchantment, Integer> hm : sMeta.getStoredEnchants().entrySet()) {
+
+//                        EnchantmentStorageMeta sMeta = (EnchantmentStorageMeta) e.getCurrentItem().getItemMeta();
+//                        for (Map.Entry<Enchantment, Integer> hm : sMeta.getStoredEnchants().entrySet()) {
+//                            s.addUnsafeEnchantment(hm.getKey(), lvl);
+//                        }
+
+                        for (Map.Entry<Enchantment, Integer> hm : e.getCurrentItem().getEnchantments().entrySet()){
                             s.addUnsafeEnchantment(hm.getKey(), lvl);
                         }
                     } else {
@@ -2703,10 +2708,17 @@ public class BossLand extends JavaPlugin implements Listener {
                     p.getWorld().playSound(p.getLocation(), Sound.BLOCK_GRINDSTONE_USE, 1, 1);
                     ItemStack s = e.getView().getItem(4);
                     assert s != null;
-                    EnchantmentStorageMeta sMeta = (EnchantmentStorageMeta) e.getCurrentItem().getItemMeta();
-                    for (Map.Entry<Enchantment, Integer> hm : sMeta.getStoredEnchants().entrySet()) {
+
+//                    EnchantmentStorageMeta sMeta = (EnchantmentStorageMeta) e.getCurrentItem().getItemMeta();
+//                    for (Map.Entry<Enchantment, Integer> hm : sMeta.getStoredEnchants().entrySet()) {
+//                        s.removeEnchantment(hm.getKey());
+//                    }
+
+                    for (Map.Entry<Enchantment, Integer> hm : e.getCurrentItem().getEnchantments().entrySet()){
                         s.removeEnchantment(hm.getKey());
                     }
+
+
                     noList.add(p.getUniqueId());
                     p.closeInventory();
                     openDisEnchantGUI(p, s);
