@@ -4457,7 +4457,7 @@ public class BossLand extends JavaPlugin implements Listener {
                 }
             } catch (Exception e) {
             }
-            sender.sendMessage("§4Invalid Command! Use /bl-admin help to see the list of available commands.");
+            sender.sendMessage("§cInvalid Command! Use /bl-admin help to see the list of available commands.");
         }
         if ((cmd.getName().equals("bossland")) || (cmd.getName().equals("bl"))){
             if (args[0].equals("guide") && args.length == 1) {
@@ -4482,12 +4482,12 @@ public class BossLand extends JavaPlugin implements Listener {
                     sender.sendMessage("§6§lBoss Land §r§bv"+version);
                     sender.sendMessage("§3===============");
                     sender.sendMessage("§e"+desc);
-                    sender.sendMessage("§8■ Former Author §7→ §fEliminator");
-                    sender.sendMessage("§8■ Current Author §7→ §fTwistyLime");
+                    sender.sendMessage("§8■ §3Former Author §7→ §fEliminator");
+                    sender.sendMessage("§8■ §3Current Author §7→ §fTwistyLime");
                 }
                 return true;
             }
-            sender.sendMessage("§4Invalid Command! Use /bl help to see the list of available commands.");
+            sender.sendMessage("§cInvalid Command! Use /bl help to see the list of available commands.");
         }
         return true;
     }
