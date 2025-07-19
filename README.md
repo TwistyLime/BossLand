@@ -1,4 +1,4 @@
-# BossLand v2.1 - MC 1.21.3
+# BossLand v2.2 - v1.16.1-v1.21.5
 
 ## Overview
 
@@ -14,13 +14,14 @@ This continuation aims to maintain the original vision while updating compatibil
 
 ## Downloads
 
-| Minecraft Version | BossLand Version          | Download Link                                                               | Notes                                  |
-| ----------------- | ------------------------- | --------------------------------------------------------------------------- | -------------------------------------- |
-| 1.21.3            | 2.1                       | [Download v2.1](https://github.com/TwistyLime/BossLand/releases/download/v2.1-1.21.3/bossland2-0-2.1.jar) | Latest update with new API and support |
-| 1.19.x            | 0.8 (Final by Eliminator) | [Download v0.8](https://www.spigotmc.org/resources/boss-land.68320/)       | Original discontinued version          |
-| 1.18.x            | 0.7                       | [Download v0.7](https://www.spigotmc.org/resources/boss-land.68320/)       | Last version before 1.19               |
-| 1.16 – 1.17       | 0.5 – 0.6                 | [View Releases](https://www.spigotmc.org/resources/boss-land.68320/)       | May have limited feature set           |
-| 1.13 – 1.15       | 0.1 – 0.4                 | [View Releases](https://www.spigotmc.org/resources/boss-land.68320/)       | Legacy builds, minimal support         |
+| Minecraft Version | BossLand Version          | Download Link                                                                                                                  | Notes                                                      |
+|-------------------|---------------------------|--------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------|
+| 1.16.1 - 1.21.5   | 2.2                       | [Download v2.2](https://github.com/TwistyLime/BossLand/releases/download/v2.2-v1.16.1-v1.21.5/bossland2.2-v1.16.1-v1.21.5.jar) | Compatible throughout 1.16.1 uptill 1.21.5 with bugs fixed |
+| 1.21.3            | 2.1                       | [Download v2.1](https://github.com/TwistyLime/BossLand/releases/download/v2.1-1.21.3/bossland2-0-2.1.jar)                      | Updated for 1.21.3 with new API and support                |
+| 1.19.x            | 0.8 (Final by Eliminator) | [Download v0.8](https://www.spigotmc.org/resources/boss-land.68320/)                                                           | Original discontinued version                              |
+| 1.18.x            | 0.7                       | [Download v0.7](https://www.spigotmc.org/resources/boss-land.68320/)                                                           | Last version before 1.19                                   |
+| 1.16 – 1.17       | 0.5 – 0.6                 | [View Releases](https://www.spigotmc.org/resources/boss-land.68320/)                                                           | May have limited feature set                               |
+| 1.13 – 1.15       | 0.1 – 0.4                 | [View Releases](https://www.spigotmc.org/resources/boss-land.68320/)                                                           | Legacy builds, minimal support                             |
 
 
 
@@ -52,9 +53,9 @@ Mid-tier bosses requiring crafted shard items from Tier 1 defeats:
 #### **Tier 3 God Bosses** (3 Bosses)
 High-tier bosses with unique summoning requirements:
 
-- **Aether God** - Summoned at Y=200+ with forbidden fruit
+- **Aether God** - Summoned at Y=200 with forbidden fruit
 - **Pharaoh God** - Summoned in desert with forbidden fruit
-- **Drowned God** - Summoned in ocean at Y=40- with forbidden fruit
+- **Drowned God** - Summoned in ocean at Y=-40 with forbidden fruit
 
 #### **Tier 4 Immortal Bosses** (2 Bosses)
 Ultimate endgame encounters:
@@ -83,15 +84,25 @@ Ultimate endgame encounters:
 
 ### Primary Command: `/bossland` or `/bl`
 
-**Permission:** `bl.cmds`
+#### Available Sub-commands:
+- `/bl guide` - Provides a guide book
+- `/bl help` - Shows list of available commands
+- `/bl info` - Shows information about plugin
+
+### Admin Command: `/bosslandadmin` or `/bl-admin`
+
+**Permission:** `bl-admin.cmds`
 
 #### Available Sub-commands:
-- `/bl spawn <boss> [x y z] [world]` - Spawns a specific boss
-- `/bl loot <boss>` - Drops a boss's death loot
-- `/bl setLoot <boss> <id>` - Set loot for a boss
-- `/bl addLoot <boss>` - Add loot for a boss  
-- `/bl killBosses <world>` - Remove all bosses in a world
-- `/bl reload` - Reload the plugin configuration
+- `/bl-admin help` - Shows list of available commands
+- `/bl-admin spawn <boss>` - Spawns a specific Boss.
+- `/bl-admin cspawn <boss> [x y z] [world]` - Spawns a Boss at coords in a world.
+- `/bl-admin loot <boss>` - Drops a boss's death loot
+- `/bl-admin sloot <boss> <id>` - Drops specific loot
+- `/bl-admin setLoot <boss> <id>` - Set loot for a boss
+- `/bl-admin addLoot <boss>` - Add loot for a boss
+- `/bl-admin killBosses <world>` - Remove all bosses in a world
+- `/bl-admin reload` - Reload the plugin configuration
 
 ## Installation
 
@@ -102,13 +113,13 @@ Ultimate endgame encounters:
 
 ## Dependencies
 
-- **Required:** Spigot/Paper 1.21+
+- **Required:** Spigot/Paper 1.16+
 - **Optional:** WorldGuard (for region protection)
 
 ## Technical Details
 
 - **Main Class:** `com.twistylime.BossLand.BossLand`
-- **API Version:** 1.21+
+- **API Version:** 1.16+
 - **Plugin Architecture:** Event-driven boss management system
 - **Data Storage:** YAML configuration files
 
@@ -123,7 +134,7 @@ Ultimate endgame encounters:
 ### Continued Development
 - **Current:** Reviving and updating for modern Minecraft versions
 - **Goal:** Maintain original gameplay while adding quality-of-life improvements
-- **v2.0:** Update for MC 1.21.3
+- **v2.2:** Update for MC v1.16.1 till v1.21.3
 
 ## Contributing
 
