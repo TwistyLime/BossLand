@@ -6,7 +6,7 @@ guidebook:
     ==: ItemMeta
     meta-type: BOOK_SIGNED
     title: The Ultimate Guide to BossLand
-    author: Zyczu55, plugin by Eliminator
+    author: Zyczu55
     pages:
       - |-
         §0Table of contents:§r
