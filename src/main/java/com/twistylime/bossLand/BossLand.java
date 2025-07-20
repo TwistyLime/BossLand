@@ -171,12 +171,9 @@ public class BossLand extends JavaPlugin implements Listener {
             this.getLogger().log(Level.INFO, Bukkit.getVersion() + " Book successfully generated!");
         }
         // Metrics
-        try {
-            Metrics metrics = new Metrics(this);
-            metrics.start();
-        } catch (IOException e) {
-            // Failed to submit the stats :-(
-        }
+        int pluginId = 	26578;
+        Metrics metrics = new Metrics(this, pluginId);
+
         new UpdateCheck(this).checkForUpdates();
         addRecipes();
         timer();
