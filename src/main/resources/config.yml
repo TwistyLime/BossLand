@@ -504,7 +504,7 @@ bosses:
         amount: 1
         name:  "&5&lMagic Book"
         lore1: "&5Use when all hope is lost"
-        lore2: "&eTeleports you back to bed for 5 books"
+        lore2: "&eConsumes 5 regular books from inventory to teleport back to your bed."
         lore3: "&8Dropped by Evil Wizard"
         enchantments: 
           1:
