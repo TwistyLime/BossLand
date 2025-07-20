@@ -2330,10 +2330,10 @@ public class BossLand extends JavaPlugin implements Listener {
         try {
             assert e.getClickedBlock() != null;
             Location l = e.getClickedBlock().getLocation();
+            String biome = Objects.requireNonNull(l.getWorld()).getBiome((int) l.getX(), (int) l.getY(), (int) l.getZ()).toString();
             // Boss Rituals
             if (p.getInventory().getItemInMainHand().getType().equals(Material.ENDER_EYE)
-                    && Objects.requireNonNull(l.getWorld()).getEnvironment().equals(Environment.NORMAL) && l.getWorld()
-                            .getBiome((int) l.getX(), (int) l.getY(), (int) l.getZ()).toString().contains("SWAMP")) {
+                    && Objects.requireNonNull(l.getWorld()).getEnvironment().equals(Environment.NORMAL) && biome.contains("SWAMP")) {
                 if (checkBlockRecipe(l, "SLIME_BLOCK:SLIME_BLOCK:SLIME_BLOCK", "SLIME_BLOCK:DIAMOND_BLOCK:SLIME_BLOCK",
                         "SLIME_BLOCK:SLIME_BLOCK:SLIME_BLOCK", true)) {
                     e.setCancelled(true);
@@ -2355,8 +2355,7 @@ public class BossLand extends JavaPlugin implements Listener {
                             () -> spawnBoss(p, bs, "WitherSkeletonKing"), (20));
                 }
             } else if (p.getInventory().getItemInMainHand().getType().equals(Material.CAKE)
-                    && Objects.requireNonNull(l.getWorld()).getEnvironment().equals(Environment.NORMAL) && (l.getWorld()
-                            .getBiome((int) l.getX(), (int) l.getY(), (int) l.getZ()).toString().contains("BAMBOO"))) {
+                    && Objects.requireNonNull(l.getWorld()).getEnvironment().equals(Environment.NORMAL) && (biome.contains("BAMBOO"))) {
                 if (checkBlockRecipe(l, "MOSSY_COBBLESTONE:MOSSY_COBBLESTONE:MOSSY_COBBLESTONE",
                         "MOSSY_COBBLESTONE:CHISELED_STONE_BRICKS:MOSSY_COBBLESTONE",
                         "MOSSY_COBBLESTONE:MOSSY_COBBLESTONE:MOSSY_COBBLESTONE", true)) {
@@ -2382,8 +2381,7 @@ public class BossLand extends JavaPlugin implements Listener {
                             (20));
                 }
             } else if (p.getInventory().getItemInMainHand().getType().equals(Material.BRAIN_CORAL)
-                    && Objects.requireNonNull(l.getWorld()).getEnvironment().equals(Environment.NORMAL) && (l.getWorld()
-                            .getBiome((int) l.getX(), (int) l.getY(), (int) l.getZ()).toString().contains("PLAINS"))) {
+                    && Objects.requireNonNull(l.getWorld()).getEnvironment().equals(Environment.NORMAL) && (biome.contains("PLAINS"))) {
                 if (checkBlockRecipe(l, "SOUL_SAND:SOUL_SAND:SOUL_SAND", "SOUL_SAND:EMERALD_BLOCK:SOUL_SAND",
                         "SOUL_SAND:SOUL_SAND:SOUL_SAND", true)) {
                     e.setCancelled(true);
@@ -2394,8 +2392,7 @@ public class BossLand extends JavaPlugin implements Listener {
                             () -> spawnBoss(p, bs, "ZombieKing"), (20));
                 }
             } else if (Objects.requireNonNull(p.getInventory().getItemInMainHand().getItemMeta()).getDisplayName().equals("§5§lBook of Spells")
-                    && Objects.requireNonNull(l.getWorld()).getEnvironment().equals(Environment.NORMAL) && (l.getWorld()
-                            .getBiome((int) l.getX(), (int) l.getY(), (int) l.getZ()).toString().contains("SNOWY"))) {
+                    && Objects.requireNonNull(l.getWorld()).getEnvironment().equals(Environment.NORMAL) && (biome.contains("SNOWY") || biome.contains("FROZEN") || biome.contains("JAGGED") || biome.contains("GROVE") || biome.contains("ICE"))) {
                 if (checkBlockRecipe(l, "REDSTONE_TORCH:REDSTONE_WIRE:REDSTONE_TORCH",
                         "REDSTONE_WIRE:CAMPFIRE:REDSTONE_WIRE", "REDSTONE_TORCH:REDSTONE_WIRE:REDSTONE_TORCH", true)) {
                     e.setCancelled(true);
@@ -2406,8 +2403,7 @@ public class BossLand extends JavaPlugin implements Listener {
                             () -> spawnBoss(p, bs, "EvilWizard"), (20));
                 }
             } else if (p.getInventory().getItemInMainHand().getItemMeta().getDisplayName().equals("§6§lBell of Doom")
-                    && Objects.requireNonNull(l.getWorld()).getEnvironment().equals(Environment.NORMAL) && (l.getWorld()
-                            .getBiome((int) l.getX(), (int) l.getY(), (int) l.getZ()).toString().contains("SAVANNA"))) {
+                    && Objects.requireNonNull(l.getWorld()).getEnvironment().equals(Environment.NORMAL) && (biome.contains("SAVANNA"))) {
                 if (checkBlockRecipe(l, "REDSTONE_TORCH:REDSTONE_WIRE:REDSTONE_TORCH",
                         "REDSTONE_WIRE:CAMPFIRE:REDSTONE_WIRE", "REDSTONE_TORCH:REDSTONE_WIRE:REDSTONE_TORCH", true)) {
                     e.setCancelled(true);
@@ -3263,7 +3259,7 @@ public class BossLand extends JavaPlugin implements Listener {
                 equipMob(boss, "DIAMOND");
             } /**
                * else if(bossType.equals("IllagerKing")) {
-               * 
+               *
                * }
                **/
             else if (bossType.equals("PapaPanda")) {
