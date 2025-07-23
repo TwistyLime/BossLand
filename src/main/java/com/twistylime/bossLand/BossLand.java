@@ -102,6 +102,7 @@ import org.bukkit.util.BlockIterator;
 import org.bukkit.util.Vector;
 
 import com.twistylime.bossLand.command.BossLandTabCompleter;
+import com.twistylime.bossLand.effects.ShardEffectListener;
 import com.twistylime.bossLand.metrics.Metrics;
 import com.twistylime.bossLand.update.UpdateCheck;
 import com.twistylime.bossLand.update.Version;
@@ -175,6 +176,7 @@ public class BossLand extends JavaPlugin implements Listener {
         Metrics metrics = new Metrics(this, pluginId);
 
         new UpdateCheck(this).checkForUpdates();
+        new ShardEffectListener(this);
         addRecipes();
         timer();
         Objects.requireNonNull(this.getCommand("bosslandadmin")).setTabCompleter(new BossLandTabCompleter("admin"));
@@ -195,7 +197,7 @@ public class BossLand extends JavaPlugin implements Listener {
         return Objects.requireNonNull(getConfig().getString("bosses." + b + ".loot." + l + ".name")).replace("&", "§");
     }
 
-    private String getLang(String s) {
+    public String getLang(String s) {
         if (langFile.getString(s) == null) {
             this.getLogger().log(Level.SEVERE, "Error with Lang file!");
             System.out.print("Looking for path: " + s);
