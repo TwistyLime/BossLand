@@ -5,8 +5,8 @@ import java.io.IOException;
 import java.util.*;
 import java.util.logging.Level;
 
-import com.twistylime.bossLand.guidemenu.Guide;
-import com.twistylime.bossLand.guidemenu.InvListener;
+import com.twistylime.bossLand.command.BossLandCommandHandler;
+import com.twistylime.bossLand.guidebook.MenuListener;
 import com.twistylime.bossLand.worldguard.WorldGuardCompatibility;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -32,7 +32,6 @@ import org.bukkit.boss.BarStyle;
 import org.bukkit.boss.BossBar;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.enchantments.Enchantment;
@@ -113,8 +112,6 @@ import com.twistylime.bossLand.update.Version;
 import com.twistylime.bossLand.utility.CompatibilityResolver;
 import com.twistylime.bossLand.utility.SkullCreator;
 
-import static java.util.stream.Collectors.toMap;
-
 public class BossLand extends JavaPlugin implements Listener {
 
     String mc_version = Version.getServerVersion();
@@ -125,11 +122,7 @@ public class BossLand extends JavaPlugin implements Listener {
     File langYML = new File(getDataFolder(), "lang.yml");
     YamlConfiguration langFile = YamlConfiguration.loadConfiguration(langYML);
 
-    File bookYML = new File(getDataFolder(), "book.yml");
-    YamlConfiguration bookFile = YamlConfiguration.loadConfiguration(bookYML);
-
-    File guideYML = new File(getDataFolder(), "guide.yml");
-    YamlConfiguration guideFile = YamlConfiguration.loadConfiguration(guideYML);
+    private static BossLand plugin;
 
     HashMap<Entity, BossBar> bossMap = new HashMap<>();
     HashMap<Entity, Entity> targetMap = new HashMap<>();
@@ -146,9 +139,15 @@ public class BossLand extends JavaPlugin implements Listener {
     ArrayList<UUID> hadDeathNote = new ArrayList<>();
     ArrayList<FallingBlock> removeBLockList = new ArrayList<>();
 
+    public static BossLand getPlugin() {
+        return plugin;
+    }
+
     @Override
     public void onEnable() {
-        this.getLogger().log(Level.INFO, "The Server version is: "+mc_version);
+        this.getLogger().log(Level.INFO, "The Server version is: "+ this.mc_version);
+        plugin = this;
+
         getServer().getPluginManager().registerEvents(this, this);
         if (!new File(getDataFolder(), "config.yml").exists()) {
             saveDefaultConfig();
@@ -173,23 +172,10 @@ public class BossLand extends JavaPlugin implements Listener {
             this.getLogger().log(Level.INFO, Bukkit.getVersion() + " Lang successfully generated!");
             reloadLang();
         }
-        // Register Guide book
-        if (!bookYML.exists()) {
-            this.getLogger().log(Level.INFO, "No book.yml found, generating...");
-            // Generate Book
-            this.saveResource("book.yml", false);
-            this.getLogger().log(Level.INFO, Bukkit.getVersion() + " Book successfully generated!");
-        }
-        // Register Guide Menu book
-        if (!guideYML.exists()) {
-            this.getLogger().log(Level.INFO, "No guide.yml found, generating...");
-            // Generate Book
-            this.saveResource("guide.yml", false);
-            this.getLogger().log(Level.INFO, Bukkit.getVersion() + " Guide successfully generated!");
-        }
+
         // Metrics
         int pluginId = 	26578;
-        Metrics metrics = new Metrics(this, pluginId);
+        new Metrics(this, pluginId);
 
         new UpdateCheck(this).checkForUpdates();
         new ShardEffectListener(this);
@@ -197,9 +183,8 @@ public class BossLand extends JavaPlugin implements Listener {
         timer();
         Objects.requireNonNull(this.getCommand("bosslandadmin")).setTabCompleter(new BossLandTabCompleter("admin"));
         Objects.requireNonNull(this.getCommand("bossland")).setTabCompleter(new BossLandTabCompleter("player"));
-        Objects.requireNonNull(getCommand("gui")).setExecutor(new Guide(this));
-        getServer().getPluginManager().registerEvents(new InvListener(this),this);
-        getServer().getPluginManager().registerEvents(new Guide(this),this);
+        Objects.requireNonNull(getCommand("gui")).setExecutor(new BossLandCommandHandler());
+        getServer().getPluginManager().registerEvents(new MenuListener(),this);
     }
 
     private void reloadLang() {
@@ -229,23 +214,6 @@ public class BossLand extends JavaPlugin implements Listener {
             }
         }
         return Objects.requireNonNull(langFile.getString(s)).replace("&", "§");
-    }
-
-    public Map<String, Object> getGuide() {
-        return toMap(guideFile);
-    }
-
-    public Map<String, Object> toMap(ConfigurationSection section) {
-        Map<String, Object> map = new LinkedHashMap<>();
-        for (String key : section.getKeys(false)) {
-            Object value = section.get(key);
-            if (value instanceof ConfigurationSection) {
-                map.put(key, toMap((ConfigurationSection) value));
-            } else {
-                map.put(key, value);
-            }
-        }
-        return map;
     }
 
     @SuppressWarnings("unchecked")
@@ -4495,7 +4463,13 @@ public class BossLand extends JavaPlugin implements Listener {
             if (args[0].equals("guide") && args.length == 1) {
                 if (sender instanceof Player) {
                     Player p = (Player)sender;
-                    ItemStack guideBook = bookFile.getItemStack("guidebook");
+                    ItemStack guideBook = new ItemStack(Material.WRITTEN_BOOK,1);
+                    ItemMeta guideBookMeta = guideBook.getItemMeta();
+                    if(guideBookMeta != null){
+                        guideBookMeta.setDisplayName(ChatColor.BOLD+"The Ultimate Guide to BossLand");
+                        guideBookMeta.setLore(List.of(ChatColor.GRAY+"by TwistyLime, plugin by Eliminator"));
+                    }
+                    guideBook.setItemMeta(guideBookMeta);
                     p.getInventory().addItem(guideBook);
                 }
                 return true;
