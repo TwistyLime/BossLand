@@ -4,6 +4,7 @@ main: com.twistylime.bossLand.BossLand
 api-version: '1.16'
 author: TwistyLime / Eliminator
 description: A plugin that adds boss-related mechanics and commands to your Minecraft world. This is a fork of original repository from Eliminator.
+softdepend: [WorldGuard]
 
 commands:
   bosslandadmin:

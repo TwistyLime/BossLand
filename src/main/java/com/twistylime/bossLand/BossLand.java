@@ -5,6 +5,9 @@ import java.io.IOException;
 import java.util.*;
 import java.util.logging.Level;
 
+import com.twistylime.bossLand.guidemenu.Guide;
+import com.twistylime.bossLand.guidemenu.InvListener;
+import com.twistylime.bossLand.worldguard.WorldGuardCompatibility;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Chunk;
@@ -29,6 +32,7 @@ import org.bukkit.boss.BarStyle;
 import org.bukkit.boss.BossBar;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.enchantments.Enchantment;
@@ -109,6 +113,8 @@ import com.twistylime.bossLand.update.Version;
 import com.twistylime.bossLand.utility.CompatibilityResolver;
 import com.twistylime.bossLand.utility.SkullCreator;
 
+import static java.util.stream.Collectors.toMap;
+
 public class BossLand extends JavaPlugin implements Listener {
 
     String mc_version = Version.getServerVersion();
@@ -121,6 +127,9 @@ public class BossLand extends JavaPlugin implements Listener {
 
     File bookYML = new File(getDataFolder(), "book.yml");
     YamlConfiguration bookFile = YamlConfiguration.loadConfiguration(bookYML);
+
+    File guideYML = new File(getDataFolder(), "guide.yml");
+    YamlConfiguration guideFile = YamlConfiguration.loadConfiguration(guideYML);
 
     HashMap<Entity, BossBar> bossMap = new HashMap<>();
     HashMap<Entity, Entity> targetMap = new HashMap<>();
@@ -171,6 +180,13 @@ public class BossLand extends JavaPlugin implements Listener {
             this.saveResource("book.yml", false);
             this.getLogger().log(Level.INFO, Bukkit.getVersion() + " Book successfully generated!");
         }
+        // Register Guide Menu book
+        if (!guideYML.exists()) {
+            this.getLogger().log(Level.INFO, "No guide.yml found, generating...");
+            // Generate Book
+            this.saveResource("guide.yml", false);
+            this.getLogger().log(Level.INFO, Bukkit.getVersion() + " Guide successfully generated!");
+        }
         // Metrics
         int pluginId = 	26578;
         Metrics metrics = new Metrics(this, pluginId);
@@ -181,6 +197,9 @@ public class BossLand extends JavaPlugin implements Listener {
         timer();
         Objects.requireNonNull(this.getCommand("bosslandadmin")).setTabCompleter(new BossLandTabCompleter("admin"));
         Objects.requireNonNull(this.getCommand("bossland")).setTabCompleter(new BossLandTabCompleter("player"));
+        Objects.requireNonNull(getCommand("gui")).setExecutor(new Guide(this));
+        getServer().getPluginManager().registerEvents(new InvListener(this),this);
+        getServer().getPluginManager().registerEvents(new Guide(this),this);
     }
 
     private void reloadLang() {
@@ -210,6 +229,23 @@ public class BossLand extends JavaPlugin implements Listener {
             }
         }
         return Objects.requireNonNull(langFile.getString(s)).replace("&", "§");
+    }
+
+    public Map<String, Object> getGuide() {
+        return toMap(guideFile);
+    }
+
+    public Map<String, Object> toMap(ConfigurationSection section) {
+        Map<String, Object> map = new LinkedHashMap<>();
+        for (String key : section.getKeys(false)) {
+            Object value = section.get(key);
+            if (value instanceof ConfigurationSection) {
+                map.put(key, toMap((ConfigurationSection) value));
+            } else {
+                map.put(key, value);
+            }
+        }
+        return map;
     }
 
     @SuppressWarnings("unchecked")
@@ -3220,23 +3256,24 @@ public class BossLand extends JavaPlugin implements Listener {
         try {
             // Check Disabled Worlds
             if (getConfig().getList("disabledWorlds").contains(l.getWorld().getName())) {
-                for (Entity e : getNearbyEntities(l, 24, new ArrayList<EntityType>(Arrays.asList(EntityType.PLAYER))))
+                for (Entity e : getNearbyEntities(l, 24, new ArrayList<EntityType>(List.of(EntityType.PLAYER))))
                     ((Player) e).sendMessage(getLang("failSpawnWorld"));
                 return;
             }
-            // Check World Guard
-            // if(this.getServer().getPluginManager().getPlugin("WorldGuard") != null)
-            // try {
-            // if(!new WorldGuardMethods().queryBuild(p, l)) {
-            // for(Entity e : getNearbyEntities(l, 24, new
-            // ArrayList<EntityType>(Arrays.asList(EntityType.PLAYER))))
-            // ((Player)e).sendMessage(getLang("failSpawnWG"));
-            // return;
-            // }
-            // }catch(Exception x) {}
+
+            // Check worldguard region Build Flag
+            WorldGuardCompatibility worldGuardCheck = new WorldGuardCompatibility(this);
+            if(worldGuardCheck.isEnabled()){
+                if(!worldGuardCheck.canBuild(p,l)){
+                    for(Entity e : getNearbyEntities(l, 24, new ArrayList<>(List.of(EntityType.PLAYER))))
+                        ((Player)e).sendMessage(getLang("failSpawnWG"));
+                    return;
+                }
+            }
+
             // Check Boss Limit
             if (bossMap.size() >= getConfig().getInt("bossLimit")) {
-                for (Entity e : getNearbyEntities(l, 24, new ArrayList<EntityType>(Arrays.asList(EntityType.PLAYER))))
+                for (Entity e : getNearbyEntities(l, 24, new ArrayList<EntityType>(List.of(EntityType.PLAYER))))
                     ((Player) e).sendMessage(getLang("tooManyBosses"));
                 return;
             }
@@ -4493,76 +4530,6 @@ public class BossLand extends JavaPlugin implements Listener {
         for (String b : getConfig().getConfigurationSection("bosses").getKeys(false))
             sender.sendMessage(b);
     }
-
-    // class WorldGuardMethods{
-    // WorldGuardMethods() {}
-    //
-    //// private WorldGuardPlugin getWorldGuard(){
-    //// Plugin plugin =
-    // BossLand.this.getServer().getPluginManager().getPlugin("WorldGuard");
-    //// if ((plugin == null) || (!(plugin instanceof WorldGuardPlugin))) {
-    //// return null;
-    //// }
-    //// return (WorldGuardPlugin)plugin;
-    //// }
-    //
-    //// public boolean canSpawn(Player p, Location l) {
-    //// boolean build = false;
-    //// try{
-    //// //RegionContainer container =
-    // WorldGuard.getInstance().getPlatform().getRegionContainer();
-    //// //RegionManager regionManager =
-    // container.get(BukkitAdapter.adapt(l.getWorld()));
-    //// ApplicableRegionSet set =
-    // WorldGuard.getInstance().getPlatform().getRegionContainer().get(new
-    // BukkitWorld(l.getWorld())).getApplicableRegions(BlockVector3.at(l.getX(),l.getY(),l.getZ()));
-    //// if (!set.getRegions().isEmpty())
-    //// for(ProtectedRegion i : set.getRegions()) {
-    //// build = queryBuild(p,l);
-    //// }
-    //// }catch (Exception x) {x.printStackTrace();}
-    //// return build;
-    //// }
-    //
-    // private boolean queryBuild(Player player, Location loc) {
-    // if(player == null)
-    // return true;
-    // BukkitPlayer wgPlayer = (BukkitPlayer) BukkitAdapter.adapt(player);
-    // BukkitRegionContainer container =
-    // WorldGuard.getInstance().getPlatform().getRegionContainer();
-    // RegionQuery query = container.createQuery();
-    //
-    // // Can't build
-    // return query.testState(BukkitAdapter.adapt(loc), wgPlayer, Flags.BUILD);
-    // }
-    //
-    //// @SuppressWarnings("deprecation")
-    //// public boolean canSpawn(Location l) {
-    //// boolean build = false;
-    //// try{
-    //// WorldGuardPlugin wg = getWorldGuard();
-    //// RegionManager regionManager = wg.getRegionManager(l.getWorld());
-    //// ApplicableRegionSet set = regionManager.getApplicableRegions(l);
-    ////
-    //// ProtectedRegion r = regionManager.getRegion("__global__");
-    //// State s = (State)r.getFlag(DefaultFlag.BUILD);
-    //// if (s.toString().equals("DENY")) {
-    //// build = false;
-    //// }else{
-    //// build = true;
-    //// }
-    //// if (!set.getRegions().isEmpty()) {
-    //// if (set.allows(DefaultFlag.BLOCK_PLACE)) {
-    //// build = true;
-    //// }else{
-    //// return false;
-    //// }
-    //// }
-    //// }catch (Exception localException) {}
-    //// return build;
-    //// }
-    //
-    // }
 
     static class LevelledEnchantment {
         public Enchantment getEnchantment;
