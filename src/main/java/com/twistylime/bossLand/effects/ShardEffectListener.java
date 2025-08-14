@@ -56,19 +56,19 @@ public class ShardEffectListener implements Listener {
         // Green Shard (King Slime): Jump Boost (good), Slowness (bad)
         java.util.Map.entry("greenshard", new ShardEffect(new String[]{"JUMP_BOOST", "JUMP"}, new String[]{"SLOW", "SLOWNESS"}, 60, 2)),
         // Grey Shard (Killer Bunny): Speed (good), Nausea (bad)
-        java.util.Map.entry("greyshard", new ShardEffect(new String[]{"SPEED"}, new String[]{"CONFUSION"}, 60, 2)),
+        java.util.Map.entry("greyshard", new ShardEffect(new String[]{"SPEED"}, new String[]{"BLINDNESS"}, 60, 2)),
         // Black Shard (Wither Skeleton King): Resistance (good), Wither (bad)
-        java.util.Map.entry("blackshard", new ShardEffect(new String[]{"DAMAGE_RESISTANCE", "RESISTANCE"}, new String[]{"WITHER"}, 60, 0)),
+        java.util.Map.entry("blackshard", new ShardEffect(new String[]{"REGENERATION"}, new String[]{"WITHER"}, 60, 0)),
         // Red Shard (Zombie King): Strength (good), Hunger (bad)
         java.util.Map.entry("redshard", new ShardEffect(new String[]{"INCREASE_DAMAGE", "STRENGTH"}, new String[]{"HUNGER"}, 60, 1)),
-        // Brown Shard (Papa Panda): Speed (good), Slowness (bad)
-        java.util.Map.entry("brownshard", new ShardEffect(new String[]{"SPEED"}, new String[]{"SLOW", "SLOWNESS"}, 60, 2)),
+        // Brown Shard (Papa Panda): Haste (good), Slowness (bad)
+        java.util.Map.entry("brownshard", new ShardEffect(new String[]{"HASTE","FAST_DIGGING"}, new String[]{"SLOW", "SLOWNESS"}, 60, 2)),
         // Emerald Shard (Giant): Absorption (good), Mining Fatigue (bad)
         java.util.Map.entry("emeraldshard", new ShardEffect(new String[]{"ABSORPTION"}, new String[]{"SLOW_DIGGING", "MINING_FATIGUE"}, 60, 1)),
         // Gold Shard (Illager King): Regeneration (good), Blindness (bad)
-        java.util.Map.entry("goldshard", new ShardEffect(new String[]{"REGENERATION"}, new String[]{"BLINDNESS"}, 60, 1)),
+        java.util.Map.entry("goldshard", new ShardEffect(new String[]{"DAMAGE_RESISTANCE", "RESISTANCE"}, new String[]{"BLINDNESS"}, 60, 1)),
         // Blue Shard (Evil Wizard): Night Vision (good), Poison (bad)
-        java.util.Map.entry("blueshard", new ShardEffect(new String[]{"NIGHT_VISION"}, new String[]{"POISON"}, 60, 1)),
+        java.util.Map.entry("blueshard", new ShardEffect(new String[]{"SATURATION"}, new String[]{"POISON"}, 60, 1)),
         // Demonic Shard (Demon): Fire Resistance (good), Weakness (bad)
         java.util.Map.entry("demonicshard", new ShardEffect(new String[]{"FIRE_RESISTANCE"}, new String[]{"WEAKNESS"}, 60, 2))
     );
