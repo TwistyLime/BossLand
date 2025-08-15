@@ -1,0 +1,107 @@
+item_recipes:
+  death_note:
+    result:
+      item: DEATH_NOTE
+      amount: 1
+    shape:
+      - "SSS"
+      - "SES"
+      - "SSS"
+    ingredients:
+      S: NETHER_STAR
+      E: BOOK_OF_KNOWLEDGE
+  god_fruit:
+    result:
+      item: FORBIDDEN_FRUIT
+      amount: 1
+    shape:
+      - "GGG"
+      - "GAG"
+      - "EYB"
+    ingredients:
+      G: GOLD_BLOCK
+      A: APPLE
+      E: EMERALD_BOSS_SHARD
+      Y: GOLD_BOSS_SHARD
+      B: BLUE_BOSS_SHARD
+  devil_fruit:
+    result:
+      item: ABHORRENT_FRUIT
+      amount: 1
+    shape:
+      - "AFA"
+      - "FGF"
+      - "AFA"
+    ingredients:
+      A: AIR
+      F: DEMONIC_SHARD
+      G: FORBIDDEN_FRUIT
+  illager_bell:
+    result:
+      item: BELL_OF_DOOM
+      amount: 1
+    shape:
+      - "GGG"
+      - "WSC"
+      - "GGG"
+    ingredients:
+      W: WHITE_BOSS_SHARD
+      S: GREEN_BOSS_SHARD
+      C: GRAY_BOSS_SHARD
+      G: GOLD_INGOT
+  wizard_book:
+    result:
+      item: BOOK_OF_SPELLS
+      amount: 1
+    shape:
+      - "LLL"
+      - "BPR"
+      - "PPP"
+    ingredients:
+      L: LEATHER
+      P: PAPER
+      R: RED_BOSS_SHARD
+      B: BLACK_BOSS_SHARD
+  giant_potion:
+    result:
+      item: POTION_OF_GIANT_GROWTH
+      amount: 1
+    shape:
+      - "GGG"
+      - "SRB"
+      - "GWG"
+    ingredients:
+      W: WATER_BUCKET
+      G: GLASS
+      S: GREEN_BOSS_SHARD
+      R: RED_BOSS_SHARD
+      B: BROWN_BOSS_SHARD
+  dragon_egg:
+    result:
+      item: ELDER_EGG
+      amount: 1
+    shape:
+      - "OOO"
+      - "OWO"
+      - "OBO"
+    ingredients:
+      O: OBSIDIAN
+      W: WHITE_BOSS_SHARD
+      B: BLACK_BOSS_SHARD
+
+
+shrine_recipes:
+  custom_item_shaped:
+    result:
+      item: DIAMOND_AXE
+      amount: 1
+    shape:
+      - "III"
+      - " IS"
+      - " S "
+    ingredients:
+      I: IRON_INGOT
+      S: STICK
+    activator:
+      item: ENDER_EYE
+      amount: 1

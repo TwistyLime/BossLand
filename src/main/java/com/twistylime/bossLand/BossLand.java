@@ -1,11 +1,11 @@
 package com.twistylime.bossLand;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.*;
 import java.util.logging.Level;
 
 import com.twistylime.bossLand.command.BossLandCommandHandler;
+import com.twistylime.bossLand.config.BossLandConfiguration;
+import com.twistylime.bossLand.core.BossLandRecipes;
 import com.twistylime.bossLand.guidebook.MenuListener;
 import com.twistylime.bossLand.worldguard.WorldGuardCompatibility;
 import org.bukkit.Bukkit;
@@ -33,7 +33,6 @@ import org.bukkit.boss.BossBar;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Damageable;
@@ -116,12 +115,6 @@ public class BossLand extends JavaPlugin implements Listener {
 
     String mc_version = Version.getServerVersion();
 
-    File saveYML = new File(getDataFolder(), "save.yml");
-    YamlConfiguration saveFile = YamlConfiguration.loadConfiguration(saveYML);
-
-    File langYML = new File(getDataFolder(), "lang.yml");
-    YamlConfiguration langFile = YamlConfiguration.loadConfiguration(langYML);
-
     private static BossLand plugin;
 
     HashMap<Entity, BossBar> bossMap = new HashMap<>();
@@ -138,6 +131,8 @@ public class BossLand extends JavaPlugin implements Listener {
     ArrayList<UUID> canEnterDeath = new ArrayList<>();
     ArrayList<UUID> hadDeathNote = new ArrayList<>();
     ArrayList<FallingBlock> removeBLockList = new ArrayList<>();
+    BossLandConfiguration config = new BossLandConfiguration();
+    BossLandRecipes recipeManager;
 
     public static BossLand getPlugin() {
         return plugin;
@@ -147,31 +142,9 @@ public class BossLand extends JavaPlugin implements Listener {
     public void onEnable() {
         this.getLogger().log(Level.INFO, "The Server version is: "+ this.mc_version);
         plugin = this;
-
         getServer().getPluginManager().registerEvents(this, this);
-        if (!new File(getDataFolder(), "config.yml").exists()) {
-            saveDefaultConfig();
-        }
-        // Register Saves
-        if (!saveYML.exists()) {
-            try {
-                if(saveYML.createNewFile()){
-                    this.getLogger().log(Level.INFO, "New save.yml generated.");
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        // Register Lang
-        if (!langYML.exists()) {
-            this.getLogger().log(Level.INFO, "No lang.yml found, generating...");
-            // Generate Lang
-            this.saveResource("lang.yml", false);
-            // new File(this.getDataFolder(), "lang.yml").renameTo(new
-            // File(this.getDataFolder(), "lang.yml"));
-            this.getLogger().log(Level.INFO, Bukkit.getVersion() + " Lang successfully generated!");
-            reloadLang();
-        }
+
+        config.loadConfig(this);
 
         // Metrics
         int pluginId = 	26578;
@@ -180,6 +153,8 @@ public class BossLand extends JavaPlugin implements Listener {
         new UpdateCheck(this).checkForUpdates();
         new ShardEffectListener(this);
         addRecipes();
+        recipeManager = new BossLandRecipes(this, config);
+//        recipeManager.addRecipes(config.getRecipeConfiguration("item_recipes"));
         timer();
         Objects.requireNonNull(this.getCommand("bosslandadmin")).setTabCompleter(new BossLandTabCompleter("admin"));
         Objects.requireNonNull(this.getCommand("bossland")).setTabCompleter(new BossLandTabCompleter("player"));
@@ -187,48 +162,8 @@ public class BossLand extends JavaPlugin implements Listener {
         getServer().getPluginManager().registerEvents(new MenuListener(),this);
     }
 
-    private void reloadLang() {
-        if (this.langYML == null) {
-            this.langYML = new File(getDataFolder(), "lang.yml");
-        }
-        this.langFile = YamlConfiguration.loadConfiguration(this.langYML);
-
-        YamlConfiguration defConfig = YamlConfiguration.loadConfiguration(langYML);
-        this.langFile.setDefaults(defConfig);
-    }
-
     private String getBossItemName(String b, int l) {
         return Objects.requireNonNull(getConfig().getString("bosses." + b + ".loot." + l + ".name")).replace("&", "§");
-    }
-
-    public String getLang(String s) {
-        if (langFile.getString(s) == null) {
-            this.getLogger().log(Level.SEVERE, "Error with Lang file!");
-            System.out.print("Looking for path: " + s);
-            System.out.print("Found: " + langFile.getString(s));
-            langFile.set(s, "Missing!");
-            try {
-                langFile.save(langYML);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-        return Objects.requireNonNull(langFile.getString(s)).replace("&", "§");
-    }
-
-    @SuppressWarnings("unchecked")
-    private ArrayList<String> getLangList(String s) {
-        ArrayList<String> list = (ArrayList<String>) langFile.getList(s);
-        if (list == null || list.isEmpty()) {
-            this.getLogger().log(Level.SEVERE, "Error with Lang file!");
-            System.out.print("Looking for list path: " + s);
-            System.out.print("Found: " + langFile.getString(s));
-        }
-        ArrayList<String> list2 = new ArrayList<>();
-        assert list != null;
-        for (String l : list)
-            list2.add(l.replace("&", "§"));
-        return list2;
     }
 
     @SuppressWarnings({ "unchecked" })
@@ -240,8 +175,8 @@ public class BossLand extends JavaPlugin implements Listener {
                 // Dead Check
                 if (((Damageable) e).getHealth() <= 0) {
                     bossMap.remove(e);
-                    saveFile.set("bosses." + e.getUniqueId(), null);
-                    save();
+                    config.setSaveData("bosses." + e.getUniqueId(), null);
+                    config.saveBossData();
                 }
                 // Fire Check
                 if ((e instanceof LivingEntity))
@@ -339,24 +274,6 @@ public class BossLand extends JavaPlugin implements Listener {
         ((org.bukkit.inventory.meta.Damageable) s).setDamage(0);
     }
 
-    private void save() {
-        try {
-            this.saveFile.save(this.saveYML);
-        } catch (IOException localIOException) {
-        }
-    }
-
-    // @EventHandler(priority=EventPriority.HIGH)
-    // public void onPlayerMove(PlayerMoveEvent e) {
-    // Player p = e.getPlayer();
-    // try {
-    // if(p.getInventory().getItemInMainHand().getItemMeta().getDisplayName().equals("§lStaff
-    // of Control")) {
-    //
-    // }
-    // }catch(Exception x) {}
-    // }
-
     @EventHandler(priority = EventPriority.HIGH)
     public void onProjectileHit(ProjectileHitEvent e) {
         if (lightningList.contains(e.getEntity())) {
@@ -369,7 +286,7 @@ public class BossLand extends JavaPlugin implements Listener {
     public void onProjectileLaunch(ProjectileLaunchEvent e) {
         // Check for God Trident
         try {
-            final String bossType = saveFile.getString("bosses." + e.getEntity().getUniqueId());
+            final String bossType = config.getDataFrom("save","bosses." + e.getEntity().getUniqueId());
             if (e.getEntity().getShooter() != null) {
                 if (e.getEntity().getShooter() instanceof Player) {
                     Player p = (Player) e.getEntity().getShooter();
@@ -512,7 +429,7 @@ public class BossLand extends JavaPlugin implements Listener {
     public void onEntityTarget(EntityTargetEvent e) {
         try {
             if (e.getTarget() != null) {
-                String bossType = saveFile.getString("bosses." + e.getTarget().getUniqueId());
+                String bossType = config.getDataFrom("save","bosses." + e.getTarget().getUniqueId());
                 if (bossType != null) {
                     e.setCancelled(true);
                 } else if (e.getEntity() instanceof PigZombie) {
@@ -529,7 +446,7 @@ public class BossLand extends JavaPlugin implements Listener {
     @EventHandler(priority = EventPriority.HIGH)
     public void onEntityDamagedByEntity(EntityDamageByEntityEvent e) {
         // Check if is Boss
-        final String bossType = saveFile.getString("bosses." + e.getEntity().getUniqueId());
+        final String bossType = config.getDataFrom("save","bosses." + e.getEntity().getUniqueId());
         if (bossType != null && (e.getEntity() instanceof LivingEntity )) {
             LivingEntity ent = (LivingEntity) e.getEntity();
             // Make Sure Real Boss
@@ -1248,8 +1165,7 @@ public class BossLand extends JavaPlugin implements Listener {
             }
         } else if (!e.getEntity().getPassengers().isEmpty()) {
             // Mount Damage Stop
-            final String bossType2 = saveFile
-                    .getString("bosses." + e.getEntity().getPassengers().get(0).getUniqueId());
+            final String bossType2 = config.getDataFrom("save","bosses." + e.getEntity().getPassengers().get(0).getUniqueId());
             if (bossType2 != null) {
                 LivingEntity boss = (LivingEntity) e.getEntity().getPassengers().get(0);
                 if (!boss.isDead()) {
@@ -1313,7 +1229,7 @@ public class BossLand extends JavaPlugin implements Listener {
     private boolean checkDeath(final Player p, double fd) {
         if ((p.getHealth() - fd) <= 0) {
             // System.out.println("D3");    
-            p.sendMessage(getLang("curse"));
+            p.sendMessage(config.getLang("curse"));
             double maxHealth = Objects.requireNonNull(p.getAttribute(CompatibilityResolver.resolveAttribute("MAX_HEALTH", "GENERIC_MAX_HEALTH"))).getBaseValue();
             p.setHealth(maxHealth);
             p.addPotionEffect(new PotionEffect(PotionEffectType.REGENERATION, 10 * 40, 1));
@@ -2066,7 +1982,7 @@ public class BossLand extends JavaPlugin implements Listener {
         // Attacker Boss
         Entity atkr = e.getEntity();
         {
-            String bossType = saveFile.getString("bosses." + atkr.getUniqueId());
+            String bossType = config.getDataFrom("save","bosses." + atkr.getUniqueId());
             if (bossType != null) {
                 if (bossType.equals("Anger")) {
                     if (!(e.getTarget() instanceof Player)) {
@@ -2082,7 +1998,7 @@ public class BossLand extends JavaPlugin implements Listener {
         // Target Boss
         Entity trgt = e.getTarget();
         if (trgt != null) {
-            String bossType = saveFile.getString("bosses." + trgt.getUniqueId());
+            String bossType = config.getDataFrom("save","bosses." + trgt.getUniqueId());
             if (bossType != null) {
                 if (bossType.equals("Anger")) {
                     e.setCancelled(true);
@@ -2193,7 +2109,7 @@ public class BossLand extends JavaPlugin implements Listener {
     public void onEntityDeath(EntityDeathEvent e) {
         Entity ent = e.getEntity();
         // Boss Death
-        final String bossType = saveFile.getString("bosses." + ent.getUniqueId());
+        final String bossType = config.getDataFrom("save","bosses." + ent.getUniqueId());
         if (bossType != null) {
             // ArrayList<ItemStack> loot = new ArrayList<ItemStack>();
             // Boss Death
@@ -2233,16 +2149,16 @@ public class BossLand extends JavaPlugin implements Listener {
             // God Deaths
             switch (bossType) {
                 case "AetherGod" -> {
-                    saveFile.set("aetherGodDeaths", saveFile.getInt("aetherGodDeaths") + 1);
-                    save();
+                    config.setSaveData("aetherGodDeaths", config.getIntDataFrom("save","aetherGodDeaths") + 1);
+                    config.saveBossData();
                 }
                 case "PharaohGod" -> {
-                    saveFile.set("pharaohGodDeaths", saveFile.getInt("pharaohGodDeaths") + 1);
-                    save();
+                    config.setSaveData("pharaohGodDeaths", config.getIntDataFrom("save","pharaohGodDeaths") + 1);
+                    config.saveBossData();
                 }
                 case "DrownedGod" -> {
-                    saveFile.set("drownedGodDeaths", saveFile.getInt("drownedGodDeaths") + 1);
-                    save();
+                    config.setSaveData("drownedGodDeaths", config.getIntDataFrom("save","drownedGodDeaths") + 1);
+                    config.saveBossData();
                 }
             }
         }
@@ -2303,7 +2219,7 @@ public class BossLand extends JavaPlugin implements Listener {
     @EventHandler(priority = EventPriority.HIGH)
     public void onSlimeSplit(SlimeSplitEvent e) {
         Entity ent = e.getEntity();
-        final String bossType = saveFile.getString("bosses." + ent.getUniqueId());
+        final String bossType = config.getDataFrom("save","bosses." + ent.getUniqueId());
         if (bossType != null) {
             e.setCancelled(true);
         }
@@ -2317,7 +2233,7 @@ public class BossLand extends JavaPlugin implements Listener {
                 e.setCancelled(true);
             } else if (e.getItemInHand().getItemMeta().getDisplayName().equals(getBossItemName("AetherGod", 1))) {
                 e.setCancelled(true);
-            } else if (e.getItemInHand().getItemMeta().getDisplayName().equals(getLang("items.deathnote"))) {
+            } else if (e.getItemInHand().getItemMeta().getDisplayName().equals(config.getLang("items.deathnote"))) {
                 e.setCancelled(true);
             }
             // if(p.getInventory().getItemInMainHand().getItemMeta().getDisplayName().equals("§e§lThe
@@ -2437,7 +2353,7 @@ public class BossLand extends JavaPlugin implements Listener {
                 if (checkBlockRecipe(l, "REDSTONE_TORCH:REDSTONE_WIRE:REDSTONE_TORCH",
                         "REDSTONE_WIRE:CAMPFIRE:REDSTONE_WIRE", "REDSTONE_TORCH:REDSTONE_WIRE:REDSTONE_TORCH", true)) {
                     e.setCancelled(true);
-                    if (godsDead()) {
+                    if (config.godsDead()) {
                         takeItem(p, 1);
                         p.getWorld().createExplosion(e.getClickedBlock().getLocation(), 4);
                         final Location bs = l.clone();
@@ -2445,7 +2361,7 @@ public class BossLand extends JavaPlugin implements Listener {
                         Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(this, () -> spawnBoss(p, bs, "Demon"),
                                 (10));
                     } else
-                        p.sendMessage(getLang("noPower"));
+                        p.sendMessage(config.getLang("noPower"));
                 }
             } else if (p.getInventory().getItemInMainHand().getType().equals(Material.GOLD_INGOT)
                     && p.getInventory().getItemInMainHand().getAmount() >= 16) {
@@ -2519,15 +2435,15 @@ public class BossLand extends JavaPlugin implements Listener {
                     if (took >= count) {
                         p.teleport(p.getBedSpawnLocation());
                         p.getWorld().playSound(p.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 1, 1);
-                        p.sendMessage(getLang("bed"));
+                        p.sendMessage(config.getLang("bed"));
                         cool(p.getUniqueId());
                     } else {
-                        p.sendMessage(getLang("books"));
+                        p.sendMessage(config.getLang("books"));
                         if (took > 0)
                             p.getInventory().addItem(new ItemStack(Material.BOOK, took));
                     }
                 } else
-                    p.sendMessage(getLang("noBed"));
+                    p.sendMessage(config.getLang("noBed"));
             } else if (p.getInventory().getItemInMainHand().getItemMeta().getDisplayName()
                     .equals(getBossItemName("DrownedGod", 1))) {
                 if ((!p.getLocation().getBlock().getType().equals(Material.WATER)) && (!p.getWorld().hasStorm())) {
@@ -2563,17 +2479,17 @@ public class BossLand extends JavaPlugin implements Listener {
                     m.setLore(lore);
                     s.setItemMeta(m);
                     p.getInventory().setItemInMainHand(s);
-                    p.sendMessage(getLang("modeChange") + nMode);
+                    p.sendMessage(config.getLang("modeChange") + nMode);
                 } else {
                     controlCheck(p);
                 }
                 cool(p.getUniqueId());
             } else if (p.getInventory().getItemInMainHand().getItemMeta().getDisplayName()
-                    .equals(getLang("items.knowledgebook"))) {
+                    .equals(config.getLang("items.knowledgebook"))) {
                 openKnowledgBook(p);
             } else if (p.getInventory().getItemInMainHand().getItemMeta().getDisplayName()
-                    .equals(getLang("items.deathnote"))) {
-                p.sendMessage(getLang("deathQ"));
+                    .equals(config.getLang("items.deathnote"))) {
+                p.sendMessage(config.getLang("deathQ"));
                 deathList.add(p.getUniqueId());
                 cool(p.getUniqueId());
             }
@@ -2598,17 +2514,17 @@ public class BossLand extends JavaPlugin implements Listener {
                 // Consume Chance
                 if (rand(1, 100) <= getConfig().getInt("deathNoteConsumeChance")) {
                     p.getInventory().setItemInMainHand(null);
-                    p.sendMessage(getLang("noteConsume"));
+                    p.sendMessage(config.getLang("noteConsume"));
                     hadDeathNote.add(p.getUniqueId());
                 }
-                p.sendMessage(getLang("deathPass"));
+                p.sendMessage(config.getLang("deathPass"));
             } else
-                p.sendMessage(getLang("deathFail"));
+                p.sendMessage(config.getLang("deathFail"));
         }
     }
 
     private void openKnowledgBook(Player p) {
-        Inventory inv = getServer().createInventory(p, 9, getLang("items.knowledgebook"));
+        Inventory inv = getServer().createInventory(p, 9, config.getLang("items.knowledgebook"));
         inv.setItem(2, getItem(Material.ENCHANTED_BOOK, "§eEnchant", 1, null));
         inv.setItem(6, getItem(Material.BOOK, "§cDisEnchant", 1, null));
         for (int i : Arrays.asList(0, 1, 3, 5, 7, 8))
@@ -2656,7 +2572,7 @@ public class BossLand extends JavaPlugin implements Listener {
         Player p = (Player) e.getWhoClicked();
         try {
             String n = Objects.requireNonNull(Objects.requireNonNull(e.getCurrentItem()).getItemMeta()).getDisplayName();
-            if (name.contains(getLang("items.knowledgebook"))) {
+            if (name.contains(config.getLang("items.knowledgebook"))) {
                 switch (n) {
                     case "§eEnchant" -> {
                         e.setCancelled(true);
@@ -2667,7 +2583,7 @@ public class BossLand extends JavaPlugin implements Listener {
                         if (s != null) {
                             openEnchantGUI(p, s);
                         } else
-                            p.sendMessage(getLang("noItem"));
+                            p.sendMessage(config.getLang("noItem"));
                     }
                     case "§cDisEnchant" -> {
                         e.setCancelled(true);
@@ -2678,7 +2594,7 @@ public class BossLand extends JavaPlugin implements Listener {
                         if (s != null) {
                             openDisEnchantGUI(p, s);
                         } else
-                            p.sendMessage(getLang("noItem"));
+                            p.sendMessage(config.getLang("noItem"));
                     }
                     case "§l" -> e.setCancelled(true);
                 }
@@ -2702,7 +2618,7 @@ public class BossLand extends JavaPlugin implements Listener {
                             s.addUnsafeEnchantment(hm.getKey(), lvl);
                         }
                     } else {
-                        p.sendMessage(getLang("needXP").replace("<xp>", need + ""));
+                        p.sendMessage(config.getLang("needXP").replace("<xp>", need + ""));
                         p.closeInventory();
                     }
                 } else if (n.equals("§eRemove Enchantment")) {
@@ -2750,7 +2666,7 @@ public class BossLand extends JavaPlugin implements Listener {
         String name = e.getView().getTitle();
         Player p = (Player) e.getPlayer();
         try {
-            if (name.contains(getLang("items.knowledgebook")) || name.contains("§0§lAdd Enchantments")
+            if (name.contains(config.getLang("items.knowledgebook")) || name.contains("§0§lAdd Enchantments")
                     || name.contains("§0§lRemove Enchantments")) {
                 if (!noList.contains(p.getUniqueId())) {
                     ItemStack s = e.getView().getItem(4);
@@ -2759,11 +2675,6 @@ public class BossLand extends JavaPlugin implements Listener {
             }
         } catch (Exception x) {
         }
-    }
-
-    private boolean godsDead() {
-        return saveFile.getInt("drownedGodDeaths") > 0 && saveFile.getInt("pharaohGodDeaths") > 0
-                && saveFile.getInt("aetherGodDeaths") > 0;
     }
 
     @EventHandler(priority = EventPriority.HIGH)
@@ -2874,7 +2785,7 @@ public class BossLand extends JavaPlugin implements Listener {
         final Player p = e.getPlayer();
         try {
             if (Objects.requireNonNull(p.getInventory().getItemInMainHand().getItemMeta()).getDisplayName()
-                    .equals(getLang("items.forbiddenfruit"))) {
+                    .equals(config.getLang("items.forbiddenfruit"))) {
                 e.setCancelled(true);
                 p.getWorld().strikeLightning(p.getLocation());
                 // Biome
@@ -2883,7 +2794,7 @@ public class BossLand extends JavaPlugin implements Listener {
                         && l.getBlockY() <= getConfig().getInt("waterLevel")) {
                     takeItem(p, 1);
                     boom(l, 3, false);
-                    p.sendMessage(getLang("drownSpawn"));
+                    p.sendMessage(config.getLang("drownSpawn"));
                     Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(this, () -> spawnBoss(p, l, "DrownedGod"), (40));
                 } else if (l.getWorld().getEnvironment().equals(Environment.NORMAL)
                         && l.getBlockY() >= getConfig().getInt("skyLevel")) {
@@ -2891,19 +2802,19 @@ public class BossLand extends JavaPlugin implements Listener {
                     // boom(l,3,false);
                     lightningShow(l, 3);
                     l.setY(l.getY() + 5);
-                    p.sendMessage(getLang("aetherSpawn"));
+                    p.sendMessage(config.getLang("aetherSpawn"));
                     Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(this, () -> spawnBoss(p, l, "AetherGod"), (40));
                 } else if (l.getWorld().getBiome((int) l.getX(), (int) l.getY(), (int) l.getZ()).toString()
                         .contains("DESERT")) {
                     takeItem(p, 1);
                     // boom(l,2,false);
                     lightningShow(l, 4);
-                    p.sendMessage(getLang("pharaohSpawn"));
+                    p.sendMessage(config.getLang("pharaohSpawn"));
                     Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(this, () -> spawnBoss(p, l, "PharaohGod"), (40));
                 } else
-                    p.sendMessage(getLang("failSpawn"));
+                    p.sendMessage(config.getLang("failSpawn"));
             } else if (p.getInventory().getItemInMainHand().getItemMeta().getDisplayName()
-                    .equals(getLang("items.abhorrentfruit"))) {
+                    .equals(config.getLang("items.abhorrentfruit"))) {
                 e.setCancelled(true);
                 p.setFireTicks(60 * 20);
                 // Biome
@@ -2911,10 +2822,10 @@ public class BossLand extends JavaPlugin implements Listener {
                 if (l.getWorld().getEnvironment().equals(Environment.NETHER)) {
                     takeItem(p, 1);
                     boom(l, 8, false);
-                    p.sendMessage(getLang("devilSpawn"));
+                    p.sendMessage(config.getLang("devilSpawn"));
                     Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(this, () -> spawnBoss(p, l, "Devil"), (40));
                 } else
-                    p.sendMessage(getLang("hellSpawn"));
+                    p.sendMessage(config.getLang("hellSpawn"));
             }
         } catch (Exception x) {
         }
@@ -3151,7 +3062,7 @@ public class BossLand extends JavaPlugin implements Listener {
     @EventHandler(priority = EventPriority.HIGH)
     public void onChunkLoad(ChunkLoadEvent e) {
         for (Entity ent : e.getChunk().getEntities()) {
-            final String bossType = saveFile.getString("bosses." + ent.getUniqueId().toString());
+            final String bossType = config.getDataFrom("save","bosses." + ent.getUniqueId().toString());
             if (bossType != null)
                 if (!bossMap.containsKey(ent))
                     makeBoss(ent, bossType);
@@ -3225,7 +3136,7 @@ public class BossLand extends JavaPlugin implements Listener {
             // Check Disabled Worlds
             if (getConfig().getList("disabledWorlds").contains(l.getWorld().getName())) {
                 for (Entity e : getNearbyEntities(l, 24, new ArrayList<EntityType>(List.of(EntityType.PLAYER))))
-                    ((Player) e).sendMessage(getLang("failSpawnWorld"));
+                    ((Player) e).sendMessage(config.getLang("failSpawnWorld"));
                 return;
             }
 
@@ -3234,7 +3145,7 @@ public class BossLand extends JavaPlugin implements Listener {
             if(worldGuardCheck.isEnabled()){
                 if(!worldGuardCheck.canBuild(p,l)){
                     for(Entity e : getNearbyEntities(l, 24, new ArrayList<>(List.of(EntityType.PLAYER))))
-                        ((Player)e).sendMessage(getLang("failSpawnWG"));
+                        ((Player)e).sendMessage(config.getLang("failSpawnWG"));
                     return;
                 }
             }
@@ -3242,7 +3153,7 @@ public class BossLand extends JavaPlugin implements Listener {
             // Check Boss Limit
             if (bossMap.size() >= getConfig().getInt("bossLimit")) {
                 for (Entity e : getNearbyEntities(l, 24, new ArrayList<EntityType>(List.of(EntityType.PLAYER))))
-                    ((Player) e).sendMessage(getLang("tooManyBosses"));
+                    ((Player) e).sendMessage(config.getLang("tooManyBosses"));
                 return;
             }
             // Log Spawn
@@ -3393,8 +3304,8 @@ public class BossLand extends JavaPlugin implements Listener {
             // Stop Despawn
             // boss.setPersistent(true);
             // Save Boss
-            saveFile.set("bosses." + boss.getUniqueId().toString(), bossType);
-            save();
+            config.setSaveData("bosses." + boss.getUniqueId().toString(), bossType);
+            config.saveBossData();
             makeBoss(boss, bossType);
         } catch (Exception x) {
             this.getLogger().log(Level.SEVERE, "Failed to spawn Boss: " + bossType);
@@ -3524,8 +3435,7 @@ public class BossLand extends JavaPlugin implements Listener {
         displayParticle(effect, l.getWorld(), l.getX(), l.getY(), l.getZ(), radius, speed, amount);
     }
 
-    private void displayParticle(String effect, World w, double x, double y, double z, double radius, int speed,
-            int amount) {
+    private void displayParticle(String effect, World w, double x, double y, double z, double radius, int speed, int amount) {
         amount = (amount <= 0) ? 1 : amount;
         Location l = new Location(w, x, y, z);
         try {
@@ -3579,12 +3489,12 @@ public class BossLand extends JavaPlugin implements Listener {
                 if (mode != null) {
                     if (mode.equals("Shard")) {
                         if (s.getItemMeta() == null || s.getItemMeta().getDisplayName() == null
-                                || (!s.getItemMeta().getDisplayName().contains(getLang("shardKeyWord")))) {
+                                || (!s.getItemMeta().getDisplayName().contains(config.getLang("shardKeyWord")))) {
                             s = null;
                         }
                     } else if (mode.equals("Loot")) {
                         if (s.getItemMeta() != null && s.getItemMeta().getDisplayName() != null
-                                && s.getItemMeta().getDisplayName().contains(getLang("shardKeyWord"))) {
+                                && s.getItemMeta().getDisplayName().contains(config.getLang("shardKeyWord"))) {
                             s = null;
                         }
                     }
@@ -4032,61 +3942,7 @@ public class BossLand extends JavaPlugin implements Listener {
     @EventHandler
     public void restrictCrafting(PrepareItemCraftEvent e) {
         CraftingInventory ci = e.getInventory();
-        try {
-            if (ci.getResult().getItemMeta().getDisplayName().contains(getLang("items.bell"))) {
-                // Bell of Doom
-                if (!ci.getItem(4).getItemMeta().getDisplayName().equals(getLang("items.whiteshard"))) {
-                    ci.setResult(null);
-                } else if (!ci.getItem(5).getItemMeta().getDisplayName().equals(getLang("items.greenshard"))) {
-                    ci.setResult(null);
-                } else if (!ci.getItem(6).getItemMeta().getDisplayName().equals(getLang("items.greyshard"))) {
-                    ci.setResult(null);
-                }
-            } else if (ci.getResult().getItemMeta().getDisplayName().contains(getLang("items.spelbook"))) {
-                // Wizard Book
-                if (!ci.getItem(4).getItemMeta().getDisplayName().equals(getLang("items.blackshard")))
-                    ci.setResult(null);
-                if (!ci.getItem(6).getItemMeta().getDisplayName().equals(getLang("items.redshard")))
-                    ci.setResult(null);
-            } else if (ci.getResult().getItemMeta().getDisplayName().contains(getLang("items.giantpotion"))) {
-                // Giant Potion
-                if (!ci.getItem(4).getItemMeta().getDisplayName().equals(getLang("items.greenshard")))
-                    ci.setResult(null);
-                if (!ci.getItem(5).getItemMeta().getDisplayName().equals(getLang("items.redshard")))
-                    ci.setResult(null);
-                if (!ci.getItem(6).getItemMeta().getDisplayName().equals(getLang("items.brownshard")))
-                    ci.setResult(null);
-            } else if (ci.getResult().getItemMeta().getDisplayName().contains(getLang("items.elderegg"))) {
-                // Dragon Egg
-                if (!ci.getItem(5).getItemMeta().getDisplayName().equals(getLang("items.whiteshard")))
-                    ci.setResult(null);
-                if (!ci.getItem(8).getItemMeta().getDisplayName().equals(getLang("items.blackshard")))
-                    ci.setResult(null);
-            } else if (ci.getResult().getItemMeta().getDisplayName().contains(getLang("items.forbiddenfruit"))) {
-                // Forbidden Fruit
-                if (!ci.getItem(7).getItemMeta().getDisplayName().equals(getLang("items.emeraldshard")))
-                    ci.setResult(null);
-                if (!ci.getItem(8).getItemMeta().getDisplayName().equals(getLang("items.goldshard")))
-                    ci.setResult(null);
-                if (!ci.getItem(9).getItemMeta().getDisplayName().equals(getLang("items.blueshard")))
-                    ci.setResult(null);
-            } else if (ci.getResult().getItemMeta().getDisplayName().contains(getLang("items.abhorrentfruit"))) {
-                // Abhorrent Fruit
-                for (ItemStack s : Arrays.asList(ci.getItem(2), ci.getItem(4), ci.getItem(6), ci.getItem(8)))
-                    if (!s.getItemMeta().getDisplayName().equals(getLang("items.demonicshard")))
-                        ci.setResult(null);
-                if (!ci.getItem(5).getItemMeta().getDisplayName().equals(getLang("items.forbiddenfruit")))
-                    ci.setResult(null);
-            } else if (ci.getResult().getItemMeta().getDisplayName().contains(getLang("items.deathnote"))) {
-                // Death Note
-                // System.out.println("1F");
-                if (!ci.getItem(5).getItemMeta().getDisplayName().equals(getLang("items.knowledgebook"))) {
-                    // System.out.println("2F");
-                    ci.setResult(null);
-                }
-            }
-        } catch (Exception localException) {
-        }
+        recipeManager.restrictCraftingForBossLandItems(ci);
     }
 
     // public ItemStack getHead(String owner, String name) {
@@ -4106,7 +3962,7 @@ public class BossLand extends JavaPlugin implements Listener {
     // }
 
     public ItemStack getIllagerItem() {
-        ItemStack s = getItem(Material.BELL, getLang("items.bell"), 1, getLangList("items.belllore"));
+        ItemStack s = getItem(Material.BELL, config.getLang("items.bell"), 1, config.getLangList("items.belllore"));
         ItemMeta m = s.getItemMeta();
         m.addEnchant(Enchantment.VANISHING_CURSE, 1, true);
         s.setItemMeta(m);
@@ -4114,8 +3970,8 @@ public class BossLand extends JavaPlugin implements Listener {
     }
 
     public ItemStack getWizardItem() {
-        ItemStack s = getItem(Material.ENCHANTED_BOOK, getLang("items.spellbook"), 1,
-                getLangList("items.spellbooklore"));
+        ItemStack s = getItem(Material.ENCHANTED_BOOK, config.getLang("items.spellbook"), 1,
+                config.getLangList("items.spellbooklore"));
         ItemMeta m = s.getItemMeta();
         m.addEnchant(Enchantment.VANISHING_CURSE, 1, true);
         s.setItemMeta(m);
@@ -4123,8 +3979,8 @@ public class BossLand extends JavaPlugin implements Listener {
     }
 
     public ItemStack getGiantIem() {
-        ItemStack item = getItem(Material.POTION, getLang("items.giantpotion"), 1,
-                getLangList("items.giantpotionlore"));
+        ItemStack item = getItem(Material.POTION, config.getLang("items.giantpotion"), 1,
+                config.getLangList("items.giantpotionlore"));
         PotionMeta meta = (PotionMeta) item.getItemMeta();
         meta.setColor(Color.GREEN);
         meta.addCustomEffect(new PotionEffect(PotionEffectType.POISON, 3600 * 20, 10), true);
@@ -4134,7 +3990,7 @@ public class BossLand extends JavaPlugin implements Listener {
     }
 
     public ItemStack getDragonItem() {
-        ItemStack s = getItem(Material.DRAGON_EGG, getLang("items.elderegg"), 1, getLangList("items.elderegglore"));
+        ItemStack s = getItem(Material.DRAGON_EGG, config.getLang("items.elderegg"), 1, config.getLangList("items.elderegglore"));
         ItemMeta m = s.getItemMeta();
         m.addEnchant(Enchantment.VANISHING_CURSE, 1, true);
         s.setItemMeta(m);
@@ -4142,8 +3998,8 @@ public class BossLand extends JavaPlugin implements Listener {
     }
 
     public ItemStack getGodItem() {
-        ItemStack s = getItem(Material.ENCHANTED_GOLDEN_APPLE, getLang("items.forbiddenfruit"), 1,
-                getLangList("items.forbiddenfruitlore"));
+        ItemStack s = getItem(Material.ENCHANTED_GOLDEN_APPLE, config.getLang("items.forbiddenfruit"), 1,
+                config.getLangList("items.forbiddenfruitlore"));
         ItemMeta m = s.getItemMeta();
         // m.addEnchant(Enchantment.VANISHING_CURSE, 1, true);
         s.setItemMeta(m);
@@ -4151,8 +4007,8 @@ public class BossLand extends JavaPlugin implements Listener {
     }
 
     public ItemStack getDevilItem() {
-        ItemStack s = getItem(Material.APPLE, getLang("items.abhorrentfruit"), 1,
-                getLangList("items.abhorrentfruitlore"));
+        ItemStack s = getItem(Material.APPLE, config.getLang("items.abhorrentfruit"), 1,
+                config.getLangList("items.abhorrentfruitlore"));
         ItemMeta m = s.getItemMeta();
         m.addEnchant(Enchantment.BINDING_CURSE, 1, true);
         s.setItemMeta(m);
@@ -4164,8 +4020,8 @@ public class BossLand extends JavaPlugin implements Listener {
                 "http://textures.minecraft.net/texture/7eea345908d17dc44967d1dce428f22f2b19397370abeb77bdc12e2dd1cb6");
         ItemMeta m = s.getItemMeta();
         // m.addEnchant(Enchantment.BINDING_CURSE, 1, true);
-        m.setDisplayName(getLang("items.deathnote"));
-        m.setLore(getLangList("items.deathnotelore"));
+        m.setDisplayName(config.getLang("items.deathnote"));
+        m.setLore(config.getLangList("items.deathnotelore"));
         s.setItemMeta(m);
         return s;
     }
@@ -4337,8 +4193,7 @@ public class BossLand extends JavaPlugin implements Listener {
         if ((cmd.getName().equals("bosslandadmin")) || (cmd.getName().equals("bl-admin"))) {
             try {
                 if (args[0].equals("reload")) {
-                    reloadConfig();
-                    reloadLang();
+                    config.reloadConfigs();
                     sender.sendMessage("§eBossLand: Reloaded config!");
                     return true;
                 } else if (args[0].equals("spawn") && args.length == 2) {
