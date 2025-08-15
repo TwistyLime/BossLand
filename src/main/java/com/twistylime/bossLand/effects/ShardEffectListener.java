@@ -1,6 +1,7 @@
 package com.twistylime.bossLand.effects;
 
 import com.twistylime.bossLand.BossLand;
+import com.twistylime.bossLand.config.BossLandConfiguration;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -20,9 +21,11 @@ import com.twistylime.bossLand.utility.CompatibilityResolver;
 public class ShardEffectListener implements Listener {
     private final BossLand plugin;
     private final Set<UUID> pluginEffectPlayers = new HashSet<>();
+    private BossLandConfiguration config;
 
-    public ShardEffectListener(BossLand plugin) {
+    public ShardEffectListener(BossLand plugin, BossLandConfiguration config) {
         this.plugin = plugin;
+        this.config = config;
         Bukkit.getPluginManager().registerEvents(this, plugin);
 
         // Start repeating task to check all players
@@ -82,25 +85,25 @@ public class ShardEffectListener implements Listener {
                     String displayName = meta.getDisplayName();
                     String shardKey = null;
 
-                    if (displayName.equals(plugin.getLang("items.whiteshard"))) {
+                    if (displayName.equals(config.getLang("items.whiteshard"))) {
                         shardKey = "whiteshard";
-                    } else if (displayName.equals(plugin.getLang("items.greenshard"))) {
+                    } else if (displayName.equals(config.getLang("items.greenshard"))) {
                         shardKey = "greenshard";
-                    } else if (displayName.equals(plugin.getLang("items.greyshard"))) {
+                    } else if (displayName.equals(config.getLang("items.greyshard"))) {
                         shardKey = "greyshard";
-                    } else if (displayName.equals(plugin.getLang("items.blackshard"))) {
+                    } else if (displayName.equals(config.getLang("items.blackshard"))) {
                         shardKey = "blackshard";
-                    } else if (displayName.equals(plugin.getLang("items.redshard"))) {
+                    } else if (displayName.equals(config.getLang("items.redshard"))) {
                         shardKey = "redshard";
-                    } else if (displayName.equals(plugin.getLang("items.brownshard"))) {
+                    } else if (displayName.equals(config.getLang("items.brownshard"))) {
                         shardKey = "brownshard";
-                    } else if (displayName.equals(plugin.getLang("items.emeraldshard"))) {
+                    } else if (displayName.equals(config.getLang("items.emeraldshard"))) {
                         shardKey = "emeraldshard";
-                    } else if (displayName.equals(plugin.getLang("items.goldshard"))) {
+                    } else if (displayName.equals(config.getLang("items.goldshard"))) {
                         shardKey = "goldshard";
-                    } else if (displayName.equals(plugin.getLang("items.blueshard"))) {
+                    } else if (displayName.equals(config.getLang("items.blueshard"))) {
                         shardKey = "blueshard";
-                    } else if (displayName.equals(plugin.getLang("items.demonicshard"))) {
+                    } else if (displayName.equals(config.getLang("items.demonicshard"))) {
                         shardKey = "demonicshard";
                     }
 
