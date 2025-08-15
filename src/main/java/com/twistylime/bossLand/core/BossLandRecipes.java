@@ -1,18 +1,27 @@
 package com.twistylime.bossLand.core;
+
 import com.twistylime.bossLand.config.BossLandConfiguration;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.event.Event;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.Listener;
 import org.bukkit.inventory.CraftingInventory;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.plugin.EventExecutor;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.logging.Level;
+
+import static org.bukkit.Bukkit.getServer;
 
 public class BossLandRecipes {
 
@@ -84,7 +93,7 @@ public class BossLandRecipes {
         }
     }
 
-    public void restrictCraftingForBossLandItems(CraftingInventory ci){
+    public void restrictCraftingForBossLandItems(CraftingInventory ci) {
         try {
             ItemStack craftingResult = ci.getResult();
             if (craftingResult != null && craftingResult.getItemMeta() != null) {
@@ -141,12 +150,120 @@ public class BossLandRecipes {
                 }
             }
         } catch (Exception localException) {
-            plugin.getLogger().log(Level.WARNING,"Error while restricting crafting of items using normal dyes instead of shards.");
+            plugin.getLogger().log(Level.WARNING, "Error while restricting crafting of items using normal dyes instead of shards.");
         }
     }
 
+    public void disableCrafterRecipes() {
+        try {
+            Class<?> crafterCraftEventClass = Class.forName("org.bukkit.event.block.CrafterCraftEvent");
+
+            @SuppressWarnings("unchecked")
+            Class<? extends Event> eventClass = (Class<? extends Event>) crafterCraftEventClass;
+
+            Listener dummyListener = new Listener() {};
+
+            EventExecutor executor = (listener, event) -> {
+                try {
+                    Method getBlockMethod = event.getClass().getMethod("getBlock");
+                    Method getRecipeMethod = event.getClass().getMethod("getRecipe");
+                    Method getResultMethod = event.getClass().getMethod("getResult");
+                    Method setCancelledMethod = event.getClass().getMethod("setCancelled", boolean.class);
+
+                    Object block = getBlockMethod.invoke(event);
+                    Object recipe = getRecipeMethod.invoke(event);
+                    ItemStack result = (ItemStack) getResultMethod.invoke(event);
+
+                    if (recipe != null && result != null) {
+                        Method getStateMethod = block.getClass().getMethod("getState");
+                        Object blockState = getStateMethod.invoke(block);
+                        Method getInventoryMethod = blockState.getClass().getMethod("getInventory");
+                        Object inventory = getInventoryMethod.invoke(blockState);
+
+                        if (result.getItemMeta() != null) {
+                            validateCrafterRecipe((Inventory) inventory, result, setCancelledMethod, event);
+                        }
+                    }
+                } catch (Exception e) {
+                    plugin.getLogger().log(Level.WARNING, "Error in crafter event handler: " + e.getMessage());
+                }
+            };
+
+            getServer().getPluginManager().registerEvent(
+                    eventClass,
+                    dummyListener,
+                    EventPriority.NORMAL,
+                    executor,
+                    plugin
+            );
+
+        } catch (ClassNotFoundException e) {
+            plugin.getLogger().info("Crafter events not supported in this version");
+        }
+    }
+
+    private void validateCrafterRecipe(Inventory inv, ItemStack result, Method setCancelledMethod, Object event) throws Exception {
+        ItemMeta craftingResultMeta = result.getItemMeta();
+        String displayName = craftingResultMeta.getDisplayName();
+
+        if (displayName.contains(config.getLang("items.bell"))) {
+            // Bell of Doom
+            if (!isValidShard(inv.getItem(3), config.getLang("items.whiteshard")) ||
+                    !isValidShard(inv.getItem(4), config.getLang("items.greenshard")) ||
+                    !isValidShard(inv.getItem(5), config.getLang("items.greyshard"))) {
+                setCancelledMethod.invoke(event, true);
+                plugin.getLogger().info("Successfully uncrafted bell of doom");
+            }
+        } else if (displayName.contains(config.getLang("items.spelbook"))) {
+            // Wizard Book
+            if (!isValidShard(inv.getItem(3), config.getLang("items.blackshard")) ||
+                    !isValidShard(inv.getItem(5), config.getLang("items.redshard"))) {
+                setCancelledMethod.invoke(event, true);
+            }
+        } else if (displayName.contains(config.getLang("items.giantpotion"))) {
+            // Giant Potion
+            if (!isValidShard(inv.getItem(3), config.getLang("items.greenshard")) ||
+                    !isValidShard(inv.getItem(4), config.getLang("items.redshard")) ||
+                    !isValidShard(inv.getItem(5), config.getLang("items.brownshard"))) {
+                setCancelledMethod.invoke(event, true);
+            }
+        } else if (displayName.contains(config.getLang("items.elderegg"))) {
+            // Dragon Egg
+            if (!isValidShard(inv.getItem(4), config.getLang("items.whiteshard")) ||
+                    !isValidShard(inv.getItem(7), config.getLang("items.blackshard"))) {
+                setCancelledMethod.invoke(event, true);
+            }
+        } else if (displayName.contains(config.getLang("items.forbiddenfruit"))) {
+            // Forbidden Fruit
+            if (!isValidShard(inv.getItem(6), config.getLang("items.emeraldshard")) ||
+                    !isValidShard(inv.getItem(7), config.getLang("items.goldshard")) ||
+                    !isValidShard(inv.getItem(8), config.getLang("items.blueshard"))) {
+                setCancelledMethod.invoke(event, true);
+            }
+        } else if (displayName.contains(config.getLang("items.abhorrentfruit"))) {
+            // Abhorrent Fruit
+            if (!isValidShard(inv.getItem(1), config.getLang("items.demonicshard")) ||
+                    !isValidShard(inv.getItem(3), config.getLang("items.demonicshard")) ||
+                    !isValidShard(inv.getItem(5), config.getLang("items.demonicshard")) ||
+                    !isValidShard(inv.getItem(7), config.getLang("items.demonicshard")) ||
+                    !isValidShard(inv.getItem(4), config.getLang("items.forbiddenfruit"))) {
+                setCancelledMethod.invoke(event, true);
+            }
+        } else if (displayName.contains(config.getLang("items.deathnote"))) {
+            // Death Note
+            if (!isValidShard(inv.getItem(4), config.getLang("items.knowledgebook"))) {
+                setCancelledMethod.invoke(event, true);
+            }
+        }
+    }
+
+    private boolean isValidShard(ItemStack item, String expectedName) {
+        if (item == null || item.getItemMeta() == null) return false;
+        String displayName = item.getItemMeta().getDisplayName();
+        return displayName != null && displayName.equals(expectedName);
+    }
 
     private ItemStack getItem(String name) {
-        return new ItemStack(Material.BLACK_STAINED_GLASS_PANE,1); // Temporary function for now
+        return new ItemStack(Material.BLACK_STAINED_GLASS_PANE, 1); // Temporary function for now, need to implement BossLandItems class
     }
 }

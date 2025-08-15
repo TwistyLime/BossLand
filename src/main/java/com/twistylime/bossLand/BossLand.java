@@ -151,7 +151,7 @@ public class BossLand extends JavaPlugin implements Listener {
         new Metrics(this, pluginId);
 
         new UpdateCheck(this).checkForUpdates();
-        new ShardEffectListener(this);
+        new ShardEffectListener(this, config);
         addRecipes();
         recipeManager = new BossLandRecipes(this, config);
 //        recipeManager.addRecipes(config.getRecipeConfiguration("item_recipes"));
@@ -3943,6 +3943,7 @@ public class BossLand extends JavaPlugin implements Listener {
     public void restrictCrafting(PrepareItemCraftEvent e) {
         CraftingInventory ci = e.getInventory();
         recipeManager.restrictCraftingForBossLandItems(ci);
+        recipeManager.disableCrafterRecipes();
     }
 
     // public ItemStack getHead(String owner, String name) {
