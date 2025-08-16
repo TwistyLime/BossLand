@@ -9,7 +9,7 @@ item_recipes:
       - "SSS"
     ingredients:
       S: NETHER_STAR
-      E: BOOK_OF_KNOWLEDGE
+      E: ENCHANTED_BOOK # BOOK_OF_KNOWLEDGE
   god_fruit:
     result:
       item: FORBIDDEN_FRUIT
@@ -21,9 +21,9 @@ item_recipes:
     ingredients:
       G: GOLD_BLOCK
       A: APPLE
-      E: EMERALD_BOSS_SHARD
-      Y: GOLD_BOSS_SHARD
-      B: BLUE_BOSS_SHARD
+      E: EMERALD # EMERALD_BOSS_SHARD
+      Y: YELLOW_DYE # GOLD_BOSS_SHARD
+      B: LAPIS_LAZULI # BLUE_BOSS_SHARD
   devil_fruit:
     result:
       item: ABHORRENT_FRUIT
@@ -34,8 +34,8 @@ item_recipes:
       - "AFA"
     ingredients:
       A: AIR
-      F: DEMONIC_SHARD
-      G: FORBIDDEN_FRUIT
+      F: FIRE_CORAL # DEMONIC_SHARD
+      G: ENCHANTED_GOLDEN_APPLE # FORBIDDEN_FRUIT
   illager_bell:
     result:
       item: BELL_OF_DOOM
@@ -45,9 +45,9 @@ item_recipes:
       - "WSC"
       - "GGG"
     ingredients:
-      W: WHITE_BOSS_SHARD
-      S: GREEN_BOSS_SHARD
-      C: GRAY_BOSS_SHARD
+      W: QUARTZ # WHITE_BOSS_SHARD
+      S: GREEN_DYE # GREEN_BOSS_SHARD
+      C: CLAY_BALL # GRAY_BOSS_SHARD
       G: GOLD_INGOT
   wizard_book:
     result:
@@ -60,8 +60,8 @@ item_recipes:
     ingredients:
       L: LEATHER
       P: PAPER
-      R: RED_BOSS_SHARD
-      B: BLACK_BOSS_SHARD
+      R: RED_DYE # RED_BOSS_SHARD
+      B: COAL # BLACK_BOSS_SHARD
   giant_potion:
     result:
       item: POTION_OF_GIANT_GROWTH
@@ -73,9 +73,9 @@ item_recipes:
     ingredients:
       W: WATER_BUCKET
       G: GLASS
-      S: GREEN_BOSS_SHARD
-      R: RED_BOSS_SHARD
-      B: BROWN_BOSS_SHARD
+      S: GREEN_DYE # GREEN_BOSS_SHARD
+      R: RED_DYE # RED_BOSS_SHARD
+      B: BROWN_DYE # BROWN_BOSS_SHARD
   dragon_egg:
     result:
       item: ELDER_EGG
@@ -86,8 +86,8 @@ item_recipes:
       - "OBO"
     ingredients:
       O: OBSIDIAN
-      W: WHITE_BOSS_SHARD
-      B: BLACK_BOSS_SHARD
+      W: QUARTZ # WHITE_BOSS_SHARD
+      B: COAL # BLACK_BOSS_SHARD
 
 
 shrine_recipes:
