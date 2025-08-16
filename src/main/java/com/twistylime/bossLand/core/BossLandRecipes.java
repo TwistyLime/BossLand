@@ -1,6 +1,7 @@
 package com.twistylime.bossLand.core;
 
 import com.twistylime.bossLand.config.BossLandConfiguration;
+import com.twistylime.bossLand.utility.CompatibilityResolver;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
@@ -27,10 +28,12 @@ public class BossLandRecipes {
 
     private final JavaPlugin plugin;
     private final BossLandConfiguration config;
+    private final BossLandItems itemManager;
 
-    public BossLandRecipes(JavaPlugin plugin, BossLandConfiguration config) {
+    public BossLandRecipes(JavaPlugin plugin, BossLandConfiguration config, BossLandItems itemManager) {
         this.plugin = plugin;
         this.config = config;
+        this.itemManager = itemManager;
     }
 
     public void addRecipes(ConfigurationSection recipesSection) {
@@ -46,8 +49,8 @@ public class BossLandRecipes {
             // ===== Result =====
             String resultItemName = Objects.requireNonNull(recipeData.getConfigurationSection("result")).getString("item");
             int resultAmount = Objects.requireNonNull(recipeData.getConfigurationSection("result")).getInt("amount", 1);
-
-            ItemStack resultItem = getItem(resultItemName);
+            if(resultItemName == null) return;
+            ItemStack resultItem = getResultItem(resultItemName);
             if (resultItem == null) {
                 plugin.getLogger().warning("Could not find custom item: " + resultItemName);
                 continue;
@@ -72,24 +75,15 @@ public class BossLandRecipes {
             if (ingredientsSection != null) {
                 for (String charKey : ingredientsSection.getKeys(false)) {
                     String materialName = ingredientsSection.getString(charKey);
-                    ItemStack ingredientItem = getItem(materialName);
-                    if (ingredientItem == null) {
-                        Material mat = Material.matchMaterial(materialName);
-                        if (mat != null) {
-                            shapedRecipe.setIngredient(charKey.charAt(0), mat);
-                        } else {
-                            plugin.getLogger().warning("Invalid ingredient: " + materialName + " in recipe " + recipeName);
-                        }
-                    } else {
-                        Material mat = ingredientItem.getType();
-                        shapedRecipe.setIngredient(charKey.charAt(0), mat);
-                    }
+                    if(materialName == null) return;
+                    if(materialName.equals("AIR")) continue;
+                    Material mat = CompatibilityResolver.resolveMaterial(materialName);
+                    shapedRecipe.setIngredient(charKey.charAt(0), mat);
                 }
             }
 
             // ===== Register Recipe =====
             Bukkit.addRecipe(shapedRecipe);
-            plugin.getLogger().info("Registered recipe: " + recipeName);
         }
     }
 
@@ -107,7 +101,7 @@ public class BossLandRecipes {
                     } else if (!ci.getItem(6).getItemMeta().getDisplayName().equals(config.getLang("items.greyshard"))) {
                         ci.setResult(null);
                     }
-                } else if (craftingResultMeta.getDisplayName().contains(config.getLang("items.spelbook"))) {
+                } else if (craftingResultMeta.getDisplayName().contains(config.getLang("items.spellbook"))) {
                     // Wizard Book
                     if (!ci.getItem(4).getItemMeta().getDisplayName().equals(config.getLang("items.blackshard")))
                         ci.setResult(null);
@@ -208,62 +202,70 @@ public class BossLandRecipes {
 
         if (displayName.contains(config.getLang("items.bell"))) {
             // Bell of Doom
-            if (!isValidShard(inv.getItem(3), config.getLang("items.whiteshard")) ||
-                    !isValidShard(inv.getItem(4), config.getLang("items.greenshard")) ||
-                    !isValidShard(inv.getItem(5), config.getLang("items.greyshard"))) {
+            if (isInvalidShard(inv.getItem(3), config.getLang("items.whiteshard")) ||
+                    isInvalidShard(inv.getItem(4), config.getLang("items.greenshard")) ||
+                    isInvalidShard(inv.getItem(5), config.getLang("items.greyshard"))) {
                 setCancelledMethod.invoke(event, true);
-                plugin.getLogger().info("Successfully uncrafted bell of doom");
             }
-        } else if (displayName.contains(config.getLang("items.spelbook"))) {
+        } else if (displayName.contains(config.getLang("items.spellbook"))) {
             // Wizard Book
-            if (!isValidShard(inv.getItem(3), config.getLang("items.blackshard")) ||
-                    !isValidShard(inv.getItem(5), config.getLang("items.redshard"))) {
+            if (isInvalidShard(inv.getItem(3), config.getLang("items.blackshard")) ||
+                    isInvalidShard(inv.getItem(5), config.getLang("items.redshard"))) {
                 setCancelledMethod.invoke(event, true);
             }
         } else if (displayName.contains(config.getLang("items.giantpotion"))) {
             // Giant Potion
-            if (!isValidShard(inv.getItem(3), config.getLang("items.greenshard")) ||
-                    !isValidShard(inv.getItem(4), config.getLang("items.redshard")) ||
-                    !isValidShard(inv.getItem(5), config.getLang("items.brownshard"))) {
+            if (isInvalidShard(inv.getItem(3), config.getLang("items.greenshard")) ||
+                    isInvalidShard(inv.getItem(4), config.getLang("items.redshard")) ||
+                    isInvalidShard(inv.getItem(5), config.getLang("items.brownshard"))) {
                 setCancelledMethod.invoke(event, true);
             }
         } else if (displayName.contains(config.getLang("items.elderegg"))) {
             // Dragon Egg
-            if (!isValidShard(inv.getItem(4), config.getLang("items.whiteshard")) ||
-                    !isValidShard(inv.getItem(7), config.getLang("items.blackshard"))) {
+            if (isInvalidShard(inv.getItem(4), config.getLang("items.whiteshard")) ||
+                    isInvalidShard(inv.getItem(7), config.getLang("items.blackshard"))) {
                 setCancelledMethod.invoke(event, true);
             }
         } else if (displayName.contains(config.getLang("items.forbiddenfruit"))) {
             // Forbidden Fruit
-            if (!isValidShard(inv.getItem(6), config.getLang("items.emeraldshard")) ||
-                    !isValidShard(inv.getItem(7), config.getLang("items.goldshard")) ||
-                    !isValidShard(inv.getItem(8), config.getLang("items.blueshard"))) {
+            if (isInvalidShard(inv.getItem(6), config.getLang("items.emeraldshard")) ||
+                    isInvalidShard(inv.getItem(7), config.getLang("items.goldshard")) ||
+                    isInvalidShard(inv.getItem(8), config.getLang("items.blueshard"))) {
                 setCancelledMethod.invoke(event, true);
             }
         } else if (displayName.contains(config.getLang("items.abhorrentfruit"))) {
             // Abhorrent Fruit
-            if (!isValidShard(inv.getItem(1), config.getLang("items.demonicshard")) ||
-                    !isValidShard(inv.getItem(3), config.getLang("items.demonicshard")) ||
-                    !isValidShard(inv.getItem(5), config.getLang("items.demonicshard")) ||
-                    !isValidShard(inv.getItem(7), config.getLang("items.demonicshard")) ||
-                    !isValidShard(inv.getItem(4), config.getLang("items.forbiddenfruit"))) {
+            if (isInvalidShard(inv.getItem(1), config.getLang("items.demonicshard")) ||
+                    isInvalidShard(inv.getItem(3), config.getLang("items.demonicshard")) ||
+                    isInvalidShard(inv.getItem(5), config.getLang("items.demonicshard")) ||
+                    isInvalidShard(inv.getItem(7), config.getLang("items.demonicshard")) ||
+                    isInvalidShard(inv.getItem(4), config.getLang("items.forbiddenfruit"))) {
                 setCancelledMethod.invoke(event, true);
             }
         } else if (displayName.contains(config.getLang("items.deathnote"))) {
             // Death Note
-            if (!isValidShard(inv.getItem(4), config.getLang("items.knowledgebook"))) {
+            if (isInvalidShard(inv.getItem(4), config.getLang("items.knowledgebook"))) {
                 setCancelledMethod.invoke(event, true);
             }
         }
     }
 
-    private boolean isValidShard(ItemStack item, String expectedName) {
-        if (item == null || item.getItemMeta() == null) return false;
+    private boolean isInvalidShard(ItemStack item, String expectedName) {
+        if (item == null || item.getItemMeta() == null) return true;
         String displayName = item.getItemMeta().getDisplayName();
-        return displayName != null && displayName.equals(expectedName);
+        return !displayName.equals(expectedName);
     }
 
-    private ItemStack getItem(String name) {
-        return new ItemStack(Material.BLACK_STAINED_GLASS_PANE, 1); // Temporary function for now, need to implement BossLandItems class
+    private ItemStack getResultItem(String name) {
+        return switch (name) {
+            case "DEATH_NOTE" -> itemManager.getDeathItem();
+            case "FORBIDDEN_FRUIT" -> itemManager.getGodItem();
+            case "ABHORRENT_FRUIT" -> itemManager.getDevilItem();
+            case "BELL_OF_DOOM" -> itemManager.getIllagerItem();
+            case "BOOK_OF_SPELLS" -> itemManager.getWizardItem();
+            case "POTION_OF_GIANT_GROWTH" -> itemManager.getGiantIem();
+            case "ELDER_EGG" -> itemManager.getDragonItem();
+            default -> new ItemStack(CompatibilityResolver.resolveMaterial(name), 1);
+        };
     }
 }
