@@ -89,19 +89,29 @@ item_recipes:
       W: QUARTZ # WHITE_BOSS_SHARD
       B: COAL # BLACK_BOSS_SHARD
 
-
+# Need to add more recipes and generate lore
+# Lore should include a description
+# Biome which it should spawn in
+# Tier of the boss
+# Any extra information
 shrine_recipes:
-  custom_item_shaped:
+  slime_king:
     result:
-      item: DIAMOND_AXE
+      item: SLIME_BALL
       amount: 1
+      display_name: "§a§lKing Slime"
+      lore:
+        - ""
+        - ""
+        - ""
     shape:
-      - "III"
-      - " IS"
-      - " S "
+      - "SSS"
+      - "SDS"
+      - "SSS"
     ingredients:
-      I: IRON_INGOT
-      S: STICK
+      D: DIAMOND_BLOCK
+      S: SLIME_BLOCK
     activator:
       item: ENDER_EYE
       amount: 1
+    loot: [0,1,2] # Loot Ids to show | get the loot item using getItem used in sloot
