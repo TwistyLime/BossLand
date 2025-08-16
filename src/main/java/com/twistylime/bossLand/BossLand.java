@@ -5,14 +5,15 @@ import java.util.logging.Level;
 
 import com.twistylime.bossLand.command.BossLandCommandHandler;
 import com.twistylime.bossLand.config.BossLandConfiguration;
+import com.twistylime.bossLand.core.BossLandBosses;
 import com.twistylime.bossLand.core.BossLandItems;
 import com.twistylime.bossLand.core.BossLandRecipes;
+import com.twistylime.bossLand.core.BossLandShrines;
 import com.twistylime.bossLand.guidebook.MenuListener;
+import com.twistylime.bossLand.utility.MCUtility;
 import com.twistylime.bossLand.utility.UtilityCalc;
-import com.twistylime.bossLand.worldguard.WorldGuardCompatibility;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.Chunk;
 import org.bukkit.Color;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -24,9 +25,6 @@ import org.bukkit.World.Environment;
 
 import org.bukkit.block.Block;
 import org.bukkit.block.Chest;
-import org.bukkit.boss.BarColor;
-import org.bukkit.boss.BarFlag;
-import org.bukkit.boss.BarStyle;
 import org.bukkit.boss.BossBar;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -107,8 +105,6 @@ public class BossLand extends JavaPlugin implements Listener {
 
     private static BossLand plugin;
 
-    HashMap<Entity, BossBar> bossMap = new HashMap<>();
-    HashMap<Entity, Entity> targetMap = new HashMap<>();
     HashMap<Entity, UUID> controlMap = new HashMap<>();
     HashMap<Entity, Player> itemDropMap = new HashMap<>();
     // HashMap<String, BossBar> playerBars = new HashMap<String, BossBar>();
@@ -124,6 +120,8 @@ public class BossLand extends JavaPlugin implements Listener {
     BossLandConfiguration config = new BossLandConfiguration();
     BossLandRecipes recipeManager;
     BossLandItems itemManager;
+    BossLandBosses bossManager;
+    BossLandShrines shrinesManager;
 
     public static BossLand getPlugin() {
         return plugin;
@@ -145,7 +143,9 @@ public class BossLand extends JavaPlugin implements Listener {
         new ShardEffectListener(this, config);
         itemManager = new BossLandItems(this,config);
         recipeManager = new BossLandRecipes(this, config, itemManager);
+        bossManager = new BossLandBosses(this, config, itemManager);
         recipeManager.addRecipes(config.getRecipeConfiguration("item_recipes"));
+        shrinesManager = new BossLandShrines(this,config,itemManager,bossManager);
         timer();
         Objects.requireNonNull(this.getCommand("bosslandadmin")).setTabCompleter(new BossLandTabCompleter("admin"));
         Objects.requireNonNull(this.getCommand("bossland")).setTabCompleter(new BossLandTabCompleter("player"));
@@ -160,12 +160,12 @@ public class BossLand extends JavaPlugin implements Listener {
     @SuppressWarnings({ "unchecked" })
     public void timer() {
         try {
-            HashMap<Entity, BossBar> tmp = (HashMap<Entity, BossBar>) bossMap.clone();
+            HashMap<Entity, BossBar> tmp = bossManager.getBossMapClone();
             for (Map.Entry<Entity, BossBar> hm : tmp.entrySet()) {
                 Entity e = hm.getKey();
                 // Dead Check
                 if (((Damageable) e).getHealth() <= 0) {
-                    bossMap.remove(e);
+                    bossManager.getBossMapActual().remove(e);
                     config.setSaveData("bosses." + e.getUniqueId(), null);
                     config.saveBossData();
                 }
@@ -240,7 +240,7 @@ public class BossLand extends JavaPlugin implements Listener {
                     // Bar Add
                     double dis = getConfig().getInt("bossRange");
                     Entity b = null;
-                    for (Map.Entry<Entity, BossBar> hm : bossMap.entrySet()) {
+                    for (Map.Entry<Entity, BossBar> hm : bossManager.getBossMapActual().entrySet()) {
                         Entity boss = hm.getKey();
                         if (p.getWorld().equals(boss.getWorld()))
                             if (p.getLocation().distance(boss.getLocation()) < dis) {
@@ -291,10 +291,10 @@ public class BossLand extends JavaPlugin implements Listener {
                         a.setGlowing(true);
                         CompatibilityResolver.setArrowBasePotionType(a,CompatibilityResolver.resolvePotionTypeEffect("SLOWNESS","SLOW"));
 //                        a.setBasePotionType(CompatibilityResolver.resolvePotionEffect("SLOWNESS","SLOW"));
-                        makeTrail(a, "CLOUD:0:1:0");
+                        MCUtility.makeTrail(plugin, a, "CLOUD:0:1:0");
                         Entity t = getTarget(p);
                         if (t != null)
-                            moveToward(a, t, 1.1);
+                            MCUtility.moveToward(plugin, a, t, 1.1);
                         // lightningList.add(e.getEntity());
                     }
                 } else if (bossType != null && bossType.equals("DrownedGod")) {
@@ -349,7 +349,7 @@ public class BossLand extends JavaPlugin implements Listener {
             p.sendMessage("§5§lPrepare to die!");
             final Location l = new Location(end, 0, end.getHighestBlockYAt(0, 0) + 3, 0);
             p.getWorld().createExplosion(l, 4);
-            Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(this, () -> spawnBoss(p, l, "Death"), (10));
+            Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(this, () -> bossManager.spawnBoss(p, l, "Death"), (10));
         }
     }
 
@@ -441,8 +441,8 @@ public class BossLand extends JavaPlugin implements Listener {
         if (bossType != null && (e.getEntity() instanceof LivingEntity )) {
             LivingEntity ent = (LivingEntity) e.getEntity();
             // Make Sure Real Boss
-            if (!bossMap.containsKey(ent))
-                makeBoss(ent, bossType);
+            if (!bossManager.getBossMapActual().containsKey(ent))
+                bossManager.makeBoss(ent, bossType);
             updateHP(ent);
             // System.out.println("Boss Damaged");
             // Stop Self Damage
@@ -504,9 +504,9 @@ public class BossLand extends JavaPlugin implements Listener {
                                 // l.setY(l.getY()-2);
                                 // Fireball f = (Fireball) l.getWorld().spawnEntity(l, EntityType.FIREBALL);
                                 // f.setShooter(ent);
-                                moveToward(f, dmgr.getLocation(), 0.6);
-                                boomTimer(f, 5);
-                                makeTrail(f, getConfig().getString("bosses." + bossType + ".attackParticle"));
+                                MCUtility.moveToward(plugin,f, dmgr.getLocation(), 0.6);
+                                MCUtility.boomTimer(plugin, f, 5);
+                                MCUtility.makeTrail(plugin, f, getConfig().getString("bosses." + bossType + ".attackParticle"));
                             }, 5L * i);
                     }
                 }
@@ -595,9 +595,9 @@ public class BossLand extends JavaPlugin implements Listener {
                         for (int i = 0; i < balls; i++)
                             Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(this, () -> {
                                 WitherSkull f = ent.launchProjectile(WitherSkull.class);
-                                moveToward(f, dmgr.getLocation(), 0.6);
-                                boomTimer(f, 5);
-                                makeTrail(f, getConfig().getString("bosses." + bossType + ".attackParticle"));
+                                MCUtility.moveToward(plugin,f, dmgr.getLocation(), 0.6);
+                                MCUtility.boomTimer(plugin,f, 5);
+                                MCUtility.makeTrail(plugin,f, getConfig().getString("bosses." + bossType + ".attackParticle"));
                             }, 5L * i);
                     }
                 }
@@ -623,7 +623,7 @@ public class BossLand extends JavaPlugin implements Listener {
                         // }
                         // Other Effects
                         TNTPrimed tnt = (TNTPrimed) ent.getWorld().spawnEntity(ent.getEyeLocation(), CompatibilityResolver.resolveEntityType("TNT", "PRIMED_TNT"));
-                        moveToward(tnt, dmgr.getLocation(), 0.5);
+                        MCUtility.moveToward(plugin, tnt, dmgr.getLocation(), 0.5);
                     }
                 }
                 case "EvilWizard" -> {
@@ -648,9 +648,9 @@ public class BossLand extends JavaPlugin implements Listener {
                         item.setItemMeta(meta);
                         ThrownPotion thrownPotion = ent.launchProjectile(ThrownPotion.class);
                         thrownPotion.setItem(item);
-                        moveToward(thrownPotion, dmgr.getLocation(), 0.7);
-                        boomTimer(thrownPotion, 4);
-                        makeTrail(thrownPotion, getConfig().getString("bosses." + bossType + ".attackParticle"));
+                        MCUtility.moveToward(plugin, thrownPotion, dmgr.getLocation(), 0.7);
+                        MCUtility.boomTimer(plugin,thrownPotion, 4);
+                        MCUtility.makeTrail(plugin, thrownPotion, getConfig().getString("bosses." + bossType + ".attackParticle"));
                     }
                     if (UtilityCalc.rand(1, 100) <= c && ent.getHealth() <= maxHealth / 3) {
                         // Phase 3
@@ -757,7 +757,7 @@ public class BossLand extends JavaPlugin implements Listener {
                                             tmp.getBlock().setType(Material.AIR);
                                     }
                                     Objects.requireNonNull(loc.getWorld()).playSound(loc, Sound.BLOCK_STONE_BREAK, 1, 1);
-                                    displayParticle(CompatibilityResolver.resolveParticle("SMOKE_LARGE", "LARGE_SMOKE").toString(), loc, 0.3, 0, 3);
+                                    MCUtility.displayParticle(CompatibilityResolver.resolveParticle("SMOKE_LARGE", "LARGE_SMOKE").toString(), loc, 0.3, 0, 3);
                                 }, t);
                                 t = t + 1;
                                 length += space;
@@ -768,7 +768,7 @@ public class BossLand extends JavaPlugin implements Listener {
                     if (UtilityCalc.rand(1, 100) <= c && ent.getHealth() <= maxHealth / 3) {
                         // Phase 3
                         dmgr.getWorld().playSound(dmgr.getLocation(), Sound.ENTITY_LIGHTNING_BOLT_THUNDER, 1, 1);
-                        displayParticle(Particle.CLOUD.toString(), dmgr.getEyeLocation(), 0, 1, 10);
+                        MCUtility.displayParticle(Particle.CLOUD.toString(), dmgr.getEyeLocation(), 0, 1, 10);
                         final Location bl = dmgr.getLocation();
                         Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(this, () -> {
                             Location l1 = bl.clone();
@@ -803,20 +803,20 @@ public class BossLand extends JavaPlugin implements Listener {
                         // Phase 2
                         Projectile pj = ent.launchProjectile(Trident.class);
                         lightningList.add(pj);
-                        moveToward(pj, dmgr.getLocation(), 0.7);
+                        MCUtility.moveToward(plugin,pj, dmgr.getLocation(), 0.7);
                     }
                     if (UtilityCalc.rand(1, 100) <= c && ent.getHealth() <= maxHealth / 4 * 2) {
                         // Phase 3
-                        moveToward(ent, dmgr.getLocation(), 0.5);
+                        MCUtility.moveToward(plugin,ent, dmgr.getLocation(), 0.5);
                         // Other Effects
                         int balls = getConfig().getInt("bosses." + bossType + ".amountSpecial3");
                         for (int i = 0; i < balls; i++)
                             Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(this, () -> {
                                 Projectile f = ent.launchProjectile(Trident.class);
                                 lightningList.add(f);
-                                moveToward(f, dmgr, 0.7);
-                                boomTimer(f, 5);
-                                makeTrail(f, getConfig().getString("bosses." + bossType + ".attackParticle"));
+                                MCUtility.moveToward(plugin,f, dmgr, 0.7);
+                                MCUtility.boomTimer(plugin,f, 5);
+                                MCUtility.makeTrail(plugin,f, getConfig().getString("bosses." + bossType + ".attackParticle"));
                             }, 5L * i);
                     }
                     if (UtilityCalc.rand(1, 100) <= c && ent.getHealth() <= maxHealth / 4) {
@@ -831,7 +831,7 @@ public class BossLand extends JavaPlugin implements Listener {
                         spawnGodMinions(ent, ent.getLocation(), bossType, UtilityCalc.rand(1, 6));
                     }
                     if (UtilityCalc.rand(1, 100) <= c) {
-                        doFireBalls(ent, dmgr, bossType);
+                        MCUtility.doFireBalls(plugin, ent, dmgr, bossType);
                     }
                     if (UtilityCalc.rand(1, 100) <= getConfig().getInt("bosses." + bossType + ".special3Chance")
                             && ent.getHealth() <= maxHealth / 4 * 2) {
@@ -875,9 +875,9 @@ public class BossLand extends JavaPlugin implements Listener {
                                 l.setY(l.getY() + 1);
                                 // Projectile f = (Projectile) ent.getWorld().spawnEntity(l, fbt);
                                 Projectile f = ent.launchProjectile(ShulkerBullet.class);
-                                moveToward(f, dmgr, 0.4);
-                                boomTimer(f, 8);
-                                makeTrail(f, getConfig().getString("bosses." + bossType + ".attackParticle"));
+                                MCUtility.moveToward(plugin,f, dmgr, 0.4);
+                                MCUtility.boomTimer(plugin,f, 8);
+                                MCUtility.makeTrail(plugin,f, getConfig().getString("bosses." + bossType + ".attackParticle"));
                             }, 7L * i);
                     }
                     if (ent.getHealth() <= maxHealth / 4 * 3) {
@@ -888,8 +888,8 @@ public class BossLand extends JavaPlugin implements Listener {
                         if (UtilityCalc.rand(1, 100) <= c) {
                             Arrow a = ent.launchProjectile(Arrow.class);
                             a.setKnockbackStrength(5);
-                            moveToward(a, dmgr, 0.7);
-                            makeTrail(a, getConfig().getString("bosses." + bossType + ".attackParticle2"));
+                            MCUtility.moveToward(plugin,a, dmgr, 0.7);
+                            MCUtility.makeTrail(plugin,a, getConfig().getString("bosses." + bossType + ".attackParticle2"));
                         }
                     }
                     if (UtilityCalc.rand(1, 100) <= c && ent.getHealth() <= maxHealth / 4 * 2) {
@@ -920,15 +920,15 @@ public class BossLand extends JavaPlugin implements Listener {
                                 l.setY(l.getY() + 1);
                                 // Projectile f = (Projectile) ent.getWorld().spawnEntity(l, fbt);
                                 Projectile f = ent.launchProjectile(Fireball.class);
-                                moveToward(f, dmgr, 0.7);
-                                boomTimer(f, 4);
-                                makeTrail(f, getConfig().getString("bosses." + bossType + ".attackParticle"));
+                                MCUtility.moveToward(plugin,f, dmgr, 0.7);
+                                MCUtility.boomTimer(plugin,f, 4);
+                                MCUtility.makeTrail(plugin,f, getConfig().getString("bosses." + bossType + ".attackParticle"));
                             }, 10L * i);
                     }
                     if (UtilityCalc.rand(1, 100) <= c && ent.getHealth() <= maxHealth / 4 * 3) {
                         // Phase 2
                         int s = 2;
-                        for (Block b : getArea(
+                        for (Block b : MCUtility.getArea(
                                 new Location(ent.getWorld(), ent.getLocation().getX() - s, ent.getLocation().getY() - s,
                                         ent.getLocation().getZ() - s),
                                 new Location(ent.getWorld(), ent.getLocation().getX() + s, ent.getLocation().getY() + s,
@@ -944,9 +944,9 @@ public class BossLand extends JavaPlugin implements Listener {
                     }
                     if (UtilityCalc.rand(1, 100) <= c && ent.getHealth() <= maxHealth / 4) {
                         // Phase 4
-                        displayParticle(Objects.requireNonNull(getConfig().getString("bosses." + bossType + ".tpParticle")), ent.getLocation());
+                        MCUtility.displayParticle(Objects.requireNonNull(getConfig().getString("bosses." + bossType + ".tpParticle")), ent.getLocation());
                         ent.teleport(dmgr);
-                        displayParticle(Objects.requireNonNull(getConfig().getString("bosses." + bossType + ".tpParticle")), ent.getLocation());
+                        MCUtility.displayParticle(Objects.requireNonNull(getConfig().getString("bosses." + bossType + ".tpParticle")), ent.getLocation());
                         dmgr.damage(getConfig().getInt("bosses." + bossType + ".specialDamage"), ent);
                     }
                 }
@@ -961,8 +961,8 @@ public class BossLand extends JavaPlugin implements Listener {
                     if (UtilityCalc.rand(1, 100) <= c) {
                         // Phase 1
                         LivingEntity b = (LivingEntity) ent.getWorld().spawnEntity(ent.getLocation(), EntityType.BAT);
-                        makeTrail(b, getConfig().getString("bosses." + bossType + ".attackParticle"));
-                        moveToward(b, dmgr, 0.3);
+                        MCUtility.makeTrail(plugin,b, getConfig().getString("bosses." + bossType + ".attackParticle"));
+                        MCUtility.moveToward(plugin,b, dmgr, 0.3);
                         suicideTimer(b, 3);
                     }
                     if (UtilityCalc.rand(1, 100) <= c && ent.getHealth() <= maxHealth / 5 * 4) {
@@ -982,7 +982,7 @@ public class BossLand extends JavaPlugin implements Listener {
                                 // world.spawnParticle(Particle.CAMPFIRE_COSY_SMOKE, p1.getX(), p1.getY(),
                                 // p1.getZ(), 1);
                                 final Location loc = new Location(world, p1.getX(), p1.getY(), p1.getZ());
-                                displayParticle(Particle.FLAME.toString(), loc, 0.5, 0, 4);
+                                MCUtility.displayParticle(Particle.FLAME.toString(), loc, 0.5, 0, 4);
                                 length += space;
                             }
                             // Damage
@@ -1005,7 +1005,7 @@ public class BossLand extends JavaPlugin implements Listener {
                         l2.setX(l2.getX() - 1);
                         l2.setY(l2.getY() - 25);
                         l2.setZ(l2.getZ() - 1);
-                        for (Block b : getArea(l1, l2, false))
+                        for (Block b : MCUtility.getArea(l1, l2, false))
                             if ((!b.getType().equals(Material.LAVA)) && (!b.getType().equals(Material.BEDROCK))) {
                                 b.setType(Material.AIR);
                             }
@@ -1030,9 +1030,9 @@ public class BossLand extends JavaPlugin implements Listener {
                         for (int i = 0; i < balls; i++)
                             Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(this, () -> {
                                 DragonFireball f = ent.launchProjectile(DragonFireball.class);
-                                moveToward(f, dmgr.getLocation(), 0.7);
-                                boomTimer(f, 6);
-                                makeTrail(f, getConfig().getString("bosses." + bossType + ".attackParticle"));
+                                MCUtility.moveToward(plugin,f, dmgr.getLocation(), 0.7);
+                                MCUtility.boomTimer(plugin,f, 6);
+                                MCUtility.makeTrail(plugin,f, getConfig().getString("bosses." + bossType + ".attackParticle"));
                             }, 15L * i);
                     }
                     if (UtilityCalc.rand(1, 100) <= c) {
@@ -1080,7 +1080,7 @@ public class BossLand extends JavaPlugin implements Listener {
                         l2.setX(l2.getX() - radious);
                         l2.setY(l2.getY() - depth);
                         l2.setZ(l2.getZ() - radious);
-                        for (Block b : getArea(l1, l2, false))
+                        for (Block b : MCUtility.getArea(l1, l2, false))
                             if (!b.getType().equals(Material.BEDROCK)) {
                                 oldBlocks.put(b, b.getType());
                                 b.setType(Material.AIR);
@@ -1194,29 +1194,6 @@ public class BossLand extends JavaPlugin implements Listener {
         }
     }
 
-    public List<Block> getArea(Location loc1, Location loc2, boolean removeBottom) {
-        int topBlockX = Math.max(loc1.getBlockX(), loc2.getBlockX());
-        int bottomBlockX = Math.min(loc1.getBlockX(), loc2.getBlockX());
-
-        int topBlockY = Math.max(loc1.getBlockY(), loc2.getBlockY());
-        int bottomBlockY = Math.min(loc1.getBlockY(), loc2.getBlockY());
-        if (removeBottom) {
-            bottomBlockY++;
-        }
-        int topBlockZ = Math.max(loc1.getBlockZ(), loc2.getBlockZ());
-        int bottomBlockZ = Math.min(loc1.getBlockZ(), loc2.getBlockZ());
-
-        List<Block> blocks = new ArrayList<>();
-        for (int x = bottomBlockX; x <= topBlockX; x++) {
-            for (int z = bottomBlockZ; z <= topBlockZ; z++) {
-                for (int y = bottomBlockY; y <= topBlockY; y++) {
-                    blocks.add(Objects.requireNonNull(loc1.getWorld()).getBlockAt(x, y, z));
-                }
-            }
-        }
-        return blocks;
-    }
-
     private boolean checkDeath(final Player p, double fd) {
         if ((p.getHealth() - fd) <= 0) {
             // System.out.println("D3");    
@@ -1251,77 +1228,13 @@ public class BossLand extends JavaPlugin implements Listener {
         return false;
     }
 
-    private void autoBalls(final LivingEntity ent, final String bossType) {
-        if (ent.isDead())
-            return;
-        for (Entity x : ent.getNearbyEntities(35, 35, 35))
-            if (x instanceof Player) {
-                if (bossType.equals("Death")) {
-                    doDragonBalls(ent, (LivingEntity) x, bossType);
-                } else
-                    doFireBalls(ent, (LivingEntity) x, bossType);
-            }
-        Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(this, () -> {
-            try {
-                autoBalls(ent, bossType);
-            } catch (Exception localException) {
-            }
-        }, 10 * 20);
-    }
-
-    private void doDragonBalls(final LivingEntity ent, final LivingEntity dmgr, final String bossType) {
-        Location l = ent.getEyeLocation();
-        l.setY(l.getY() + 1);
-        WitherSkull f = ent.launchProjectile(WitherSkull.class);
-        moveToward(f, dmgr, 0.6);
-        boomTimer(f, 5);
-        makeTrail(f, getConfig().getString("bosses." + bossType + ".attackParticle"));
-    }
-
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    private void doFireBalls(final LivingEntity ent, final LivingEntity dmgr, final String bossType) {
-        int balls = 1;
-        // EntityType bt = EntityType.FIREBALL;
-        Class c = Fireball.class;
-        double maxHealth = Objects.requireNonNull(ent.getAttribute(CompatibilityResolver.resolveAttribute("MAX_HEALTH", "GENERIC_MAX_HEALTH"))).getBaseValue();
-        if (ent.getHealth() <= ((maxHealth / 4) * 3)) {
-            // Phase 2
-            balls = getConfig().getInt("bosses." + bossType + ".amountSpecial2");
-            // bt = EntityType.SMALL_FIREBALL;
-        } else if (ent.getHealth() <= ((maxHealth / 4) * 2)) {
-            // Phase 3
-            balls = getConfig().getInt("bosses." + bossType + ".amountSpecial3");
-            // bt = EntityType.FIREBALL;
-            c = LargeFireball.class;
-        } else if ((ent.getHealth() <= (maxHealth / 4))) {
-            // Phase 4
-            balls = getConfig().getInt("bosses." + bossType + ".amountSpecial4");
-            // bt = EntityType.DRAGON_FIREBALL;
-            c = DragonFireball.class;
-        }
-        if (balls <= 0)
-            balls = 1;
-        // final EntityType fbt = bt;
-        final Class fc = c;
-        for (int i = 0; i < balls; i++)
-            Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(this, () -> {
-                Location l = ent.getEyeLocation();
-                l.setY(l.getY() + 1);
-                // Projectile f = (Projectile) ent.getWorld().spawnEntity(l, fbt);
-                Projectile f = ent.launchProjectile(fc);
-                moveToward(f, dmgr, 0.6);
-                boomTimer(f, 5);
-                makeTrail(f, getConfig().getString("bosses." + bossType + ".attackParticle"));
-            }, 7L * i);
-    }
-
     private void spawnTornado(Location l, LivingEntity target, int dmg, String type) {
         LivingEntity bat = (LivingEntity) Objects.requireNonNull(l.getWorld()).spawnEntity(l, EntityType.BAT);
         bat.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, 999 * 999, 1));
         Objects.requireNonNull(bat.getAttribute(CompatibilityResolver.resolveAttribute("MAX_HEALTH", "GENERIC_MAX_HEALTH"))).setBaseValue(2000);
         bat.setHealth(2000);
         moveTowardConstant(bat, target, 0.2);
-        boomTimer(bat, 30);
+        MCUtility.boomTimer(plugin,bat, 30);
         tornadoEffect(bat, target, dmg, type);
     }
 
@@ -1407,13 +1320,13 @@ public class BossLand extends JavaPlugin implements Listener {
         Location l1 = e.getLocation();
         for (int i = 0; i <= 5; i++) {
             l1.setY(l1.getY() + 1);
-            displayParticle(part, l1);
+            MCUtility.displayParticle(part, l1);
         }
         Location l2 = e.getLocation();
         for (int i = 1; i <= 4; i++) {
             l2.setY(l2.getY() - i);
             if (l2.getBlock().getType().equals(Material.AIR))
-                displayParticle(part, l2);
+                MCUtility.displayParticle(part, l2);
         }
         // Finish Loop
         final LivingEntity to3 = to2;
@@ -1474,24 +1387,6 @@ public class BossLand extends JavaPlugin implements Listener {
         }, 1L);
     }
 
-    public void moveToward(final Entity e, final Entity to, final double speed) {
-        if (e.isDead()) {
-            return;
-        } else if (e.getLocation().distance(to.getLocation()) < .5)
-            return;
-        Location loc = to.getLocation();
-        if (to instanceof LivingEntity)
-            loc = ((LivingEntity) to).getEyeLocation();
-        Vector direction = loc.toVector().subtract(e.getLocation().toVector()).normalize();
-        e.setVelocity(direction.multiply(speed));
-        Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(this, () -> {
-            try {
-                moveToward(e, to, speed);
-            } catch (Exception localException) {
-            }
-        }, 1L);
-    }
-
     public void moveTowardConstant(final Entity e, final Entity to, final double speed) {
         if (e.isDead()) {
             return;
@@ -1500,37 +1395,10 @@ public class BossLand extends JavaPlugin implements Listener {
         e.setVelocity(direction.multiply(speed));
         Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(this, () -> {
             try {
-                moveToward(e, to, speed);
+                MCUtility.moveToward(plugin,e, to, speed);
             } catch (Exception localException) {
             }
         }, 1L);
-    }
-
-    public void moveToward(final Entity e, final Location to, final double speed) {
-        if (e.isDead()) {
-            return;
-        } else if (e.getLocation().distance(to) < .5)
-            return;
-        Vector direction = to.toVector().subtract(e.getLocation().toVector()).normalize();
-        e.setVelocity(direction.multiply(speed));
-        Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(this, () -> {
-            try {
-                moveToward(e, to, speed);
-            } catch (Exception localException) {
-            }
-        }, 1L);
-    }
-
-    private void boomTimer(final Entity p, int t) {
-        Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(this, () -> {
-            try {
-                if (!p.isDead()) {
-                    p.remove();
-                    p.getWorld().createExplosion(p.getLocation(), 2, false);
-                }
-            } catch (Exception localException) {
-            }
-        }, t * 20L);
     }
 
     private void spawnGodMinions(LivingEntity ent, Location sl, String bossType, int distance) {
@@ -1713,9 +1581,9 @@ public class BossLand extends JavaPlugin implements Listener {
                             ee.setBoots(boots);
                             hand.addUnsafeEnchantment(CompatibilityResolver.resolveEnchantment("ARROW_DAMAGE","POWER"), 5);
                             ee.setItemInMainHand(hand);
-                            makeTrail(minion, getConfig().getString("bosses." + bossType + ".minionAuraParticle"));
-                            levitate(minion, true);
-                            target(minion, 0.2);
+                            MCUtility.makeTrail(plugin,minion, getConfig().getString("bosses." + bossType + ".minionAuraParticle"));
+                            MCUtility.levitate(plugin,minion, true,bossManager.getTargetMapActual());
+                            MCUtility.target(plugin,minion, 0.2,bossManager.getTargetMapActual());
                         } else if (phase == 4) {
                             ItemStack head = getSkull(
                                     "http://textures.minecraft.net/texture/a3c38235da73e12c5339ead444db8122dd63f9e8ea6a6329419cf160d3");
@@ -1729,7 +1597,7 @@ public class BossLand extends JavaPlugin implements Listener {
                             ee.setBoots(boots);
                             hand.addUnsafeEnchantment(CompatibilityResolver.resolveEnchantment("ARROW_DAMAGE","POWER"), 7);
                             ee.setItemInMainHand(hand);
-                            makeTrail(minion, getConfig().getString("bosses." + bossType + ".minionAuraParticle"));
+                            MCUtility.makeTrail(plugin,minion, getConfig().getString("bosses." + bossType + ".minionAuraParticle"));
                         } else {
                             minion.addPotionEffect(new PotionEffect(CompatibilityResolver.resolvePotionEffect("INCREASE_DAMAGE","STRENGTH"), 999 * 999, 4));
                             minion.addPotionEffect(new PotionEffect(CompatibilityResolver.resolvePotionEffect("DAMAGE_RESISTANCE","RESISTANCE"), 999 * 999, 4));
@@ -1802,7 +1670,7 @@ public class BossLand extends JavaPlugin implements Listener {
                             minion.addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 999 * 999, 1));
                             minion.addPotionEffect(new PotionEffect(CompatibilityResolver.resolvePotionEffect("INCREASE_DAMAGE","STRENGTH"), 999 * 999, 2));
                             minion.addPotionEffect(new PotionEffect(CompatibilityResolver.resolvePotionEffect("DAMAGE_RESISTANCE","RESISTANCE"), 999 * 999, 3));
-                            equipMob(minion, "IRON");
+                            MCUtility.equipMob(minion, "IRON");
                             ItemStack head = getSkull(
                                     "http://textures.minecraft.net/texture/883fea591637eff42d7f62b30adb6f1fbce63641750de8b9dd933fbb26f5ae6");
                             ee.setHelmet(head);
@@ -1820,7 +1688,7 @@ public class BossLand extends JavaPlugin implements Listener {
                             itemManager.dye(chest, Color.MAROON);
                             ee.setChestplate(chest);
                             ee.setItemInMainHand(null);
-                            autoBalls(minion, "Devil");
+                            bossManager.autoBalls(minion, "Devil");
                         } else if (phase == 4) {
                             for (ItemStack s : Arrays.asList(chest, pants, boots))
                                 itemManager.dye(s, Color.MAROON);
@@ -1839,8 +1707,8 @@ public class BossLand extends JavaPlugin implements Listener {
                             minion.addPotionEffect(new PotionEffect(CompatibilityResolver.resolvePotionEffect("INCREASE_DAMAGE","STRENGTH"), 999 * 999, 5));
                             Objects.requireNonNull(minion.getAttribute(CompatibilityResolver.resolveAttribute("MAX_HEALTH", "GENERIC_MAX_HEALTH"))).setBaseValue(200);
                             minion.setHealth(200);
-                            makeTrail(minion, getConfig().getString("bosses." + bossType + ".minionAuraParticle"));
-                            autoBalls(minion, "Devil");
+                            MCUtility.makeTrail(plugin, minion, getConfig().getString("bosses." + bossType + ".minionAuraParticle"));
+                            bossManager.autoBalls(minion, "Devil");
                         } else {
                             ItemStack head = getSkull(
                                     "http://textures.minecraft.net/texture/9d9d80b79442cf1a3afeaa237bd6adaaacab0c28830fb36b5704cf4d9f5937c4");
@@ -1869,10 +1737,10 @@ public class BossLand extends JavaPlugin implements Listener {
                             ee.setHelmet(head);
                             itemManager.dye(chest, Color.fromRGB(51, 0, 51));
                             ee.setChestplate(chest);
-                            makeTrail(minion, getConfig().getString("bosses." + bossType + ".minionAuraParticle"));
-                            levitate(minion, true);
-                            target(minion, 0.4);
-                            autoBalls(minion, "Death");
+                            MCUtility.makeTrail(plugin,minion, getConfig().getString("bosses." + bossType + ".minionAuraParticle"));
+                            MCUtility.levitate(plugin,minion, true, bossManager.getTargetMapActual());
+                            MCUtility.target(plugin,minion, 0.4,bossManager.getTargetMapActual());
+                            bossManager.autoBalls(minion, "Death");
                         } else if (phase == 4) {
                             ItemStack head = getSkull(
                                     "http://textures.minecraft.net/texture/a459ee21aff7ed216b04bd6c486dd807d9edc99e0724ef4f4d2c4cee1a092296");
@@ -1882,10 +1750,10 @@ public class BossLand extends JavaPlugin implements Listener {
                             chest.addUnsafeEnchantment(CompatibilityResolver.resolveEnchantment("PROTECTION","PROTECTION_ENVIRONMENTAL"), 10);
                             itemManager.dye(chest, Color.fromRGB(127, 0, 255));
                             ee.setChestplate(chest);
-                            makeTrail(minion, getConfig().getString("bosses." + bossType + ".minionAuraParticle"));
-                            levitate(minion, true);
-                            target(minion, 0.4);
-                            autoBalls(minion, "Death");
+                            MCUtility.makeTrail(plugin,minion, getConfig().getString("bosses." + bossType + ".minionAuraParticle"));
+                            MCUtility.levitate(plugin,minion, true,bossManager.getTargetMapActual());
+                            MCUtility.target(plugin,minion, 0.4,bossManager.getTargetMapActual());
+                            bossManager.autoBalls(minion, "Death");
                         } else {
                             minion.addPotionEffect(new PotionEffect(CompatibilityResolver.resolvePotionEffect("INCREASE_DAMAGE","STRENGTH"), 999 * 999, 9));
                             minion.addPotionEffect(new PotionEffect(CompatibilityResolver.resolvePotionEffect("DAMAGE_RESISTANCE","RESISTANCE"), 999 * 999, 3));
@@ -2104,9 +1972,9 @@ public class BossLand extends JavaPlugin implements Listener {
         if (bossType != null) {
             // ArrayList<ItemStack> loot = new ArrayList<ItemStack>();
             // Boss Death
-            for (Player p : bossMap.get(ent).getPlayers())
-                bossMap.get(ent).removePlayer(p);
-            bossMap.remove(ent);
+            for (Player p : bossManager.getBossMapActual().get(ent).getPlayers())
+                bossManager.getBossMapActual().get(ent).removePlayer(p);
+            bossManager.getBossMapActual().remove(ent);
             // Mount Removal
             LivingEntity m = (LivingEntity) getMount(ent);
             if (m != null) {
@@ -2136,7 +2004,7 @@ public class BossLand extends JavaPlugin implements Listener {
             // ent.getWorld().dropItemNaturally(ent.getLocation(),s);
             // ParticleEffects_1_9.sendToLocation(ParticleEffects_1_9.CLOUD,
             // ent.getLocation(), 0, 0, 0, 1, 50);
-            displayParticle(Objects.requireNonNull(getConfig().getString("bosses." + bossType + ".deathParticle")), ent.getLocation());
+            MCUtility.displayParticle(Objects.requireNonNull(getConfig().getString("bosses." + bossType + ".deathParticle")), ent.getLocation());
             // God Deaths
             switch (bossType) {
                 case "AetherGod" -> {
@@ -2217,7 +2085,7 @@ public class BossLand extends JavaPlugin implements Listener {
     }
 
     @EventHandler(priority = EventPriority.HIGH)
-    public void onBlockPlace(BlockPlaceEvent e) {
+    public void onBlockPlace(BlockPlaceEvent e) { //Prevent bosslands items from being placed
         // Player p = e.getPlayer();
         try {
             if (Objects.requireNonNull(e.getItemInHand().getItemMeta()).getDisplayName().equals(getBossItemName("PharaohGod", 0))) {
@@ -2240,163 +2108,7 @@ public class BossLand extends JavaPlugin implements Listener {
     @EventHandler(priority = EventPriority.HIGH)
     public void onPlayerInteract(PlayerInteractEvent e) {
         final Player p = e.getPlayer();
-        try {
-            assert e.getClickedBlock() != null;
-            Location l = e.getClickedBlock().getLocation();
-            String biome = Objects.requireNonNull(l.getWorld()).getBiome((int) l.getX(), (int) l.getY(), (int) l.getZ()).toString();
-            // Boss Rituals
-            if (p.getInventory().getItemInMainHand().getType().equals(Material.ENDER_EYE)
-                    && Objects.requireNonNull(l.getWorld()).getEnvironment().equals(Environment.NORMAL) && biome.contains("SWAMP")) {
-                if (checkBlockRecipe(l, "SLIME_BLOCK:SLIME_BLOCK:SLIME_BLOCK", "SLIME_BLOCK:DIAMOND_BLOCK:SLIME_BLOCK",
-                        "SLIME_BLOCK:SLIME_BLOCK:SLIME_BLOCK", true)) {
-                    e.setCancelled(true);
-                    l.getWorld().createExplosion(l, 3, false);
-                    l.setY(l.getY() + 2);
-                    final Location bs = l.clone();
-                    takeItem(p, 1);
-                    Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(this, () -> spawnBoss(p, bs, "KingSlime"),
-                            (40));
-                }
-            } else if (p.getInventory().getItemInMainHand().getType().equals(Material.MAGMA_CREAM)
-                    && Objects.requireNonNull(l.getWorld()).getEnvironment().equals(Environment.NETHER)) {
-                if (checkBlockRecipe(l, "FIRE:FIRE:FIRE", "FIRE:WITHER_SKELETON_SKULL:FIRE", "FIRE:FIRE:FIRE", true)) {
-                    e.setCancelled(true);
-                    l.getWorld().createExplosion(l, 2, true);
-                    final Location bs = l.clone();
-                    takeItem(p, 1);
-                    Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(this,
-                            () -> spawnBoss(p, bs, "WitherSkeletonKing"), (20));
-                }
-            } else if (p.getInventory().getItemInMainHand().getType().equals(Material.CAKE)
-                    && Objects.requireNonNull(l.getWorld()).getEnvironment().equals(Environment.NORMAL) && (biome.contains("BAMBOO"))) {
-                if (checkBlockRecipe(l, "MOSSY_COBBLESTONE:MOSSY_COBBLESTONE:MOSSY_COBBLESTONE",
-                        "MOSSY_COBBLESTONE:CHISELED_STONE_BRICKS:MOSSY_COBBLESTONE",
-                        "MOSSY_COBBLESTONE:MOSSY_COBBLESTONE:MOSSY_COBBLESTONE", true)) {
-                    // BAMBOO
-                    e.setCancelled(true);
-                    l.getWorld().createExplosion(l, 2, false);
-                    final Location bs = l.clone();
-                    takeItem(p, 1);
-                    Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(this, () -> spawnBoss(p, bs, "PapaPanda"),
-                            (20));
-                }
-            } else if (p.getInventory().getItemInMainHand().getType().equals(Material.JACK_O_LANTERN)
-                    && Objects.requireNonNull(l.getWorld()).getEnvironment().equals(Environment.NORMAL) && (l.getY() <= -40)) {
-                if (checkBlockRecipe(l, "COPPER_BLOCK:COPPER_BLOCK:COPPER_BLOCK",
-                        "COPPER_BLOCK:COPPER_BLOCK:COPPER_BLOCK", "COPPER_BLOCK:COPPER_BLOCK:COPPER_BLOCK", true)) {
-                    // COPPER GOLEM
-                    e.setCancelled(true);
-                    // l.getWorld().createExplosion(l, 3, false);
-                    l.getWorld().playSound(l, Sound.ENTITY_IRON_GOLEM_REPAIR, 1, 1);
-                    final Location bs = l.clone();
-                    takeItem(p, 1);
-                    Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(this, () -> spawnBoss(p, bs, "Anger"),
-                            (20));
-                }
-            } else if (p.getInventory().getItemInMainHand().getType().equals(Material.BRAIN_CORAL)
-                    && Objects.requireNonNull(l.getWorld()).getEnvironment().equals(Environment.NORMAL) && (biome.contains("PLAINS"))) {
-                if (checkBlockRecipe(l, "SOUL_SAND:SOUL_SAND:SOUL_SAND", "SOUL_SAND:EMERALD_BLOCK:SOUL_SAND",
-                        "SOUL_SAND:SOUL_SAND:SOUL_SAND", true)) {
-                    e.setCancelled(true);
-                    l.getWorld().createExplosion(l, 2, false);
-                    final Location bs = l.clone();
-                    takeItem(p, 1);
-                    Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(this,
-                            () -> spawnBoss(p, bs, "ZombieKing"), (20));
-                }
-            } else if (Objects.requireNonNull(p.getInventory().getItemInMainHand().getItemMeta()).getDisplayName().equals("§5§lBook of Spells")
-                    && Objects.requireNonNull(l.getWorld()).getEnvironment().equals(Environment.NORMAL) && (biome.contains("SNOWY") || biome.contains("FROZEN") || biome.contains("JAGGED") || biome.contains("GROVE") || biome.contains("ICE"))) {
-                if (checkBlockRecipe(l, "REDSTONE_TORCH:REDSTONE_WIRE:REDSTONE_TORCH",
-                        "REDSTONE_WIRE:CAMPFIRE:REDSTONE_WIRE", "REDSTONE_TORCH:REDSTONE_WIRE:REDSTONE_TORCH", true)) {
-                    e.setCancelled(true);
-                    lightningShow(l, 2);
-                    takeItem(p, 1);
-                    final Location bs = l.clone();
-                    Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(this,
-                            () -> spawnBoss(p, bs, "EvilWizard"), (20));
-                }
-            } else if (p.getInventory().getItemInMainHand().getItemMeta().getDisplayName().equals("§6§lBell of Doom")
-                    && Objects.requireNonNull(l.getWorld()).getEnvironment().equals(Environment.NORMAL) && (biome.contains("SAVANNA"))) {
-                if (checkBlockRecipe(l, "REDSTONE_TORCH:REDSTONE_WIRE:REDSTONE_TORCH",
-                        "REDSTONE_WIRE:CAMPFIRE:REDSTONE_WIRE", "REDSTONE_TORCH:REDSTONE_WIRE:REDSTONE_TORCH", true)) {
-                    e.setCancelled(true);
-                    lightningShow(l, 3);
-                    takeItem(p, 1);
-                    final Location bs = l.clone();
-                    Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(this,
-                            () -> spawnBoss(p, bs, "IllagerKing"), (20));
-                }
-            } else if (p.getInventory().getItemInMainHand().getItemMeta().getDisplayName()
-                    .equals("§2§lPotion of Giant Growth") && Objects.requireNonNull(l.getWorld()).getEnvironment().equals(Environment.NORMAL)
-                    && (l.getWorld().getBiome((int) l.getX(), (int) l.getY(), (int) l.getZ()).toString()
-                            .contains("PLAINS"))) {
-                if (checkBlockRecipe(l, "REDSTONE_TORCH:REDSTONE_WIRE:REDSTONE_TORCH",
-                        "REDSTONE_WIRE:CAMPFIRE:REDSTONE_WIRE", "REDSTONE_TORCH:REDSTONE_WIRE:REDSTONE_TORCH", true)) {
-                    e.setCancelled(true);
-                    // boom(l,5,false);
-                    lightningShow(l, 5);
-                    takeItem(p, 1);
-                    final Location bs = l.clone();
-                    Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(this, () -> spawnBoss(p, bs, "Giant"),
-                            (20));
-                }
-            } else if (p.getInventory().getItemInMainHand().getType().equals(Material.NETHER_STAR)) {
-                if (checkBlockRecipe(l, "REDSTONE_TORCH:REDSTONE_WIRE:REDSTONE_TORCH",
-                        "REDSTONE_WIRE:CAMPFIRE:REDSTONE_WIRE", "REDSTONE_TORCH:REDSTONE_WIRE:REDSTONE_TORCH", true)) {
-                    e.setCancelled(true);
-                    if (config.godsDead()) {
-                        takeItem(p, 1);
-                        p.getWorld().createExplosion(e.getClickedBlock().getLocation(), 4);
-                        final Location bs = l.clone();
-                        p.sendMessage("§c§lFool, who dares summon me!");
-                        Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(this, () -> spawnBoss(p, bs, "Demon"),
-                                (10));
-                    } else
-                        p.sendMessage(config.getLang("noPower"));
-                }
-            } else if (p.getInventory().getItemInMainHand().getType().equals(Material.GOLD_INGOT)
-                    && p.getInventory().getItemInMainHand().getAmount() >= 16) {
-                // Ghast Spawn
-                // l.setY(l.getY()+1);
-                if (Objects.requireNonNull(l.getWorld()).getEnvironment().equals(Environment.NETHER) && checkBlockRecipe(l,
-                        "REDSTONE_WIRE:REDSTONE_WIRE:REDSTONE_WIRE", "REDSTONE_WIRE:MAGMA_BLOCK:REDSTONE_WIRE",
-                        "REDSTONE_WIRE:REDSTONE_WIRE:REDSTONE_WIRE", false)) {
-                    if (!l.getBlock().getType().equals(Material.BEDROCK))
-                        l.getBlock().setType(Material.AIR);
-                    boom(l, 5, true);
-                    e.setCancelled(true);
-                    takeItem(p, 16);
-                    final Location bs = l.clone();
-                    Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(this, () -> spawnBoss(p, bs, "GhastLord"),
-                            (40));
-                }
-            } else if (p.getInventory().getItemInMainHand().getType().equals(Material.GOLDEN_CARROT)
-                    && p.getInventory().getItemInMainHand().getAmount() >= 16) {
-                // this.getLogger().log(Level.WARNING, "Gold Consumed!");
-                // l.setY(l.getY()+1);
-                if (Objects.requireNonNull(l.getWorld()).getBiome((int) l.getX(), (int) l.getY(), (int) l.getZ()).toString().contains("DESERT"))
-                    if (l.getWorld().getEnvironment().equals(Environment.NORMAL)
-                            && checkBlockRecipe(l, "CARROTS:CARROTS:CARROTS", "CARROTS:MAGMA_BLOCK:CARROTS",
-                                    "CARROTS:CARROTS:CARROTS", false)) {
-                        // this.getLogger().log(Level.WARNING, "Correct condition found for Killer
-                        // Bunny!");
-                        e.setCancelled(true);
-                        takeItem(p, 16);
-                        // boom(l,2,false);
-                        // Location la = l.clone();
-                        // la.setY(la.getY()-1);
-                        if (!l.getBlock().getType().equals(Material.BEDROCK))
-                            l.getBlock().setType(Material.AIR);
-                        l.getWorld().strikeLightning(l);
-                        final Location bs = l.clone();
-                        Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(this,
-                                () -> spawnBoss(p, bs, "KillerBunny"), (40));
-                    }
-            }
-            // System.out.println("Is Shard: " +
-            // isShard(p.getInventory().getItemInMainHand()));
-        } catch (Exception x) {
-        }
+        shrinesManager.detectShrineRecipe(config.getRecipeConfiguration("shrine_recipes"),e);
         try {
             // Cool Check
             if (coolList.contains(p.getUniqueId())) {
@@ -2444,7 +2156,7 @@ public class BossLand extends JavaPlugin implements Listener {
             } else if (p.getInventory().getItemInMainHand().getItemMeta().getDisplayName()
                     .equals(getBossItemName("PharaohGod", 1))) {
                 Projectile f = p.launchProjectile(LargeFireball.class);
-                makeTrail(f, "SMOKE_LARGE:0:4:0.2");
+                MCUtility.makeTrail(plugin,f, "SMOKE_LARGE:0:4:0.2");
                 cool(p.getUniqueId());
             } else if (p.getInventory().getItemInMainHand().getItemMeta().getDisplayName()
                     .equals(getBossItemName("AetherGod", 1))) {
@@ -2783,25 +2495,25 @@ public class BossLand extends JavaPlugin implements Listener {
                 final Location l = p.getLocation();
                 if (Objects.requireNonNull(l.getWorld()).getBiome((int) l.getX(), (int) l.getY(), (int) l.getZ()).toString().contains("OCEAN")
                         && l.getBlockY() <= getConfig().getInt("waterLevel")) {
-                    takeItem(p, 1);
-                    boom(l, 3, false);
+                    MCUtility.takeItem(p, 1);
+                    MCUtility.boom(this,l, 3, false);
                     p.sendMessage(config.getLang("drownSpawn"));
-                    Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(this, () -> spawnBoss(p, l, "DrownedGod"), (40));
+                    Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(this, () -> bossManager.spawnBoss(p, l, "DrownedGod"), (40));
                 } else if (l.getWorld().getEnvironment().equals(Environment.NORMAL)
                         && l.getBlockY() >= getConfig().getInt("skyLevel")) {
-                    takeItem(p, 1);
+                    MCUtility.takeItem(p, 1);
                     // boom(l,3,false);
-                    lightningShow(l, 3);
+                    MCUtility.lightningShow(plugin,l, 3);
                     l.setY(l.getY() + 5);
                     p.sendMessage(config.getLang("aetherSpawn"));
-                    Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(this, () -> spawnBoss(p, l, "AetherGod"), (40));
+                    Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(this, () -> bossManager.spawnBoss(p, l, "AetherGod"), (40));
                 } else if (l.getWorld().getBiome((int) l.getX(), (int) l.getY(), (int) l.getZ()).toString()
                         .contains("DESERT")) {
-                    takeItem(p, 1);
+                    MCUtility.takeItem(p, 1);
                     // boom(l,2,false);
-                    lightningShow(l, 4);
+                    MCUtility.lightningShow(plugin,l, 4);
                     p.sendMessage(config.getLang("pharaohSpawn"));
-                    Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(this, () -> spawnBoss(p, l, "PharaohGod"), (40));
+                    Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(this, () -> bossManager.spawnBoss(p, l, "PharaohGod"), (40));
                 } else
                     p.sendMessage(config.getLang("failSpawn"));
             } else if (p.getInventory().getItemInMainHand().getItemMeta().getDisplayName()
@@ -2811,10 +2523,10 @@ public class BossLand extends JavaPlugin implements Listener {
                 // Biome
                 final Location l = p.getLocation();
                 if (l.getWorld().getEnvironment().equals(Environment.NETHER)) {
-                    takeItem(p, 1);
-                    boom(l, 8, false);
+                    MCUtility.takeItem(p, 1);
+                    MCUtility.boom(plugin,l, 8, false);
                     p.sendMessage(config.getLang("devilSpawn"));
-                    Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(this, () -> spawnBoss(p, l, "Devil"), (40));
+                    Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(this, () -> bossManager.spawnBoss(p, l, "Devil"), (40));
                 } else
                     p.sendMessage(config.getLang("hellSpawn"));
             }
@@ -2883,180 +2595,17 @@ public class BossLand extends JavaPlugin implements Listener {
             e.setCancelled(true);
     }
 
-    private void takeItem(Player p, int amount) {
-        if (p.getInventory().getItemInMainHand().getAmount() > amount) {
-            p.getInventory().getItemInMainHand().setAmount(p.getInventory().getItemInMainHand().getAmount() - amount);
-        } else
-            p.getInventory().setItemInMainHand(null);
-    }
 
-    private void boom(final Location l, final int size, final boolean fire) {
-        // Boom 1
-        l.getWorld().createExplosion(l, size, fire);
-        // Boom 2
-        Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(this, new Runnable() {
-            public void run() {
-                Location l5 = l.clone();
-                l5.setX(l5.getX() + 3);
-                Location l6 = l.clone();
-                l6.setX(l6.getX() - 3);
-                Location l7 = l.clone();
-                l7.setZ(l7.getZ() + 3);
-                Location l8 = l.clone();
-                l8.setZ(l8.getZ() - 3);
-                Location l9 = l.clone();
-                l9.setY(l9.getY() + 3);
-                Location l10 = l.clone();
-                l10.setY(l10.getY() - 3);
-                l.getWorld().createExplosion(l5, size, fire);
-                l.getWorld().createExplosion(l6, size, fire);
-                l.getWorld().createExplosion(l7, size, fire);
-                l.getWorld().createExplosion(l8, size, fire);
-                l.getWorld().createExplosion(l9, size, fire);
-                l.getWorld().createExplosion(l10, size, fire);
-            }
-        }, (10));
-        // Boom 3
-        Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(this, new Runnable() {
-            public void run() {
-                Location l1 = l.clone();
-                l1.setX(l1.getX() + 6);
-                l1.setZ(l1.getZ() + 6);
-                Location l2 = l.clone();
-                l2.setX(l2.getX() + 6);
-                l2.setZ(l2.getZ() - 6);
-                Location l3 = l.clone();
-                l3.setX(l3.getX() - 6);
-                l3.setZ(l3.getZ() - 6);
-                Location l4 = l.clone();
-                l4.setX(l4.getX() - 6);
-                l4.setZ(l4.getZ() + 6);
-                l.getWorld().createExplosion(l1, size, fire);
-                l.getWorld().createExplosion(l2, size, fire);
-                l.getWorld().createExplosion(l3, size, fire);
-                l.getWorld().createExplosion(l4, size, fire);
-            }
-        }, (20));
-    }
 
-    private void lightningShow(final Location l, final int size) {
-        // Boom 1
-        l.getWorld().strikeLightningEffect(l);
-        // Boom 2
-        Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(this, new Runnable() {
-            public void run() {
-                Location l5 = l.clone();
-                l5.setX(l5.getX() + 3);
-                Location l6 = l.clone();
-                l6.setX(l6.getX() - 3);
-                Location l7 = l.clone();
-                l7.setZ(l7.getZ() + 3);
-                Location l8 = l.clone();
-                l8.setZ(l8.getZ() - 3);
-                Location l9 = l.clone();
-                l9.setY(l9.getY() + 3);
-                Location l10 = l.clone();
-                l10.setY(l10.getY() - 3);
-                l.getWorld().strikeLightningEffect(l5);
-                l.getWorld().strikeLightningEffect(l6);
-                l.getWorld().strikeLightningEffect(l7);
-                l.getWorld().strikeLightningEffect(l8);
-                l.getWorld().strikeLightningEffect(l9);
-                l.getWorld().strikeLightningEffect(l10);
-            }
-        }, (10));
-        // Boom 3
-        Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(this, new Runnable() {
-            public void run() {
-                Location l1 = l.clone();
-                l1.setX(l1.getX() + 6);
-                l1.setZ(l1.getZ() + 6);
-                Location l2 = l.clone();
-                l2.setX(l2.getX() + 6);
-                l2.setZ(l2.getZ() - 6);
-                Location l3 = l.clone();
-                l3.setX(l3.getX() - 6);
-                l3.setZ(l3.getZ() - 6);
-                Location l4 = l.clone();
-                l4.setX(l4.getX() - 6);
-                l4.setZ(l4.getZ() + 6);
-                l.getWorld().strikeLightningEffect(l1);
-                l.getWorld().strikeLightningEffect(l2);
-                l.getWorld().strikeLightningEffect(l3);
-                l.getWorld().strikeLightningEffect(l4);
-            }
-        }, (20));
-    }
 
-    private boolean checkBlockRecipe(Location l, String line1, String line2, String line3, boolean remove) {
-        // String[] s1 = line1.split(":");
-        // String[] s2 = line2.split(":");
-        // String[] s3 = line3.split(":");
-        // Row One
-        Location l1 = l.clone();
-        l1.setX(l1.getX() + 1);
-        l1.setZ(l1.getZ() + 1);
-        Location l2 = l.clone();
-        l2.setX(l2.getX() + 1);
-        Location l3 = l.clone();
-        l3.setX(l3.getX() + 1);
-        l3.setZ(l3.getZ() - 1);
-        // System.out.println(l1.getBlock().getType() + ":" + l2.getBlock().getType() +
-        // ":" + l3.getBlock().getType());
-        // l1.getBlock().setType(Material.DIRT); l2.getBlock().setType(Material.DIRT);
-        // l3.getBlock().setType(Material.DIRT);
-        // if((l1.getBlock().getType().toString().equals(s1[0])) &&
-        // (l2.getBlock().getType().toString().equals(s1[1])) &&
-        // (l3.getBlock().getType().toString().equals(s1[2]))) {
-        if (line1.equals(l1.getBlock().getType() + ":" + l2.getBlock().getType() + ":" + l3.getBlock().getType())) {
-            // Row Two
-            Location l4 = l.clone();
-            l4.setZ(l4.getZ() + 1);
-            Location l5 = l.clone();
-            Location l6 = l.clone();
-            l6.setZ(l6.getZ() - 1);
-            // System.out.println(l4.getBlock().getType() + ":" + l5.getBlock().getType() +
-            // ":" + l6.getBlock().getType());
-            // if((l4.getBlock().getType().toString().equals(s2[0])) &&
-            // (l5.getBlock().getType().toString().equals(s2[1])) &&
-            // (l6.getBlock().getType().toString().equals(s2[2]))) {
-            if (line2.equals(l4.getBlock().getType() + ":" + l5.getBlock().getType() + ":" + l6.getBlock().getType())) {
-                // Row Three
-                Location l7 = l.clone();
-                l7.setX(l7.getX() - 1);
-                l7.setZ(l7.getZ() + 1);
-                Location l8 = l.clone();
-                l8.setX(l8.getX() - 1);
-                Location l9 = l.clone();
-                l9.setX(l9.getX() - 1);
-                l9.setZ(l9.getZ() - 1);
-                // System.out.println(l7.getBlock().getType() + ":" + l8.getBlock().getType() +
-                // ":" + l9.getBlock().getType());
-                // if((l7.getBlock().getType().toString().equals(s3[0])) &&
-                // (l8.getBlock().getType().toString().equals(s3[1])) &&
-                // (l9.getBlock().getType().toString().equals(s3[2]))) {
-                if (line3.equals(
-                        l7.getBlock().getType() + ":" + l8.getBlock().getType() + ":" + l9.getBlock().getType())) {
-                    // Recipe Correct
-                    // System.out.println("Recipe Correct");
-                    if (remove)
-                        for (Location bl : Arrays.asList(l1, l2, l3, l4, l5, l6, l7, l8, l9))
-                            if (!bl.getBlock().getType().equals(Material.BEDROCK))
-                                bl.getBlock().setType(Material.AIR);
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
 
     @EventHandler(priority = EventPriority.HIGH)
     public void onChunkLoad(ChunkLoadEvent e) {
         for (Entity ent : e.getChunk().getEntities()) {
             final String bossType = config.getDataFrom("save","bosses." + ent.getUniqueId().toString());
             if (bossType != null)
-                if (!bossMap.containsKey(ent))
-                    makeBoss(ent, bossType);
+                if (!bossManager.getBossMapActual().containsKey(ent))
+                    bossManager.makeBoss(ent, bossType);
         }
     }
 
@@ -3074,21 +2623,8 @@ public class BossLand extends JavaPlugin implements Listener {
         return null;
     }
 
-    private void makeTrail(final Entity e, final String effect) {
-        if (e.isDead()) {
-            return;
-        }
-        Location loc = e.getLocation();
-        displayParticle(effect, loc);
-        Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(this, new Runnable() {
-            public void run() {
-                makeTrail(e, effect);
-            }
-        }, 1L);
-    }
-
     private void removeBar(Player p) {
-        for (Map.Entry<Entity, BossBar> hm : bossMap.entrySet())
+        for (Map.Entry<Entity, BossBar> hm : bossManager.getBossMapActual().entrySet())
             if (hm.getValue().getPlayers().contains(p)) {
                 hm.getValue().removePlayer(p);
             }
@@ -3100,12 +2636,12 @@ public class BossLand extends JavaPlugin implements Listener {
 
     public void showBossBar(Player p, Entity e) {
         // Clear Old Bars
-        for (Map.Entry<Entity, BossBar> hm : bossMap.entrySet())
+        for (Map.Entry<Entity, BossBar> hm : bossManager.getBossMapActual().entrySet())
             if (hm.getValue().getPlayers().contains(p)) {
-                bossMap.get(hm.getKey()).removePlayer(p);
+                bossManager.getBossMapActual().get(hm.getKey()).removePlayer(p);
             }
         // Add New Bar
-        BossBar bar = bossMap.get(e);
+        BossBar bar = bossManager.getBossMapActual().get(e);
         if (!bar.getPlayers().contains(p))
             bar.addPlayer(p);
         updateHP(e);
@@ -3113,354 +2649,13 @@ public class BossLand extends JavaPlugin implements Listener {
 
     private void updateHP(Entity e) {
         try {
-            BossBar bar = bossMap.get(e);
+            BossBar bar = bossManager.getBossMapActual().get(e);
             float health = (float) ((Damageable) e).getHealth();
             float maxHealth = (float) ((LivingEntity) e).getAttribute(CompatibilityResolver.resolveAttribute("MAX_HEALTH", "GENERIC_MAX_HEALTH")).getBaseValue();
             float setHealth = (health * 100.0f) / maxHealth;
             bar.setProgress(setHealth / 100.0f);
         } catch (Exception x) {
         }
-    }
-
-    private void spawnBoss(Player p, Location l, String bossType) {
-        try {
-            // Check Disabled Worlds
-            if (getConfig().getList("disabledWorlds").contains(l.getWorld().getName())) {
-                for (Entity e : getNearbyEntities(l, 24, new ArrayList<EntityType>(List.of(EntityType.PLAYER))))
-                    ((Player) e).sendMessage(config.getLang("failSpawnWorld"));
-                return;
-            }
-
-            // Check worldguard region Build Flag
-            WorldGuardCompatibility worldGuardCheck = new WorldGuardCompatibility(this);
-            if(worldGuardCheck.isEnabled()){
-                if(!worldGuardCheck.canBuild(p,l)){
-                    for(Entity e : getNearbyEntities(l, 24, new ArrayList<>(List.of(EntityType.PLAYER))))
-                        ((Player)e).sendMessage(config.getLang("failSpawnWG"));
-                    return;
-                }
-            }
-
-            // Check Boss Limit
-            if (bossMap.size() >= getConfig().getInt("bossLimit")) {
-                for (Entity e : getNearbyEntities(l, 24, new ArrayList<EntityType>(List.of(EntityType.PLAYER))))
-                    ((Player) e).sendMessage(config.getLang("tooManyBosses"));
-                return;
-            }
-            // Log Spawn
-            this.getLogger().log(Level.INFO, "Spawn Boss: " + bossType);
-            String entType = getConfig().getString("bosses." + bossType + ".entity");
-            // //System.out.println("entType: " + entType);
-            // //System.out.println("entType2: " + EntityType.valueOf(entType));
-            // //System.out.println("entType3: " + EntityType.valueOf(entType));
-            Entity boss = l.getWorld().spawnEntity(l, EntityType.valueOf(entType.toUpperCase()));
-            // Slime
-            if (boss instanceof Slime) {
-                ((Slime) boss).setSize(10);
-            } else if (boss instanceof Rabbit) {
-                ((Rabbit) boss).setRabbitType(Type.THE_KILLER_BUNNY);
-                ((Rabbit) boss).addPotionEffect(new PotionEffect(PotionEffectType.SPEED, 999 * 999, 1));
-                ((Rabbit) boss).addPotionEffect(new PotionEffect(CompatibilityResolver.resolvePotionEffect("JUMP_BOOST","JUMP"), 999 * 999, 1));
-                ((Rabbit) boss).addPotionEffect(new PotionEffect(PotionEffectType.FIRE_RESISTANCE, 999 * 999, 1));
-                // ((Rabbit)boss).setFireTicks(999*999);
-                // ((Rabbit) boss).setCustomName(null);
-            } else if (bossType.equals("WitherSkeletonKing") || bossType.equals("ZombieKing")) {
-                equipMob(boss, "DIAMOND");
-            } /**
-               * else if(bossType.equals("IllagerKing")) {
-               *
-               * }
-               **/
-            else if (bossType.equals("PapaPanda")) {
-                ((Panda) boss).setMainGene(Gene.AGGRESSIVE);
-            } else if (bossType.equals("DrownedGod")) {
-                equipMob(boss, "DIAMOND");
-                // ItemStack head = getHead("5cf625ba-8f8e-4069-bcfe-af5fbb35a3f4","§b§lDrowned
-                // God's Head");//"LeftShark"
-                ItemStack head = getSkull(
-                        "http://textures.minecraft.net/texture/2d7a509789933b2640775f003a71dfb4f5d97aa23d804223029d295274deead1");
-                ItemStack hand = new ItemStack(Material.TRIDENT);
-                EntityEquipment ee = ((LivingEntity) boss).getEquipment();
-                ee.setItemInMainHandDropChance(0.0F);
-                ee.setHelmet(head);
-                ee.setItemInMainHand(hand);
-                // ((LivingEntity) boss).addPotionEffect(new
-                // PotionEffect(PotionEffectType.DAMAGE_RESISTANCE,999*999,2));
-            } else if (bossType.equals("PharaohGod")) {
-                equipMob(boss, "GOLDEN");
-                // ItemStack head = getHead("73917135-da9d-4fd1-b032-158a7d1d03d1","§6§lPharaoh
-                // God's Head");//"Sam1_6"
-                ItemStack head = getSkull(
-                        "http://textures.minecraft.net/texture/51182cf65d180ecf08fab2311abed0cfcee960e6df5a3ba528f7ea47cc41f0a2");
-                ItemStack hand = new ItemStack(Material.BLAZE_ROD);
-                hand.addUnsafeEnchantment(Enchantment.KNOCKBACK, 5);
-                hand.addUnsafeEnchantment(CompatibilityResolver.resolveEnchantment("DAMAGE_ALL","SHARPNESS"), 10);
-                EntityEquipment ee = ((LivingEntity) boss).getEquipment();
-                ee.setItemInMainHandDropChance(0.0F);
-                ee.setHelmet(head);
-                ee.setItemInMainHand(hand);
-                ((LivingEntity) boss).addPotionEffect(new PotionEffect(CompatibilityResolver.resolvePotionEffect("SLOW","SLOWNESS"), 999 * 999, 1));
-                ((LivingEntity) boss).addPotionEffect(new PotionEffect(CompatibilityResolver.resolvePotionEffect("DAMAGE_RESISTANCE","RESISTANCE"), 999 * 999, 2));
-            } else if (bossType.equals("AetherGod")) {
-                // System.out.println("Aether God 1");
-                equipMob(boss, "DIAMOND");
-                // ItemStack head = getHead("853c80ef-3c37-49fd-aa49-938b674adae6","§lAether
-                // God's Head");//"jeb_"
-                ItemStack head = getSkull(
-                        "http://textures.minecraft.net/texture/6545210b810f3d2db27c87f443a5fb812bb85d14d1922d08f50a2ebb1b248788");
-                ItemStack hand = new ItemStack(Material.BOW);
-                hand.addUnsafeEnchantment(CompatibilityResolver.resolveEnchantment("ARROW_DAMAGE","POWER"), 10);
-                hand.addUnsafeEnchantment(CompatibilityResolver.resolveEnchantment("ARROW_KNOCKBACK","PUNCH"), 3);
-                hand.addUnsafeEnchantment(CompatibilityResolver.resolveEnchantment("ARROW_FIRE","FLAME"), 3);
-                EntityEquipment ee = ((LivingEntity) boss).getEquipment();
-                ee.setItemInMainHandDropChance(0.0F);
-                ee.setHelmet(head);
-                ee.setItemInMainHand(hand);
-                ((LivingEntity) boss).addPotionEffect(new PotionEffect(PotionEffectType.GLOWING, 999 * 999, 1));
-                levitate((LivingEntity) boss, true);
-                target(boss, 0.01);
-            } else if (bossType.equals("Demon")) {
-                ItemStack chest = new ItemStack(Material.LEATHER_CHESTPLATE, 1);
-                ItemStack pants = new ItemStack(Material.LEATHER_LEGGINGS, 1);
-                ItemStack boots = new ItemStack(Material.LEATHER_BOOTS, 1);
-                for (ItemStack s : Arrays.asList(chest, pants, boots))
-                    itemManager.dye(s, Color.MAROON);
-                ItemStack head = getSkull(
-                        "http://textures.minecraft.net/texture/e00cd37a4ebcbb28cb85d75bbde7b7aad5a0f42bf4842f8da77dffdea18c1356");
-                ItemStack hand = new ItemStack(Material.IRON_HOE);
-                hand.addUnsafeEnchantment(CompatibilityResolver.resolveEnchantment("DAMAGE_ALL","SHARPNESS"), 10);
-                hand.addUnsafeEnchantment(Enchantment.KNOCKBACK, 3);
-                hand.addUnsafeEnchantment(Enchantment.FIRE_ASPECT, 10);
-                EntityEquipment ee = ((LivingEntity) boss).getEquipment();
-                ee.setItemInMainHandDropChance(0.0F);
-                ee.setHelmetDropChance(0.0F);
-                ee.setHelmet(head);
-                ee.setChestplate(chest);
-                ee.setLeggings(pants);
-                ee.setBoots(boots);
-                ee.setItemInMainHand(hand);
-                ((LivingEntity) boss).addPotionEffect(new PotionEffect(PotionEffectType.FIRE_RESISTANCE, 999 * 999, 1));
-                ((LivingEntity) boss).addPotionEffect(new PotionEffect(CompatibilityResolver.resolvePotionEffect("INCREASE_DAMAGE","STRENGTH"), 999 * 999, 5));
-            } else if (bossType.equals("Devil")) {
-                ((PigZombie) boss).setAngry(true);
-                ((PigZombie) boss).setAnger(999 * 999);
-                equipMob(boss, "DIAMOND");
-                ItemStack head = getSkull(
-                        "http://textures.minecraft.net/texture/9da39269ef45f825ec61bb4f8aa09bd3cf07996fb6fac338a6e91d6699ae425");
-                ItemStack hand = new ItemStack(Material.ENCHANTED_BOOK);
-                hand.addUnsafeEnchantment(CompatibilityResolver.resolveEnchantment("DAMAGE_ALL","SHARPNESS"), 999);
-                EntityEquipment ee = ((LivingEntity) boss).getEquipment();
-                ee.setItemInMainHandDropChance(0.0F);
-                ee.setHelmet(head);
-                ee.setItemInMainHand(hand);
-                levitate((LivingEntity) boss, true);
-                target(boss, 0.05);
-            } else if (bossType.equals("Death")) {
-                ItemStack chest = new ItemStack(Material.LEATHER_CHESTPLATE, 1);
-                ItemStack pants = new ItemStack(Material.LEATHER_LEGGINGS, 1);
-                ItemStack boots = new ItemStack(Material.LEATHER_BOOTS, 1);
-                for (ItemStack s : Arrays.asList(chest, pants, boots))
-                    itemManager.dye(s, Color.BLACK);
-                ItemStack head = getSkull(
-                        "http://textures.minecraft.net/texture/69e2f33eb180f0434916dc5d2bb326a6ea22fc9bbf988bc31a241fd4278023");
-                ItemStack hand = new ItemStack(Material.IRON_HOE);
-                hand.addUnsafeEnchantment(CompatibilityResolver.resolveEnchantment("DAMAGE_ALL","SHARPNESS"), 999);
-                EntityEquipment ee = ((LivingEntity) boss).getEquipment();
-                ee.setItemInMainHandDropChance(0.0F);
-                ee.setHelmet(head);
-                ee.setItemInMainHand(hand);
-                ee.setChestplate(chest);
-                ee.setLeggings(pants);
-                // ee.setBoots(boots);
-                levitate((LivingEntity) boss, true);
-                target(boss, 0.2);
-            }
-            // Mount
-            if (getConfig().getString("bosses." + bossType + ".mount") != null) {
-                LivingEntity mount = (LivingEntity) boss.getWorld().spawnEntity(boss.getLocation(),
-                        EntityType.valueOf(getConfig().getString("bosses." + bossType + ".mount").toUpperCase()));
-                mount.addPassenger(boss);
-                int h = getConfig().getInt("bosses." + bossType + ".health");
-                mount.getAttribute(CompatibilityResolver.resolveAttribute("MAX_HEALTH", "GENERIC_MAX_HEALTH")).setBaseValue(h);
-                mount.setHealth(h);
-                mount.addPotionEffect(new PotionEffect(CompatibilityResolver.resolvePotionEffect("DAMAGE_RESISTANCE","RESISTANCE"), 999 * 999, 10));
-                if (mount.getType().equals(EntityType.BAT)) {
-                    mount.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, 999 * 999, 1));
-                    mount.setInvulnerable(true);
-                    if (bossType.equals("AetherGod"))
-                        mount.addPotionEffect(new PotionEffect(CompatibilityResolver.resolvePotionEffect("SLOW","SLOWNESS"), 999 * 999, 2));
-                }
-                // mount.setPersistent(true);
-            }
-            // Stop Despawn
-            // boss.setPersistent(true);
-            // Save Boss
-            config.setSaveData("bosses." + boss.getUniqueId().toString(), bossType);
-            config.saveBossData();
-            makeBoss(boss, bossType);
-        } catch (Exception x) {
-            this.getLogger().log(Level.SEVERE, "Failed to spawn Boss: " + bossType);
-            x.printStackTrace();
-        }
-    }
-
-    private void levitate(final LivingEntity e, boolean up) {
-        // Gone check
-        if (e == null || e.isDead())
-            return;
-        // Leviate
-        if (up) {
-            e.removePotionEffect(PotionEffectType.LEVITATION);
-            e.addPotionEffect(new PotionEffect(PotionEffectType.LEVITATION, 55, 1));
-        } else {
-            e.removePotionEffect(PotionEffectType.SLOW_FALLING);
-            e.addPotionEffect(new PotionEffect(PotionEffectType.SLOW_FALLING, 4 * 20, 5));
-        }
-        // Target
-        Player p = null;
-        double d = 999;
-        for (Entity ent : e.getNearbyEntities(30, 30, 30))
-            if (ent instanceof Player) {
-                double dis = ent.getLocation().distance(e.getLocation());
-                if (dis < d) {
-                    p = (Player) ent;
-                    d = dis;
-                }
-            }
-        if (p != null)
-            targetMap.put(e, p);
-        // Loop
-        final boolean nup = !up;
-        Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(this, new Runnable() {
-            public void run() {
-                levitate(e, nup);
-            }
-        }, (20 * 2));
-    }
-
-    public void target(final Entity e, final double speed) {
-        try {
-            Location to = targetMap.get(e).getLocation();
-            if (e.isDead()) {
-                return;
-            }
-            if (to != null && (e.getLocation().distance(to) > 10)) {
-                Vector direction = to.toVector().subtract(e.getLocation().toVector()).normalize();
-                e.setVelocity(direction.multiply(speed));
-            }
-        } catch (Exception localException) {
-        }
-        Bukkit.getServer().getScheduler().scheduleSyncDelayedTask(this, new Runnable() {
-            public void run() {
-                try {
-                    target(e, speed);
-                } catch (Exception localException) {
-                }
-            }
-        }, 1L);
-    }
-
-    private void equipMob(Entity mob, String type) {
-        ItemStack helm = new ItemStack(Material.valueOf(type + "_HELMET"), 1);
-        ItemStack chest = new ItemStack(Material.valueOf(type + "_CHESTPLATE"), 1);
-        ItemStack pants = new ItemStack(Material.valueOf(type + "_LEGGINGS"), 1);
-        ItemStack boots = new ItemStack(Material.valueOf(type + "_BOOTS"), 1);
-        ItemStack sword = new ItemStack(Material.valueOf(type + "_SWORD"), 1);
-        sword.addUnsafeEnchantment(CompatibilityResolver.resolveEnchantment("DAMAGE_ALL","SHARPNESS"), 4);
-        EntityEquipment ee = ((LivingEntity) mob).getEquipment();
-        ee.setHelmetDropChance(0.0F);
-        ee.setChestplateDropChance(0.0F);
-        ee.setLeggingsDropChance(0.0F);
-        ee.setBootsDropChance(0.0F);
-        ee.setItemInMainHandDropChance(0.0F);
-        ee.setHelmet(helm);
-        ee.setChestplate(chest);
-        ee.setLeggings(pants);
-        ee.setBoots(boots);
-        ee.setItemInMainHand(sword);
-    }
-
-    public void makeBoss(Entity ent, String bossType) {
-        System.out.println("Make Boss");
-        String title = ChatColor.translateAlternateColorCodes('&',
-                getConfig().getString("bosses." + bossType + ".name"));
-        BossBar bar = Bukkit.createBossBar(title,
-                BarColor.valueOf(getConfig().getString("bosses." + bossType + ".barColor")),
-                BarStyle.valueOf(getConfig().getString("bosses." + bossType + ".barStyle")), BarFlag.CREATE_FOG);
-        bar.setVisible(true);
-        bossMap.put(ent, bar);
-        int maxHP = getConfig().getInt("bosses." + bossType + ".health");
-        double maxHealth = ((LivingEntity) ent).getAttribute(CompatibilityResolver.resolveAttribute("MAX_HEALTH", "GENERIC_MAX_HEALTH")).getBaseValue();
-        if (maxHealth != maxHP) {
-            ((LivingEntity) ent).getAttribute(CompatibilityResolver.resolveAttribute("MAX_HEALTH", "GENERIC_MAX_HEALTH")).setBaseValue(maxHP);
-            ((Damageable) ent).setHealth(maxHP);
-        }
-        // Name
-        ent.setCustomName(getConfig().getString("bosses." + bossType + ".name").replace("&", "§"));
-        ent.setCustomNameVisible(true);
-        // Type Effects
-        if (bossType.equals("KillerBunny")) {
-            makeTrail(ent, getConfig().getString("bosses." + bossType + ".attackParticle"));
-        }
-        if (getConfig().getString("bosses." + bossType + ".auraParticle") != null) {
-            // System.out.println("Aether God 2");
-            makeTrail(ent, getConfig().getString("bosses." + bossType + ".auraParticle"));
-        }
-        if (bossType.equals("PharaohGod") || bossType.equals("Demon"))
-            autoBalls((LivingEntity) ent, bossType);
-        // No Despawn
-        if (ent instanceof LivingEntity)
-            ((LivingEntity) ent).setRemoveWhenFarAway(false);
-    }
-
-    public void displayParticle(String effect, Location loc) {
-        // effect: particle:speed:amount:range
-        String[] split = effect.split(":");
-        int speed = Integer.parseInt(split[1]);
-        int amount = Integer.parseInt(split[2]);
-        double r = Double.parseDouble(split[3]);
-        displayParticle(split[0], loc.getWorld(), loc.getX(), loc.getY(), loc.getZ(), r, speed, amount);
-    }
-
-    public void displayParticle(String effect, Location l, double radius, int speed, int amount) {
-        displayParticle(effect, l.getWorld(), l.getX(), l.getY(), l.getZ(), radius, speed, amount);
-    }
-
-    private void displayParticle(String effect, World w, double x, double y, double z, double radius, int speed, int amount) {
-        amount = (amount <= 0) ? 1 : amount;
-        Location l = new Location(w, x, y, z);
-        try {
-            if (radius <= 0) {
-                // Effect, Location, Count, X, Y, Z, Speed
-                w.spawnParticle(Particle.valueOf(effect), l, amount, 0, 0, 0, speed);
-                // w.spawnParticle(Particle.valueOf(effect), l, 0, 0, 0, speed, amount);
-            } else {
-                List<Location> ll = getArea(l, radius, 0.2);
-                if (!ll.isEmpty()) {
-                    for (int i = 0; i < amount; i++) {
-                        int index = new Random().nextInt(ll.size());
-                        // w.spawnParticle(Particle.valueOf(effect), ll.get(index), 1, 0, 0, speed, 1);
-                        w.spawnParticle(Particle.valueOf(effect), ll.get(index), amount, 0, 0, 0, speed);
-                        ll.remove(index);
-                    }
-                }
-            }
-        } catch (Exception ex) {
-            // System.out.println("V: " + getServer().getVersion());
-            ex.printStackTrace();
-        }
-    }
-
-    private ArrayList<Location> getArea(Location l, double r, double t) {
-        ArrayList<Location> ll = new ArrayList<Location>();
-        for (double x = l.getX() - r; x < l.getX() + r; x += t) {
-            for (double y = l.getY() - r; y < l.getY() + r; y += t) {
-                for (double z = l.getZ() - r; z < l.getZ() + r; z += t) {
-                    ll.add(new Location(l.getWorld(), x, y, z));
-                }
-            }
-        }
-        return ll;
     }
 
     public ItemStack getLoot(Entity p, String bossType) {
@@ -3641,51 +2836,6 @@ public class BossLand extends JavaPlugin implements Listener {
     // return stack;
     // }
 
-    private static List<Chunk> getNearbyChunks(Location l, int range) {
-        List<Chunk> chunkList = new ArrayList<Chunk>();
-        World world = l.getWorld();
-        int chunks = range / 16 + 1;
-        for (int x = l.getChunk().getX() - chunks; x < l.getChunk().getX() + chunks; x++) {
-            for (int z = l.getChunk().getZ() - chunks; z < l.getChunk().getZ() + chunks; z++) {
-                Chunk chunk = world.getChunkAt(x, z);
-                if ((chunk != null) && (chunk.isLoaded())) {
-                    chunkList.add(chunk);
-                }
-            }
-        }
-        return chunkList;
-    }
-
-    private static List<Entity> getEntitiesInNearbyChunks(Location l, int range, List<EntityType> entityTypes) {
-        List<Entity> entities = new ArrayList<Entity>();
-        for (Chunk chunk : getNearbyChunks(l, range)) {
-            if (entityTypes == null) {
-                entities.addAll(Arrays.asList(chunk.getEntities()));
-            } else {
-                Entity[] arrayOfEntity;
-                int j = (arrayOfEntity = chunk.getEntities()).length;
-                for (int i = 0; i < j; i++) {
-                    Entity e = arrayOfEntity[i];
-                    if (entityTypes.contains(e.getType())) {
-                        entities.add(e);
-                    }
-                }
-            }
-        }
-        return entities;
-    }
-
-    private static List<Entity> getNearbyEntities(Location l, float range, List<EntityType> entityTypes) {
-        List<Entity> entities = new ArrayList<Entity>();
-        for (Entity e : getEntitiesInNearbyChunks(l, (int) range, entityTypes)) {
-            if (e.getLocation().getWorld().getName().equals(l.getWorld().getName()))
-                if (e.getLocation().distance(l) <= range) {
-                    entities.add(e);
-                }
-        }
-        return entities;
-    }
-
     @SuppressWarnings("unchecked")
     public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
         String version = Objects.requireNonNull(Bukkit.getServer().getPluginManager().getPlugin("BossLand")).getDescription().getVersion();
@@ -3699,7 +2849,7 @@ public class BossLand extends JavaPlugin implements Listener {
                     if (sender instanceof Player) {
                         Player p = (Player) sender;
                         if (getConfig().getString("bosses." + args[1]) != null) {
-                            spawnBoss(p, p.getLocation(), args[1]);
+                            bossManager.spawnBoss(p, p.getLocation(), args[1]);
                             sender.sendMessage("§eBossLand: Spawned a " + args[1] + " boss!");
                         } else
                             bossError(sender);
@@ -3714,7 +2864,7 @@ public class BossLand extends JavaPlugin implements Listener {
                         }
                         Location l = new Location(w, Integer.parseInt(args[2]), Integer.parseInt(args[3]),
                                 Integer.parseInt(args[4]));
-                        spawnBoss(null, l, args[1]);
+                        bossManager.spawnBoss(null, l, args[1]);
                         sender.sendMessage("§eBossLand: Spawned a " + args[1] + " boss at the coords!");
                     } else
                         bossError(sender);
@@ -3745,9 +2895,9 @@ public class BossLand extends JavaPlugin implements Listener {
                                     p.getInventory().addItem(s);
                                     sender.sendMessage("§eBossLand: Dropped " + bossType + " boss loot!");
                                 } else
-                                    sender.sendMessage("§eBossLand: Loot Error!");
+                                    sender.sendMessage("§eBossLand: A drop does not exsist for that ID.");
                             } catch (Exception x) {
-                                sender.sendMessage("§eBossLand: A drop does not exsist for that ID.");
+                                sender.sendMessage("§eBossLand: Loot Error!");
                             }
                         } else
                             bossError(sender);
@@ -3788,7 +2938,7 @@ public class BossLand extends JavaPlugin implements Listener {
                         sender.sendMessage("§cWorld not found!");
                         return true;
                     }
-                    HashMap<Entity, BossBar> pm = (HashMap<Entity, BossBar>) bossMap.clone();
+                    HashMap<Entity, BossBar> pm = (HashMap<Entity, BossBar>) bossManager.getBossMapClone();
                     for (Map.Entry<Entity, BossBar> i : pm.entrySet())
                         if (Objects.equals(i.getKey().getLocation().getWorld(), w)) {
                             ((LivingEntity) i.getKey()).damage(999 * 999);
