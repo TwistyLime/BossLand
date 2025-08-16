@@ -52,13 +52,14 @@ public class BossLandItems {
         try {
             String setItem = plugin.getConfig().getString("bosses." + bossType + ".loot." + loot + ".item");
 
+            if(setItem == null) return null;
+
             String setAmountString = plugin.getConfig().getString("bosses." + bossType + ".loot." + loot + ".amount");
             int setAmount;
             if (setAmountString != null) {
                 setAmount = UtilityCalc.getIntFromString(setAmountString);
             } else
                 setAmount = 1;
-            assert setItem != null;
             ItemStack stack = new ItemStack(Material.valueOf(setItem.toUpperCase()), setAmount);
             // Texture
             if (stack.getType().equals(Material.PLAYER_HEAD)) {
@@ -235,21 +236,16 @@ public class BossLandItems {
                 int j = 0;
                 int chance;
                 do {
-                    if (plugin.getConfig()
-                            .getString("bosses." + bossType + ".loot." + loot + ".enchantments." + j) != null) {
+                    if (plugin.getConfig().getString("bosses." + bossType + ".loot." + loot + ".enchantments." + j) != null) {
                         int enChance = 1;
-                        if (plugin.getConfig().getString(
-                                "bosses." + bossType + ".loot." + loot + ".enchantments." + j + ".chance") != null) {
-                            enChance = plugin.getConfig()
-                                    .getInt("bosses." + bossType + ".loot." + loot + ".enchantments." + j + ".chance");
+                        if (plugin.getConfig().getString("bosses." + bossType + ".loot." + loot + ".enchantments." + j + ".chance") != null) {
+                            enChance = plugin.getConfig().getInt("bosses." + bossType + ".loot." + loot + ".enchantments." + j + ".chance");
                         }
                         chance = new Random().nextInt(enChance - 1 + 1) + 1;
                         if (chance == 1) {
-                            String enchantment = plugin.getConfig().getString(
-                                    "bosses." + bossType + ".loot." + loot + ".enchantments." + j + ".enchantment");
+                            String enchantment = plugin.getConfig().getString("bosses." + bossType + ".loot." + loot + ".enchantments." + j + ".enchantment");
 
-                            String levelString = plugin.getConfig().getString(
-                                    "bosses." + bossType + ".loot." + loot + ".enchantments." + j + ".level");
+                            String levelString = plugin.getConfig().getString("bosses." + bossType + ".loot." + loot + ".enchantments." + j + ".level");
                             int level = UtilityCalc.getIntFromString(levelString);
                             NamespacedKey k = NamespacedKey.minecraft(enchantment.toLowerCase());
                             if(Enchantment.getByKey(k) == null && enchantment.equals("sweeping")){
@@ -266,7 +262,7 @@ public class BossLandItems {
 
                                 boolean con = false;
                                 for (LevelledEnchantment testE : enchList) {
-                                    if (testE.getEnchantment.equals(le.getEnchantment)) {
+                                    if (testE.getEnchantment != null && testE.getEnchantment.equals(le.getEnchantment)) {
                                         con = true;
                                         break;
                                     }
