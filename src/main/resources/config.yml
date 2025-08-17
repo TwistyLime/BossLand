@@ -28,10 +28,10 @@ bosses:
       - "LEVITATION:1:15"
       - "FIRE:1:25"
     loot:
-      1:
+      0:
         item: fire_charge
         amount: 32-64
-      2:
+      1:
         item: quartz
         amount: 1
         name: "&lWhite Boss Shard"
@@ -43,7 +43,7 @@ bosses:
           1:
             enchantment: LOYALTY
             level: 1
-      3:
+      2:
         item: GOLDEN_SWORD
         amount: 1
         name: "&c&lFlame Sword"
@@ -72,7 +72,7 @@ bosses:
             enchantment: mending
             level: 1
             chance: 15
-      '4':
+      3:
         item: BOW
         amount: 1
         unbreaking: 10
