@@ -47,7 +47,7 @@ public class BossesPageMenu extends PaginatedMenu {
                 case ROTTEN_FLESH:
                 case GHAST_TEAR:
                 case WITHER_SKELETON_SKULL:
-                case POTION:
+                case ZOMBIE_HEAD:
                 case BELL:
                 case ENCHANTED_BOOK:
                 case NETHER_STAR:
@@ -82,12 +82,12 @@ public class BossesPageMenu extends PaginatedMenu {
                 createItemWithData(Material.ROTTEN_FLESH,"Zombie King",true,"zombie_king"),
                 createItemWithData(Material.GHAST_TEAR,"Ghast Lord",true,"ghast_lord"),
                 createItemWithData(Material.WITHER_SKELETON_SKULL,"Wither Skeleton King",true,"wither_skeleton_king"),
-                createItemWithData(Material.POTION,"Giant",true,"giant"),
+                createItemWithData(Material.ZOMBIE_HEAD,"Giant",true,"giant"),
                 createItemWithData(Material.BELL,"Illager King",true,"illager_king"),
                 createItemWithData(Material.ENCHANTED_BOOK,"Evil Wizard",false,"evil_wizard"),
                 createItemWithData(Material.NETHER_STAR,"Demon",false,"demon"),
                 createItemWithData(Material.FEATHER,"Aether God",true,"aether_god"),
-                createItemWithData(Material.BLAZE_POWDER,"Pharaoh God",true,"pharoah_god"),
+                createItemWithData(Material.BLAZE_POWDER,"Pharaoh God",true,"pharaoh_god"),
                 createItemWithData(Material.HEART_OF_THE_SEA,"Drowned God",true,"drowned_god"),
                 createItemWithData(Material.COAL,"The Devil",true,"the_devil"),
                 createItemWithData(Material.CHARCOAL,"Death",true,"death")
