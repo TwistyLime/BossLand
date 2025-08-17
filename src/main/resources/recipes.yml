@@ -462,5 +462,6 @@ shrine_recipes:
         - "§7» §fUse the Death Note"
         - "§7» §fEnter your own name"
         - "§7» §f10% chance of Death Note being consumed"
+        - "§7» §fKeep Inventory should be on to summon Death"
     loot: [ 0,1 ]
     lootName: "Death"
