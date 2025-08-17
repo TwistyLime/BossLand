@@ -294,7 +294,9 @@ public class BossLandItems {
                         enchantMeta.addStoredEnchant(le.getEnchantment, le.getLevel, true);
                         stack.setItemMeta(enchantMeta);
                     } else {
-                        stack.addUnsafeEnchantment(le.getEnchantment, le.getLevel);
+                        if(le.getEnchantment != null){
+                            stack.addUnsafeEnchantment(le.getEnchantment, le.getLevel);
+                        }
                     }
                 }
             }
