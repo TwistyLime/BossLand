@@ -89,21 +89,19 @@ item_recipes:
       W: QUARTZ # WHITE_BOSS_SHARD
       B: COAL # BLACK_BOSS_SHARD
 
-# Need to add more recipes and generate lore
-# Lore should include a description
-# Biome which it should spawn in
-# Tier of the boss
-# Any extra information
 shrine_recipes:
   slime_king:
     result:
-      item: SLIME_BALL
+      item: SLIME_BLOCK
       amount: 1
       display_name: "§a§lKing Slime"
       lore:
+        - "§7A towering mass of sentient slime,"
+        - "§7formed deep within the swamp's heart."
+        - "§7Its body absorbs attacks and crushes foes."
         - ""
-        - ""
-        - ""
+        - "§e§lBiome to summon the boss: §fSwamp"
+        - "§6§lBoss Tier: §fIV"
     shape:
       - "SSS"
       - "SDS"
@@ -114,4 +112,355 @@ shrine_recipes:
     activator:
       item: ENDER_EYE
       amount: 1
-    loot: [0,1,2] # Loot Ids to show | get the loot item using getItem used in sloot
+    loot: [0,1,2]
+    lootName: "KingSlime"
+  papa_panda:
+    result:
+      item: BAMBOO
+      amount: 1
+      display_name: "§6§lPapa Panda"
+      lore:
+        - "§7A towering mass of sentient slime,"
+        - "§7formed deep within the swamp's heart."
+        - "§7Its body absorbs attacks and crushes foes."
+        - ""
+        - "§e§lBiome to summon the boss: §fBamboo Forest"
+        - "§6§lBoss Tier: §fIV"
+    shape:
+      - "SSS"
+      - "SDS"
+      - "SSS"
+    ingredients:
+      D: CHISELED_STONE_BRICKS
+      S: MOSSY_COBBLESTONE
+    activator:
+      item: CAKE
+      amount: 1
+    loot: [ 0,1,2 ]
+    lootName: "PapaPanda"
+  killer_bunny:
+    result:
+      item: RABBIT_FOOT
+      amount: 1
+      display_name: "§7§lKiller Bunny"
+      lore:
+        - "§7A towering mass of sentient slime,"
+        - "§7formed deep within the swamp's heart."
+        - "§7Its body absorbs attacks and crushes foes."
+        - ""
+        - "§e§lBiome to summon the boss: §fDesert"
+        - "§6§lBoss Tier: §fIV"
+    shape:
+      - "SSS"
+      - "SDS"
+      - "SSS"
+    ingredients:
+      D: MAGMA_BLOCK
+      S: CARROT
+    activator:
+      item: GOLDEN_CARROT
+      amount: 16
+    loot: [ 0,1,2 ]
+    lootName: "KillerBunny"
+  zombie_king:
+    result:
+      item: ROTTEN_FLESH
+      amount: 1
+      display_name: "§2§lZombie King"
+      lore:
+        - "§7A towering mass of sentient slime,"
+        - "§7formed deep within the swamp's heart."
+        - "§7Its body absorbs attacks and crushes foes."
+        - ""
+        - "§e§lBiome to summon the boss: §fPlains"
+        - "§6§lBoss Tier: §fIV"
+    shape:
+      - "SSS"
+      - "SDS"
+      - "SSS"
+    ingredients:
+      D: EMERALD_BLOCK
+      S: SOUL_SAND
+    activator:
+      item: BRAIN_CORAL
+      amount: 1
+    loot: [ 0,1,2,3 ]
+    lootName: "ZombieKing"
+  wither_skeleton_king:
+    result:
+      item: WITHER_SKELETON_SKULL
+      amount: 1
+      display_name: "§8§lWither Skeleton King"
+      lore:
+        - "§7A towering mass of sentient slime,"
+        - "§7formed deep within the swamp's heart."
+        - "§7Its body absorbs attacks and crushes foes."
+        - ""
+        - "§e§lBiome to summon the boss: §fNether"
+        - "§6§lBoss Tier: §fIV"
+    shape:
+      - "SSS"
+      - "SDS"
+      - "SSS"
+    ingredients:
+      D: WITHER_SKELETON_SKULL
+      S: FIRE
+    activator:
+      item: MAGMA_CREAM
+      amount: 1
+    loot: [ 0,1,2 ]
+    lootName: "WitherSkeletonKing"
+  ghast_lord:
+    result:
+      item: GHAST_TEAR
+      amount: 1
+      display_name: "§f§lGhast Lord"
+      lore:
+        - "§7A towering mass of sentient slime,"
+        - "§7formed deep within the swamp's heart."
+        - "§7Its body absorbs attacks and crushes foes."
+        - ""
+        - "§e§lBiome to summon the boss: §fNether"
+        - "§6§lBoss Tier: §fIV"
+    shape:
+      - "SSS"
+      - "SDS"
+      - "SSS"
+    ingredients:
+      S: REDSTONE
+      D: MAGMA_BLOCK
+    activator:
+      item: GOLD_INGOT
+      amount: 16
+    loot: [ 0,1,2,3 ]
+    lootName: "GhastLord"
+  evil_wizard:
+    result:
+      item: ENCHANTED_BOOK
+      amount: 1
+      display_name: "§9§lEvil Wizard"
+      lore:
+        - "§7A towering mass of sentient slime,"
+        - "§7formed deep within the swamp's heart."
+        - "§7Its body absorbs attacks and crushes foes."
+        - ""
+        - "§e§lBiome to summon the boss: §fAny Snowy Biome"
+        - "§6§lBoss Tier: §fIII"
+    shape:
+      - "RSR"
+      - "SDS"
+      - "RSR"
+    ingredients:
+      S: REDSTONE
+      D: CAMPFIRE
+      R: REDSTONE_TORCH
+    activator:
+      item: BOOK_OF_SPELLS
+      amount: 1
+    loot: [ 0,1,2,3 ]
+    lootName: "EvilWizard"
+  illager_king:
+    result:
+      item: ENCHANTED_BOOK
+      amount: 1
+      display_name: "§6§lKing of the Illagers"
+      lore:
+        - "§7A towering mass of sentient slime,"
+        - "§7formed deep within the swamp's heart."
+        - "§7Its body absorbs attacks and crushes foes."
+        - ""
+        - "§e§lBiome to summon the boss: §fSavanna"
+        - "§6§lBoss Tier: §fIII"
+    shape:
+      - "RSR"
+      - "SDS"
+      - "RSR"
+    ingredients:
+      S: REDSTONE
+      D: CAMPFIRE
+      R: REDSTONE_TORCH
+    activator:
+      item: BELL_OF_DOOM
+      amount: 1
+    loot: [ 0,1,2,3,4 ]
+    lootName: "IllagerKing"
+  giant:
+    result:
+      item: ZOMBIE_HEAD
+      amount: 1
+      display_name: "§2§lGiant"
+      lore:
+        - "§7A towering mass of sentient slime,"
+        - "§7formed deep within the swamp's heart."
+        - "§7Its body absorbs attacks and crushes foes."
+        - ""
+        - "§e§lBiome to summon the boss: §fOverworld"
+        - "§6§lBoss Tier: §fIII"
+    shape:
+      - "RSR"
+      - "SDS"
+      - "RSR"
+    ingredients:
+      S: REDSTONE
+      D: CAMPFIRE
+      R: REDSTONE_TORCH
+    activator:
+      item: POTION_OF_GIANT_GROWTH
+      amount: 1
+    loot: [ 0,1,2 ]
+    lootName: "Giant"
+  demon:
+    result:
+      item: NETHER_STAR
+      amount: 1
+      display_name: "§c§lDemon"
+      lore:
+        - "§7A towering mass of sentient slime,"
+        - "§7formed deep within the swamp's heart."
+        - "§7Its body absorbs attacks and crushes foes."
+        - ""
+        - "§e§lBiome to summon the boss: §fAny Dimension"
+        - "§c§lOnly summonable after all Tier II bosses have been defeated."
+        - "§6§lBoss Tier: §fIII"
+    shape:
+      - "RSR"
+      - "SDS"
+      - "RSR"
+    ingredients:
+      S: REDSTONE
+      D: CAMPFIRE
+      R: REDSTONE_TORCH
+    activator:
+      item: NETHER_STAR
+      amount: 1
+    loot: [ 0,1 ]
+    lootName: "Demon"
+  aether_god:
+    result:
+      item: FEATHER
+      amount: 1
+      display_name: "§b§lThe Aether God"
+      lore:
+        - "§7A towering mass of sentient slime,"
+        - "§7formed deep within the swamp's heart."
+        - "§7Its body absorbs attacks and crushes foes."
+        - ""
+        - "§e§lBiome to summon the boss: §fOverworld"
+        - "§6§lBoss Tier: §fII"
+    activator:
+      item: FORBIDDEN_FRUIT
+      amount: 1
+    instructor:
+      item: WHITE_BANNER
+      amount: 1
+      lore:
+        - "§e§lHow to Summon AetherGod:"
+        - ""
+        - "§7» §fTravel to the §bOverworld skies"
+        - "§7» §fReach above §aY-Level 200"
+        - "§7» §fConsume the §5Forbidden Fruit"
+    loot: [ 0,1,2 ]
+    lootName: "AetherGod"
+  pharaoh_god:
+    result:
+      item: BLAZE_POWDER
+      amount: 1
+      display_name: "§0§lThe Pharaoh God"
+      lore:
+        - "§7A towering mass of sentient slime,"
+        - "§7formed deep within the swamp's heart."
+        - "§7Its body absorbs attacks and crushes foes."
+        - ""
+        - "§e§lBiome to summon the boss: §fOverworld"
+        - "§6§lBoss Tier: §fII"
+    activator:
+      item: FORBIDDEN_FRUIT
+      amount: 1
+    instructor:
+      item: YELLOW_BANNER
+      amount: 1
+      lore:
+        - "§e§lHow to Summon PharaohGod:"
+        - ""
+        - "§7» §fTravel to the §eDesert"
+        - "§7» §fConsume the §5Forbidden Fruit"
+    loot: [ 0,1,2 ]
+    lootName: "PharaohGod"
+  drowned_god:
+    result:
+      item: HEART_OF_THE_SEA
+      amount: 1
+      display_name: "§b§lThe Drowned God"
+      lore:
+        - "§7A towering mass of sentient slime,"
+        - "§7formed deep within the swamp's heart."
+        - "§7Its body absorbs attacks and crushes foes."
+        - ""
+        - "§e§lBiome to summon the boss: §fOverworld"
+        - "§6§lBoss Tier: §fII"
+    activator:
+      item: FORBIDDEN_FRUIT
+      amount: 1
+    instructor:
+      item: BLUE_BANNER
+      amount: 1
+      lore:
+        - "§e§lHow to Summon DrownedGod:"
+        - ""
+        - "§7» §fTravel to the §9Oceans"
+        - "§7» §fReach below §aY-Level -40"
+        - "§7» §fConsume the §5Forbidden Fruit"
+    loot: [ 0,1,2 ]
+    lootName: "DrownedGod"
+  the_devil:
+    result:
+      item: COAL
+      amount: 1
+      display_name: "§c§lThe Devil"
+      lore:
+        - "§7A towering mass of sentient slime,"
+        - "§7formed deep within the swamp's heart."
+        - "§7Its body absorbs attacks and crushes foes."
+        - ""
+        - "§e§lBiome to summon the boss: §fNether"
+        - "§6§lBoss Tier: §fI"
+    activator:
+      item: ABHORRENT_FRUIT
+      amount: 1
+    instructor:
+      item: GRAY_BANNER
+      amount: 1
+      lore:
+        - "§e§lHow to Summon The Devil:"
+        - ""
+        - "§7» §fTravel to the §cNether"
+        - "§7» §fConsume the §5Abhorrent Fruit"
+    loot: [ 0,1 ]
+    lootName: "Devil"
+  death:
+    result:
+      item: CHARCOAL
+      amount: 1
+      display_name: "§5§lDeath"
+      lore:
+        - "§7A towering mass of sentient slime,"
+        - "§7formed deep within the swamp's heart."
+        - "§7Its body absorbs attacks and crushes foes."
+        - ""
+        - "§e§lBiome to summon the boss: §fEnd"
+        - "§6§lBoss Tier: §fI"
+    activator:
+      item: DEATH_NOTE
+      amount: 1
+    instructor:
+      item: BLACK_BANNER
+      amount: 1
+      lore:
+        - "§e§lHow to Summon Death:"
+        - ""
+        - "§7» §fTravel to the §2End"
+        - "§7» §fUse the Death Note"
+        - "§7» §fEnter your own name"
+        - "§7» §f10% chance of Death Note being consumed"
+    loot: [ 0,1 ]
+    lootName: "Death"
