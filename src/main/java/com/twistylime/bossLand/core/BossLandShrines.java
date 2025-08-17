@@ -1,34 +1,198 @@
 package com.twistylime.bossLand.core;
 
 import com.twistylime.bossLand.config.BossLandConfiguration;
+import com.twistylime.bossLand.utility.CompatibilityResolver;
 import com.twistylime.bossLand.utility.MCUtility;
 import org.bukkit.*;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.ItemFlag;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.util.Arrays;
-import java.util.Objects;
+import java.util.*;
 
 public class BossLandShrines {
     private final JavaPlugin plugin;
     private final BossLandConfiguration config;
     private final BossLandItems itemManager;
     private final BossLandBosses bossManager;
+    private final ConfigurationSection recipesSection;
 
-    public BossLandShrines(JavaPlugin plugin, BossLandConfiguration config, BossLandItems itemManager, BossLandBosses bossManager) {
+    public BossLandShrines(JavaPlugin plugin, BossLandConfiguration config, BossLandItems itemManager, BossLandBosses bossManager, ConfigurationSection recipesSection) {
         this.plugin = plugin;
         this.config = config;
         this.itemManager = itemManager;
         this.bossManager = bossManager;
+        this.recipesSection = recipesSection;
     }
 
-    public void detectShrineRecipe(ConfigurationSection recipesSection, PlayerInteractEvent e) {
-//        if (recipesSection == null) {
-//            plugin.getLogger().warning("No shrine_recipes section found in config!");
-//            return;
-//        }
+    public Map<String, Object> getShrineRecipe(String bossName){
+        if (recipesSection == null) {
+            plugin.getLogger().warning("No shrine_recipes section found in config!");
+            return null;
+        }
+
+        ConfigurationSection requiredBossShrineRecipe = (ConfigurationSection) recipesSection.get(bossName);
+        if (requiredBossShrineRecipe == null) {
+            plugin.getLogger().warning("No shrine recipe for boss found in config!");
+            return null;
+        }
+
+        Map<String, Object> recipeMap = new HashMap<>();
+
+        // ------------------- RESULT -------------------
+        ConfigurationSection resultSec = requiredBossShrineRecipe.getConfigurationSection("result");
+        ItemStack resultItem = null;
+        if (resultSec != null) {
+            String item = resultSec.getString("item", "STONE");
+            int amount = resultSec.getInt("amount", 1);
+            String displayName = resultSec.getString("display_name", null);
+            List<String> lore = resultSec.getStringList("lore");
+            Material material = Material.getMaterial(item);
+            resultItem = new ItemStack(material, amount);
+            ItemMeta meta = resultItem.getItemMeta();
+            if (meta != null) {
+                meta.setDisplayName(displayName);
+                meta.setLore(lore);
+                meta.addEnchant(Enchantment.MENDING,1,true);
+                meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+                resultItem.setItemMeta(meta);
+            }
+        }
+
+        if(bossName.contains("god") || bossName.contains("devil") || bossName.contains("death")){
+            recipeMap.put("result", resultItem);
+
+            // ------------------- ACTIVATOR -------------------
+            ConfigurationSection activatorSec = requiredBossShrineRecipe.getConfigurationSection("activator");
+            if (activatorSec != null) {
+                String item = activatorSec.getString("item", "STONE");
+                int amount = activatorSec.getInt("amount", 1);
+
+                ItemStack activatorItem = getMentionedItem(item, amount);
+
+                recipeMap.put("recipe", activatorItem);
+            }
+
+            // ------------------- Instructor -------------------
+            ConfigurationSection instructorSec = requiredBossShrineRecipe.getConfigurationSection("instructor");
+            if (instructorSec != null) {
+                String item = instructorSec.getString("item", "STONE");
+                int amount = instructorSec.getInt("amount", 1);
+                List<String> lore = instructorSec.getStringList("lore");
+
+                ItemStack instructorItem = getMentionedItem(item, amount);
+                ItemMeta meta = instructorItem.getItemMeta();
+                if(meta != null){
+                    meta.setLore(lore);
+                    meta.setDisplayName("§6§lInstructions");
+                    instructorItem.setItemMeta(meta);
+                }
+
+                recipeMap.put("instructions", instructorItem);
+            }
+        }
+        else{
+            Map<String, Object> resultMap = new HashMap<>();
+            resultMap.put("item", resultItem);
+
+            recipeMap.put("result", resultMap);
+
+            // ------------------- RECIPE (SHAPE + INGREDIENTS) -------------------
+            Map<String, Object> recipeDetails = new HashMap<>();
+
+            // Shape
+            List<String> shapeList = requiredBossShrineRecipe.getStringList("shape");
+            List<List<String>> shapedGrid = new ArrayList<>();
+            for (String row : shapeList) {
+                List<String> rowChars = new ArrayList<>();
+                for (char c : row.toCharArray()) {
+                    rowChars.add(String.valueOf(c).toLowerCase()); // normalize to lowercase
+                }
+                shapedGrid.add(rowChars);
+            }
+            recipeDetails.put("shape", shapedGrid);
+
+            // Ingredients
+            Map<String, ItemStack> ingredientItems = new HashMap<>();
+            ConfigurationSection ingSec = requiredBossShrineRecipe.getConfigurationSection("ingredients");
+            if (ingSec != null) {
+                for (String key : ingSec.getKeys(false)) {
+                    String mat = ingSec.getString(key,"STONE");
+                    ItemStack ingItem = getMentionedItem(mat, 1); // use get item from bosslanditems class
+                    ingredientItems.put(key.toLowerCase(), ingItem);
+                }
+            }
+            recipeDetails.put("items", ingredientItems);
+
+            recipeMap.put("recipe", recipeDetails);
+
+
+            // ------------------- ACTIVATOR -------------------
+            ConfigurationSection activatorSec = requiredBossShrineRecipe.getConfigurationSection("activator");
+            if (activatorSec != null) {
+                String item = activatorSec.getString("item", "STONE");
+                int amount = activatorSec.getInt("amount", 1);
+
+                ItemStack activatorItem = getMentionedItem(item, amount);
+
+                Map<String, Object> activatorMap = new HashMap<>();
+                activatorMap.put("item", activatorItem);
+
+                recipeMap.put("activator", activatorMap);
+            }
+        }
+
+        // ------------------- LOOT -------------------
+        List<String> lootIds = requiredBossShrineRecipe.getStringList("loot");
+        String lootName = requiredBossShrineRecipe.getString("lootName");
+
+        List<ItemStack> loot = new ArrayList<>();
+        for(String id: lootIds){
+            ItemStack lootItem = itemManager.getItem(lootName,id);
+            loot.add(lootItem);
+        }
+        recipeMap.put("loot",loot);
+
+        return recipeMap;
+    }
+
+    public ItemStack getMentionedItem(String name, int amount) {
+        return switch (name) {
+            case "BELL_OF_DOOM" -> itemManager.getIllagerItem();
+            case "BOOK_OF_SPELLS" -> itemManager.getWizardItem();
+            case "POTION_OF_GIANT_GROWTH" -> itemManager.getGiantIem();
+            case "FORBIDDEN_FRUIT" -> itemManager.getGodItem();
+            case "ABHORRENT_FRUIT" -> itemManager.getDevilItem();
+            case "DEATH_NOTE" -> itemManager.getDeathItem();
+            case "FIRE" -> representFireItem();
+            default -> new ItemStack(CompatibilityResolver.resolveMaterial(name), amount);
+        };
+    }
+
+    private ItemStack representFireItem(){
+        ItemStack fireItem = new ItemStack(Material.FLINT_AND_STEEL,1);
+        ItemMeta meta = fireItem.getItemMeta();
+        if(meta!= null){
+            meta.addEnchant(Enchantment.MENDING,1,true);
+            meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+            meta.setDisplayName(ChatColor.GOLD+"Lit Fire");
+
+            List<String> lore = new ArrayList<>();
+            lore.add(ChatColor.GRAY + "Represents fire in the shrine recipe.");
+            meta.setLore(lore);
+
+            fireItem.setItemMeta(meta);
+        }
+
+        return fireItem;
+    }
+
+    public void detectShrineRecipe(PlayerInteractEvent e) {
         final Player p = e.getPlayer();
         try {
             assert e.getClickedBlock() != null;
