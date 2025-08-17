@@ -121,11 +121,13 @@ public class BossLand extends JavaPlugin implements Listener {
     BossLandRecipes recipeManager;
     BossLandItems itemManager;
     BossLandBosses bossManager;
-    BossLandShrines shrinesManager;
+    static BossLandShrines shrinesManager;
 
     public static BossLand getPlugin() {
         return plugin;
     }
+
+    public static BossLandShrines getShrinesManager() { return shrinesManager; }
 
     @Override
     public void onEnable() {
@@ -145,7 +147,7 @@ public class BossLand extends JavaPlugin implements Listener {
         recipeManager = new BossLandRecipes(this, config, itemManager);
         bossManager = new BossLandBosses(this, config, itemManager);
         recipeManager.addRecipes(config.getRecipeConfiguration("item_recipes"));
-        shrinesManager = new BossLandShrines(this,config,itemManager,bossManager);
+        shrinesManager = new BossLandShrines(this,config,itemManager,bossManager,config.getRecipeConfiguration("shrine_recipes"));
         timer();
         Objects.requireNonNull(this.getCommand("bosslandadmin")).setTabCompleter(new BossLandTabCompleter("admin"));
         Objects.requireNonNull(this.getCommand("bossland")).setTabCompleter(new BossLandTabCompleter("player"));
@@ -2108,7 +2110,7 @@ public class BossLand extends JavaPlugin implements Listener {
     @EventHandler(priority = EventPriority.HIGH)
     public void onPlayerInteract(PlayerInteractEvent e) {
         final Player p = e.getPlayer();
-        shrinesManager.detectShrineRecipe(config.getRecipeConfiguration("shrine_recipes"),e);
+        shrinesManager.detectShrineRecipe(e);
         try {
             // Cool Check
             if (coolList.contains(p.getUniqueId())) {
