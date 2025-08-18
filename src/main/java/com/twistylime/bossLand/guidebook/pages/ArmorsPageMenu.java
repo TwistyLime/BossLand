@@ -1,5 +1,7 @@
 package com.twistylime.bossLand.guidebook.pages;
 
+import com.twistylime.bossLand.BossLand;
+import com.twistylime.bossLand.core.BossLandLoot;
 import com.twistylime.bossLand.guidebook.PaginatedMenu;
 import com.twistylime.bossLand.guidebook.menuutility.PlayerMenuUtility;
 import org.bukkit.Material;
@@ -65,17 +67,9 @@ public class ArmorsPageMenu extends PaginatedMenu {
     @Override
     public void setMenuItems() {
         addBigMenuBorder();
-        items = new ArrayList<>(List.of(
-                createItem(Material.DIAMOND_HELMET,"Death Mask",true),
-                createItem(Material.GOLDEN_CHESTPLATE,"Plate of Death",true),
-                createItem(Material.CHAINMAIL_LEGGINGS,"Panda Pants",true),
-                createItem(Material.LEATHER_LEGGINGS,"Bunny Pants",true),
-                createItem(Material.LEATHER_BOOTS,"Slime Boots",true),
-                createItem(Material.NETHERITE_HELMET,"Drowned Helmet",true),
-                createItem(Material.NETHERITE_CHESTPLATE,"Zephyr Wings",true),
-                createItem(Material.NETHERITE_LEGGINGS,"Devil's Greaves",true),
-                createItem(Material.NETHERITE_BOOTS,"Swiftfoot Boots",true)
-        ));
+
+        BossLandLoot lootManager = BossLand.getLootManager();
+        items = new ArrayList<>(lootManager.getArmors());
 
         if(!items.isEmpty()) {
             for(int i = 0; i < getMaxItemsPerPage(); i++) {

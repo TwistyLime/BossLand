@@ -1,5 +1,7 @@
 package com.twistylime.bossLand.guidebook.pages;
 
+import com.twistylime.bossLand.BossLand;
+import com.twistylime.bossLand.core.BossLandLoot;
 import com.twistylime.bossLand.guidebook.PaginatedMenu;
 import com.twistylime.bossLand.guidebook.menuutility.PlayerMenuUtility;
 import org.bukkit.Material;
@@ -65,18 +67,9 @@ public class ShardsPageMenu extends PaginatedMenu {
     @Override
     public void setMenuItems() {
         addBigMenuBorder();
-        items = new ArrayList<>(List.of(
-                createItem(Material.BROWN_DYE,"Brown Boss Shard",true),
-                createItem(Material.RED_DYE,"Red Boss Shard",true),
-                createItem(Material.CLAY_BALL,"Gray Boss Shard",true),
-                createItem(Material.QUARTZ,"White Boss Shard",true),
-                createItem(Material.COAL,"Black Boss Shard",true),
-                createItem(Material.GREEN_DYE,"Green Boss Shard",true),
-                createItem(Material.LAPIS_LAZULI,"Blue Boss Shard",true),
-                createItem(Material.EMERALD,"Emerald Boss Shard",true),
-                createItem(Material.YELLOW_DYE,"Gold Boss Shard",false),
-                createItem(Material.FIRE_CORAL,"Demonic Shard",true)
-        ));
+
+        BossLandLoot lootManager = BossLand.getLootManager();
+        items = new ArrayList<>(lootManager.getShards());
 
         if(!items.isEmpty()) {
             for(int i = 0; i < getMaxItemsPerPage(); i++) {

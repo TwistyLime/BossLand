@@ -1,5 +1,7 @@
 package com.twistylime.bossLand.guidebook.pages;
 
+import com.twistylime.bossLand.BossLand;
+import com.twistylime.bossLand.core.BossLandLoot;
 import com.twistylime.bossLand.guidebook.PaginatedMenu;
 import com.twistylime.bossLand.guidebook.menuutility.PlayerMenuUtility;
 import org.bukkit.Material;
@@ -49,28 +51,9 @@ public class ItemsPageMenu extends PaginatedMenu {
     @Override
     public void setMenuItems() {
         addBigMenuBorder();
-        ArrayList<ItemStack> items = new ArrayList<>(List.of(
-                createItem(Material.DIAMOND_PICKAXE,"Pick of Undead",true),
-                createItem(Material.DIAMOND_SHOVEL,"Grave Digger",true),
-                createItem(Material.DIAMOND_SWORD,"Flame Sword",true),
-                createItem(Material.BOW,"Flame Bow",true),
-                createItem(Material.NETHERITE_SWORD,"Wither Sword",true),
-                createItem(Material.DIAMOND_PICKAXE,"Giant's Pick",true),
-                createItem(Material.DIAMOND_SHOVEL,"Giant's Spade",true),
-                createItem(Material.CROSSBOW,"Witch Hunter",true),
-                createItem(Material.ENCHANTED_BOOK,"Magic Book",false),
-                createItem(Material.NETHERITE_AXE,"Demonic Axe",true),
-                createItem(Material.END_ROD,"Staff of Control",true),
-                createItem(Material.BOW,"Zephyr Bow",true),
-                createItem(Material.PLAYER_HEAD,"The Cursed Skull",true),
-                createItem(Material.BLAZE_ROD,"Staff of Brimstone",true),
-                createItem(Material.TRIDENT,"Trident of Ultimate Power",true),
-                createItem(Material.TRIDENT,"Trident of Ultimate Speed",true),
-                createItem(Material.ENCHANTED_BOOK,"Book of Knowledge",true),
-                createItem(Material.PLAYER_HEAD,"Death Note",true),
-                createItem(Material.NETHERITE_SWORD,"End Blade",true),
-                createItem(Material.NETHERITE_HOE,"Scythe of Death",true)
-        ));
+
+        BossLandLoot lootManager = BossLand.getLootManager();
+        ArrayList<ItemStack> items = new ArrayList<>(lootManager.getWeaponsAndItems());
 
         if(!items.isEmpty()) {
             for(int i = 0; i < getMaxItemsPerPage(); i++) {
