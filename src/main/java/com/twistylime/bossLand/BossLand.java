@@ -5,10 +5,7 @@ import java.util.logging.Level;
 
 import com.twistylime.bossLand.command.BossLandCommandHandler;
 import com.twistylime.bossLand.config.BossLandConfiguration;
-import com.twistylime.bossLand.core.BossLandBosses;
-import com.twistylime.bossLand.core.BossLandItems;
-import com.twistylime.bossLand.core.BossLandRecipes;
-import com.twistylime.bossLand.core.BossLandShrines;
+import com.twistylime.bossLand.core.*;
 import com.twistylime.bossLand.guidebook.MenuListener;
 import com.twistylime.bossLand.utility.MCUtility;
 import com.twistylime.bossLand.utility.UtilityCalc;
@@ -122,12 +119,15 @@ public class BossLand extends JavaPlugin implements Listener {
     BossLandItems itemManager;
     BossLandBosses bossManager;
     static BossLandShrines shrinesManager;
+    static BossLandLoot lootManager;
 
     public static BossLand getPlugin() {
         return plugin;
     }
 
     public static BossLandShrines getShrinesManager() { return shrinesManager; }
+
+    public static BossLandLoot getLootManager(){ return lootManager; }
 
     @Override
     public void onEnable() {
@@ -148,6 +148,7 @@ public class BossLand extends JavaPlugin implements Listener {
         bossManager = new BossLandBosses(this, config, itemManager);
         recipeManager.addRecipes(config.getRecipeConfiguration("item_recipes"));
         shrinesManager = new BossLandShrines(this,config,itemManager,bossManager,config.getRecipeConfiguration("shrine_recipes"));
+        lootManager = new BossLandLoot(itemManager);
         timer();
         Objects.requireNonNull(this.getCommand("bosslandadmin")).setTabCompleter(new BossLandTabCompleter("admin"));
         Objects.requireNonNull(this.getCommand("bossland")).setTabCompleter(new BossLandTabCompleter("player"));
