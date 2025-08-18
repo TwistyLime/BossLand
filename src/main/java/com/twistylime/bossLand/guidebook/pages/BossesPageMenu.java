@@ -1,9 +1,9 @@
 package com.twistylime.bossLand.guidebook.pages;
 
 import com.twistylime.bossLand.BossLand;
+import com.twistylime.bossLand.core.BossLandShrines;
 import com.twistylime.bossLand.guidebook.PaginatedMenu;
 import com.twistylime.bossLand.guidebook.menuutility.PlayerMenuUtility;
-import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
@@ -12,6 +12,7 @@ import org.bukkit.persistence.PersistentDataType;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 
 public class BossesPageMenu extends PaginatedMenu {
@@ -75,23 +76,42 @@ public class BossesPageMenu extends PaginatedMenu {
     @Override
     public void setMenuItems() {
         addBigMenuBorder();
-        ArrayList<ItemStack> bosses = new ArrayList<>(List.of(
-                createItemWithData(Material.BAMBOO,"Papa Panda",true,"papa_panda"),
-                createItemWithData(Material.SLIME_BLOCK,"Slime King",true,"slime_king"),
-                createItemWithData(Material.RABBIT_FOOT,"Killer Bunny",true,"killer_bunny"),
-                createItemWithData(Material.ROTTEN_FLESH,"Zombie King",true,"zombie_king"),
-                createItemWithData(Material.GHAST_TEAR,"Ghast Lord",true,"ghast_lord"),
-                createItemWithData(Material.WITHER_SKELETON_SKULL,"Wither Skeleton King",true,"wither_skeleton_king"),
-                createItemWithData(Material.ZOMBIE_HEAD,"Giant",true,"giant"),
-                createItemWithData(Material.BELL,"Illager King",true,"illager_king"),
-                createItemWithData(Material.ENCHANTED_BOOK,"Evil Wizard",false,"evil_wizard"),
-                createItemWithData(Material.NETHER_STAR,"Demon",false,"demon"),
-                createItemWithData(Material.FEATHER,"Aether God",true,"aether_god"),
-                createItemWithData(Material.BLAZE_POWDER,"Pharaoh God",true,"pharaoh_god"),
-                createItemWithData(Material.HEART_OF_THE_SEA,"Drowned God",true,"drowned_god"),
-                createItemWithData(Material.COAL,"The Devil",true,"the_devil"),
-                createItemWithData(Material.CHARCOAL,"Death",true,"death")
+
+        BossLandShrines shrinesManager = BossLand.getShrinesManager();
+        ArrayList<String> bossData = new ArrayList<>(List.of(
+                "papa_panda",
+                "slime_king",
+                "killer_bunny",
+                "zombie_king",
+                "ghast_lord",
+                "wither_skeleton_king",
+                "giant",
+                "illager_king",
+                "evil_wizard",
+                "demon",
+                "aether_god",
+                "pharaoh_god",
+                "drowned_god",
+                "the_devil",
+                "death"
         ));
+        ArrayList<ItemStack> bosses = new ArrayList<>();
+
+        for(String boss: bossData){
+            Map<String, Object> bossRecipe = shrinesManager.getShrineRecipe(boss);
+            if(boss.contains("god") || boss.contains("devil") || boss.contains("death")){
+                ItemStack resultBoss = (ItemStack) bossRecipe.get("result");
+                bosses.add(addDataToItem(resultBoss,boss));
+            }
+            else{
+                @SuppressWarnings("unchecked")
+                Map<String, Object> resultMap = (Map<String, Object>) bossRecipe.get("result");
+                if (resultMap != null) {
+                    ItemStack resultBoss = (ItemStack) resultMap.get("item");
+                    bosses.add(addDataToItem(resultBoss,boss));
+                }
+            }
+        }
 
         if(!bosses.isEmpty()) {
             for(int i = 0; i < getMaxItemsPerPage(); i++) {
@@ -104,5 +124,15 @@ public class BossesPageMenu extends PaginatedMenu {
             }
         }
 
+    }
+
+    private ItemStack addDataToItem(ItemStack item, String data){
+        ItemMeta itemToAddDataMeta = item.getItemMeta();
+        if(itemToAddDataMeta != null){
+            NamespacedKey key = new NamespacedKey(BossLand.getPlugin(),"data");
+            itemToAddDataMeta.getPersistentDataContainer().set(key,PersistentDataType.STRING, data);
+        }
+        item.setItemMeta(itemToAddDataMeta);
+        return item;
     }
 }
