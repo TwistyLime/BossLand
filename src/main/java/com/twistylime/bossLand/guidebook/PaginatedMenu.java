@@ -12,6 +12,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 
 import java.util.Arrays;
+import java.util.List;
 
 public abstract class PaginatedMenu extends Menu {
 
@@ -104,7 +105,19 @@ public abstract class PaginatedMenu extends Menu {
         int[] blackPaneSlots = {1,7,37,43};
         ItemStack gray_glass_pane = createItem(Material.GRAY_STAINED_GLASS_PANE," ", false);
         ItemStack black_glass_pane = createItem(Material.BLACK_STAINED_GLASS_PANE," ", false);
-        ItemStack bossRecipeInstructor = createItem(Material.BRICKS,"Build this structure in the world to summon the boss", false);
+        ItemStack bossRecipeInstructor = createItem(Material.BRICKS,"§6§lInstructions", false);
+
+        ItemMeta instructionsMeta = bossRecipeInstructor.getItemMeta();
+        if(instructionsMeta != null){
+            instructionsMeta.setLore(List.of(
+                    "§e§lHow to Summon the Boss:",
+                    "",
+                    "§7» §fBuild the structure in the world",
+                    "",
+                    "§fHover over the boss to know the biome it will spawn in."
+            ));
+            bossRecipeInstructor.setItemMeta(instructionsMeta);
+        }
 
         for (int i = 0; i < rows * columns; i++) {
             int finalI = i;
@@ -153,14 +166,26 @@ public abstract class PaginatedMenu extends Menu {
     }
 
     public void addItemRecipeTemplate(){
-        int rows = 5;
+        int rows = 6;
         int columns = 9;
-        int[] reservedSlotsForButtons = {0,4,8,18};
-        int[] reservedSlotsForRecipe = {10,11,12,19,20,21,23,25,28,29,30};
-        int[] blackPaneSlots = {1,7,37,43};
+        int[] reservedSlotsForButtons = {1,7,49,19};
+        int[] reservedSlotsForRecipe = {12,13,14,21,22,23,25,30,31,32};
+        int[] blackPaneSlots = {0,1,6,8,36,37,38,39,40,41,42,43,44,46,52};
         ItemStack gray_glass_pane = createItem(Material.GRAY_STAINED_GLASS_PANE," ", false);
         ItemStack black_glass_pane = createItem(Material.BLACK_STAINED_GLASS_PANE," ", false);
-        ItemStack itemRecipeInstructor = createItem(Material.CRAFTING_TABLE,"Craft this recipe in the crafting table.", false);
+        ItemStack itemRecipeInstructor = createItem(Material.CRAFTING_TABLE,"§6§lInstructions", false);
+
+        ItemMeta instructionsMeta = itemRecipeInstructor.getItemMeta();
+        if(instructionsMeta != null){
+            instructionsMeta.setLore(List.of(
+                    "§e§lHow to Craft the Item:",
+                    "",
+                    "§7» §fUse crafting table to craft item shown in the recipe",
+                    "",
+                    "§fItems should be placed in the crafting table as shown in the recipe"
+            ));
+            itemRecipeInstructor.setItemMeta(instructionsMeta);
+        }
 
         for (int i = 0; i < rows * columns; i++) {
             int finalI = i;
@@ -175,10 +200,10 @@ public abstract class PaginatedMenu extends Menu {
             }
         }
 
-        inventory.setItem(0,createItem(Material.NAME_TAG,ChatColor.WHITE + "Search", false));
-        inventory.setItem(8,createItem(Material.BARRIER,ChatColor.RED.toString() + ChatColor.BOLD + "Close", false));
-        inventory.setItem(4,createItem(Material.WRITABLE_BOOK,ChatColor.WHITE + "Previous Menu", false));
-        inventory.setItem(18, itemRecipeInstructor);
+        inventory.setItem(1,createItem(Material.NAME_TAG,ChatColor.WHITE + "Search", false));
+        inventory.setItem(7,createItem(Material.BARRIER,ChatColor.RED.toString() + ChatColor.BOLD + "Close", false));
+        inventory.setItem(49,createItem(Material.WRITABLE_BOOK,ChatColor.WHITE + "Previous Menu", false));
+        inventory.setItem(19, itemRecipeInstructor);
     }
 
     protected ItemStack createItem(Material item, String name, boolean glint){
@@ -193,16 +218,5 @@ public abstract class PaginatedMenu extends Menu {
             newItem.setItemMeta(newItemMeta);
         }
         return  newItem;
-    }
-
-    protected ItemStack createItemWithData(Material item, String name, boolean glint, String data){
-        ItemStack itemToAddData = createItem(item, name, glint);
-        ItemMeta itemToAddDataMeta = itemToAddData.getItemMeta();
-        if(itemToAddDataMeta != null){
-            NamespacedKey key = new NamespacedKey(BossLand.getPlugin(),"data");
-            itemToAddDataMeta.getPersistentDataContainer().set(key,PersistentDataType.STRING, data);
-        }
-        itemToAddData.setItemMeta(itemToAddDataMeta);
-        return itemToAddData;
     }
 }
