@@ -102,7 +102,7 @@ public class BossLandLoot {
 
     private String getLootIdFromName(String lootName){
         for (Map.Entry<String, String> entry : bossLootMap.entrySet()) {
-            if (entry.getValue().equalsIgnoreCase(lootName.replace("_"," "))) {
+            if (entry.getValue().replace("_"," ").equalsIgnoreCase(lootName.replace("_"," "))) {
                 String[] parts = entry.getKey().split(":");
                 if (parts.length == 2) {
                     return parts[1];
