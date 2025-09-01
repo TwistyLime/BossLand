@@ -97,6 +97,31 @@ public abstract class PaginatedMenu extends Menu {
         inventory.setItem(6,createItem(Material.BARRIER,ChatColor.RED.toString() + ChatColor.BOLD + "Close", false));
     }
 
+    public void addSmallCreditMenuBorder(){
+        int rows = 3;
+        int columns = 9;
+        int[] reservedSlots = {0,4,8,11,13,15};
+        int[] blackGlassSlots = {1,7,9,10,12,14,16,17,19,25};
+        ItemStack gray_glass_pane = createItem(Material.GRAY_STAINED_GLASS_PANE," ", false);
+        ItemStack black_glass_pane = createItem(Material.BLACK_STAINED_GLASS_PANE," ", false);
+
+        for (int i = 0; i < rows * columns; i++) {
+            int finalI = i;
+            if(Arrays.stream(reservedSlots).anyMatch(s->s== finalI)) continue;
+
+            if(Arrays.stream(blackGlassSlots).anyMatch(s->s==finalI)){
+                inventory.setItem(i,black_glass_pane);
+            }
+            else{
+                inventory.setItem(i, gray_glass_pane);
+            }
+        }
+
+        inventory.setItem(0,createItem(Material.NAME_TAG,ChatColor.WHITE + "Search", false));
+        inventory.setItem(4,createItem(Material.WRITABLE_BOOK,ChatColor.WHITE + "Previous Menu", false));
+        inventory.setItem(8,createItem(Material.BARRIER,ChatColor.RED.toString() + ChatColor.BOLD + "Close", false));
+    }
+
     public void addBossRecipeTemplate(){
         int rows = 5;
         int columns = 9;
