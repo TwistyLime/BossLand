@@ -1,14 +1,17 @@
 package com.twistylime.bossLand.core;
 
+import com.twistylime.bossLand.config.BossLandConfiguration;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.*;
 
 public class BossLandLoot {
     private final BossLandItems itemManager;
+    private final Map<String, String> bossLootMap;
 
-    public BossLandLoot(BossLandItems itemManager) {
+    public BossLandLoot(BossLandItems itemManager, BossLandConfiguration config) {
         this.itemManager = itemManager;
+        bossLootMap = config.getBossLootIdMap();
     }
 
     public List<ItemStack> getArmors(){
@@ -78,6 +81,35 @@ public class BossLandLoot {
             shards.add(getLoot(boss, shardId));
         }
         return shards;
+    }
+
+    public List<String> getLootNames(String bossName){
+        List<String> lootNames = new ArrayList<>();
+        String prefix = bossName + ":";
+        for (Map.Entry<String, String> entry : bossLootMap.entrySet()) {
+            if (entry.getKey().startsWith(prefix)) {
+                lootNames.add(entry.getValue());
+            }
+        }
+        return lootNames;
+    } // for displaying in command rather than using ids - Need to implement in commands section autotab
+
+    public ItemStack getLootFromName(String name, String bossType){
+        String id = getLootIdFromName(name.toUpperCase().replace(" ","_"));
+        System.out.println(id+" "+bossType);
+        return getLoot(bossType,id);
+    }
+
+    private String getLootIdFromName(String lootName){
+        for (Map.Entry<String, String> entry : bossLootMap.entrySet()) {
+            if (entry.getValue().equalsIgnoreCase(lootName.replace("_"," "))) {
+                String[] parts = entry.getKey().split(":");
+                if (parts.length == 2) {
+                    return parts[1];
+                }
+            }
+        }
+        return null;
     }
 
     private ItemStack getLoot(String bossType, String lootId){
