@@ -9,17 +9,13 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.inventory.CraftingInventory;
-import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.ShapedRecipe;
+import org.bukkit.inventory.*;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.plugin.EventExecutor;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.Objects;
+import java.util.*;
 import java.util.logging.Level;
 
 import static org.bukkit.Bukkit.getServer;
@@ -29,11 +25,15 @@ public class BossLandRecipes {
     private final JavaPlugin plugin;
     private final BossLandConfiguration config;
     private final BossLandItems itemManager;
+    private final ConfigurationSection recipesSection;
+    private final BossLandLoot lootManager;
 
-    public BossLandRecipes(JavaPlugin plugin, BossLandConfiguration config, BossLandItems itemManager) {
+    public BossLandRecipes(JavaPlugin plugin, BossLandConfiguration config, BossLandItems itemManager, ConfigurationSection recipesSection, BossLandLoot lootManager) {
         this.plugin = plugin;
         this.config = config;
         this.itemManager = itemManager;
+        this.recipesSection = recipesSection;
+        this.lootManager = lootManager;
     }
 
     public void addRecipes(ConfigurationSection recipesSection) {
@@ -50,7 +50,7 @@ public class BossLandRecipes {
             String resultItemName = Objects.requireNonNull(recipeData.getConfigurationSection("result")).getString("item");
             int resultAmount = Objects.requireNonNull(recipeData.getConfigurationSection("result")).getInt("amount", 1);
             if(resultItemName == null) return;
-            ItemStack resultItem = getResultItem(resultItemName);
+            ItemStack resultItem = getResultItem(resultItemName, false);
             if (resultItem == null) {
                 plugin.getLogger().warning("Could not find custom item: " + resultItemName);
                 continue;
@@ -85,6 +85,66 @@ public class BossLandRecipes {
             // ===== Register Recipe =====
             Bukkit.addRecipe(shapedRecipe);
         }
+    }
+
+    public Map<String, Object> getRecipes(String itemName){
+        if (recipesSection == null) {
+            plugin.getLogger().warning("No item_recipes section found in config!");
+            return null;
+        }
+
+        ConfigurationSection requiredItemRecipe = (ConfigurationSection) recipesSection.get(itemName);
+        if (requiredItemRecipe == null) {
+            plugin.getLogger().warning("No recipe for item found in config!");
+            return null;
+        }
+
+        Map<String, Object> recipeMap = new HashMap<>();
+
+        // ------------------- RESULT -------------------
+        ConfigurationSection resultSec = requiredItemRecipe.getConfigurationSection("result");
+        ItemStack resultItem = null;
+        if (resultSec != null) {
+            String item = resultSec.getString("item", "STONE");
+            if(item != null){
+                resultItem = getResultItem(item, true);
+            }
+        }
+
+        recipeMap.put("result", resultItem);
+
+        // ------------------- RECIPE (SHAPE + INGREDIENTS) -------------------
+        Map<String, Object> recipeDetails = new HashMap<>();
+
+        // Shape
+        List<String> shapeList = requiredItemRecipe.getStringList("shape");
+        List<List<String>> shapedGrid = new ArrayList<>();
+        for (String row : shapeList) {
+            List<String> rowChars = new ArrayList<>();
+            for (char c : row.toCharArray()) {
+                rowChars.add(String.valueOf(c).toLowerCase()); // normalize to lowercase
+            }
+            shapedGrid.add(rowChars);
+        }
+        recipeDetails.put("shape", shapedGrid);
+
+        // Ingredients
+        Map<String, ItemStack> ingredientItems = new HashMap<>();
+        ConfigurationSection ingSec = requiredItemRecipe.getConfigurationSection("ingredients");
+        if (ingSec != null) {
+            for (String key : ingSec.getKeys(false)) {
+                String mat = ingSec.getString(key,"STONE");
+                if(mat != null){
+                    ItemStack ingItem = getResultItem(mat, true);
+                    ingredientItems.put(key.toLowerCase(), ingItem);
+                }
+            }
+        }
+        recipeDetails.put("items", ingredientItems);
+
+        recipeMap.put("recipe", recipeDetails);
+
+        return recipeMap;
     }
 
     public void restrictCraftingForBossLandItems(CraftingInventory ci) {
@@ -256,7 +316,32 @@ public class BossLandRecipes {
         return !displayName.equals(expectedName);
     }
 
-    private ItemStack getResultItem(String name) {
+    private ItemStack getResultItem(String name, boolean isGuideRecipe) {
+
+        if(isGuideRecipe){
+            return switch (name) {
+                case "DEATH_NOTE" -> itemManager.getDeathItem();
+                case "FORBIDDEN_FRUIT", "ENCHANTED_GOLDEN_APPLE" -> itemManager.getGodItem();
+                case "ABHORRENT_FRUIT" -> itemManager.getDevilItem();
+                case "BELL_OF_DOOM" -> itemManager.getIllagerItem();
+                case "BOOK_OF_SPELLS" -> itemManager.getWizardItem();
+                case "POTION_OF_GIANT_GROWTH" -> itemManager.getGiantIem();
+                case "ELDER_EGG" -> itemManager.getDragonItem();
+                case "ENCHANTED_BOOK" -> lootManager.getLootFromName("BOOK_OF_KNOWLEDGE","Devil"); // return BOOK_OF_KNOWLEDGE only in getRecipes
+                case "EMERALD" -> lootManager.getLootFromName("EMERALD_BOSS_SHARD","Giant"); // return EMERALD_BOSS_SHARD only in getRecipes
+                case "YELLOW_DYE" -> lootManager.getLootFromName("GOLD_BOSS_SHARD","IllagerKing"); // return GOLD_BOSS_SHARD only in getRecipes
+                case "LAPIS_LAZULI" -> lootManager.getLootFromName("BLUE_BOSS_SHARD","EvilWizard"); // return BLUE_BOSS_SHARD only in getRecipes
+                case "QUARTZ" -> lootManager.getLootFromName("WHITE_BOSS_SHARD","GhastLord"); // return WHITE_BOSS_SHARD only in getRecipes
+                case "GREEN_DYE" -> lootManager.getLootFromName("GREEN_BOSS_SHARD","KingSlime"); // return GREEN_BOSS_SHARD only in getRecipes
+                case "FIRE_CORAL" -> lootManager.getLootFromName("DEMONIC_SHARD","Demon"); // return DEMONIC_SHARD only in getRecipes
+                case "CLAY_BALL" -> lootManager.getLootFromName("GREY_BOSS_SHARD","KillerBunny"); // return GRAY_BOSS_SHARD only in getRecipes
+                case "RED_DYE" -> lootManager.getLootFromName("RED_BOSS_SHARD","ZombieKing"); // return RED_BOSS_SHARD only in getRecipes
+                case "COAL" -> lootManager.getLootFromName("BLACK_BOSS_SHARD","WitherSkeletonKing"); // return BLACK_BOSS_SHARD only in getRecipes
+                case "BROWN_DYE" -> lootManager.getLootFromName("BROWN_BOSS_SHARD","PapaPanda"); // return BROWN_BOSS_SHARD only in getRecipes
+                default -> new ItemStack(CompatibilityResolver.resolveMaterial(name), 1);
+            };
+        }
+
         return switch (name) {
             case "DEATH_NOTE" -> itemManager.getDeathItem();
             case "FORBIDDEN_FRUIT" -> itemManager.getGodItem();
