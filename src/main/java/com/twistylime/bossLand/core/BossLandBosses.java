@@ -206,6 +206,11 @@ public class BossLandBosses {
                         EntityType.valueOf(plugin.getConfig().getString("bosses." + bossType + ".mount").toUpperCase()));
                 mount.addPassenger(boss);
                 int h = plugin.getConfig().getInt("bosses." + bossType + ".health");
+
+                if(BossLand.isLowBossHealthIndicator() && h > 1024){
+                    h = 1024;
+                }
+
                 mount.getAttribute(CompatibilityResolver.resolveAttribute("MAX_HEALTH", "GENERIC_MAX_HEALTH")).setBaseValue(h);
                 mount.setHealth(h);
                 mount.addPotionEffect(new PotionEffect(CompatibilityResolver.resolvePotionEffect("DAMAGE_RESISTANCE","RESISTANCE"), 999 * 999, 10));
@@ -239,8 +244,15 @@ public class BossLandBosses {
         bar.setVisible(true);
         bossMap.put(ent, bar);
         int maxHP = plugin.getConfig().getInt("bosses." + bossType + ".health");
+
+        // Check if max health is
+
         double maxHealth = ((LivingEntity) ent).getAttribute(CompatibilityResolver.resolveAttribute("MAX_HEALTH", "GENERIC_MAX_HEALTH")).getBaseValue();
         if (maxHealth != maxHP) {
+            if(BossLand.isLowBossHealthIndicator() && maxHP > 1024){
+                maxHP = 1024;
+                plugin.getLogger().log(Level.WARNING,"Boss with health above 1024 has been spawned and is capped to 1024 HP. Change the maxHealth in spigot.yml from 1024 to 2048 to fix this.");
+            }
             ((LivingEntity) ent).getAttribute(CompatibilityResolver.resolveAttribute("MAX_HEALTH", "GENERIC_MAX_HEALTH")).setBaseValue(maxHP);
             ((Damageable) ent).setHealth(maxHP);
         }
