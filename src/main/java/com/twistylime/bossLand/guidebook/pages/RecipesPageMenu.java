@@ -1,11 +1,14 @@
 package com.twistylime.bossLand.guidebook.pages;
 
 import com.twistylime.bossLand.BossLand;
+import com.twistylime.bossLand.core.BossLandItems;
 import com.twistylime.bossLand.guidebook.PaginatedMenu;
 import com.twistylime.bossLand.guidebook.menuutility.PlayerMenuUtility;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
@@ -68,14 +71,17 @@ public class RecipesPageMenu extends PaginatedMenu {
 
     @Override
     public void setMenuItems() {
+
+        BossLandItems itemManager = BossLand.getItemsManager();
+
         addBigMenuBorder();
         ArrayList<ItemStack> items = new ArrayList<>(List.of(
-                createItemWithData(Material.POTION,"Potion of Giant Growth",true,"potion_of_giant_growth"),
-                createItemWithData(Material.BELL,"Bell of Doom",true,"bell_of_doom"),
-                createItemWithData(Material.ENCHANTED_BOOK,"Book of Spells",true,"book_of_spells"),
-                createItemWithData(Material.ENCHANTED_GOLDEN_APPLE,"Forbidden Fruit",true,"forbidden_fruit"),
-                createItemWithData(Material.APPLE,"Abhorrent Fruit",true,"abhorrent_fruit"),
-                createItemWithData(Material.PLAYER_HEAD,"Death Note",true,"death_note")
+                addDataToItem(itemManager.getGiantIem(),"giant_potion"),
+                addDataToItem(itemManager.getIllagerItem(),"illager_bell"),
+                addDataToItem(itemManager.getWizardItem(),"wizard_book"),
+                addDataToItem(itemManager.getGodItem(),"god_fruit"),
+                addDataToItem(itemManager.getDevilItem(),"devil_fruit"),
+                addDataToItem(itemManager.getDeathItem(),"death_note")
         ));
 
         if(!items.isEmpty()) {
@@ -89,5 +95,15 @@ public class RecipesPageMenu extends PaginatedMenu {
             }
         }
 
+    }
+
+    private ItemStack addDataToItem(ItemStack itemToAddData, String data){
+        ItemMeta itemToAddDataMeta = itemToAddData.getItemMeta();
+        if(itemToAddDataMeta != null){
+            NamespacedKey key = new NamespacedKey(BossLand.getPlugin(),"data");
+            itemToAddDataMeta.getPersistentDataContainer().set(key,PersistentDataType.STRING, data);
+        }
+        itemToAddData.setItemMeta(itemToAddDataMeta);
+        return itemToAddData;
     }
 }
