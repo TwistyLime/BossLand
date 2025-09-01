@@ -1,5 +1,6 @@
 package com.twistylime.bossLand.command;
 
+import com.twistylime.bossLand.core.BossLandLoot;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.command.Command;
@@ -8,16 +9,15 @@ import org.bukkit.command.TabCompleter;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.plugin.Plugin;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 public class BossLandTabCompleter implements TabCompleter {
     private final String commandType;
+    private final BossLandLoot lootManager;
 
-    public BossLandTabCompleter(String type){
+    public BossLandTabCompleter(String type, BossLandLoot lootManager){
         this.commandType = type;
+        this.lootManager = lootManager;
     }
     @Override
     public List<String> onTabComplete(CommandSender sender, Command cmd, String alias, String[] args) {
@@ -26,15 +26,20 @@ public class BossLandTabCompleter implements TabCompleter {
         if(Objects.equals(this.commandType, "admin")){
 
             List<String> bossNames = new ArrayList<>();
+            Map<String, List<String>> bossLoots = new HashMap<>();
             if (plugin != null && plugin.getConfig().contains("bosses")) {
                 ConfigurationSection section = plugin.getConfig().getConfigurationSection("bosses");
                 if (section != null) {
                     bossNames.addAll(section.getKeys(false));
                 }
             }
+            for(String bossName: bossNames){
+                bossLoots.put(bossName,this.lootManager.getLootNames(bossName));
+            }
+
 
             if (args.length == 1) {
-                suggestions.addAll(Arrays.asList("spawn", "cspawn", "loot", "sloot", "addLoot", "setLoot", "killBosses", "reload"));
+                suggestions.addAll(Arrays.asList("guide", "spawn", "cspawn", "loot", "sloot", "addLoot", "setLoot", "killBosses", "reload"));
             } else if (args.length == 2) {
                 switch (args[0].toLowerCase()) {
                     case "spawn":
@@ -52,10 +57,15 @@ public class BossLandTabCompleter implements TabCompleter {
                         break;
                 }
             } else if (args.length == 3) {
-                if (args[0].equalsIgnoreCase("setLoot") || args[0].equalsIgnoreCase("sloot")) {
+                if (args[0].equalsIgnoreCase("setLoot")) {
                     suggestions.add("<id>");
                 } else if (args[0].equalsIgnoreCase("cspawn")) {
                     suggestions.add("<x>");
+                }
+                else if(args[0].equalsIgnoreCase("sloot")){
+                    for(String bossLoot: bossLoots.get(args[1])){
+                        suggestions.add(bossLoot.replace(" ","_").toUpperCase());
+                    }
                 }
             } else if (args.length == 4 && args[0].equalsIgnoreCase("cspawn")) {
                 suggestions.add("<y>");

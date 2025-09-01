@@ -16,10 +16,10 @@ bosses:
     dropedXP: 6000
     name: "§f§lGhast Lord"
     health: 500
-    specialChance: 10
-    potionChance: 20
-    maxSpecial: 10
-    amountSpecial2: 5
+    specialChance: 10 # Percentage amount for which boss will do a special attack on getting hit
+    potionChance: 20 # Percentage amount for which boss will use potion effects on target on getting hit
+    maxSpecial: 10 # Amount of max minions which can be spawned around boss in a 35 x 35 x 35 blocks area
+    amountSpecial2: 5 # Amount of projectiles which are launched on player at once | Fireball for Ghast Lord, Wither Skull for Wither Skeleton King
     attackParticle: "FLAME:0:3:0.3"
     deathParticle: "CLOUD:1:25:0"
     barColor: "WHITE"
@@ -28,10 +28,10 @@ bosses:
       - "LEVITATION:1:15"
       - "FIRE:1:25"
     loot:
-      1:
+      0:
         item: fire_charge
         amount: 32-64
-      2:
+      1:
         item: quartz
         amount: 1
         name: "&lWhite Boss Shard"
@@ -43,7 +43,7 @@ bosses:
           1:
             enchantment: LOYALTY
             level: 1
-      3:
+      2:
         item: GOLDEN_SWORD
         amount: 1
         name: "&c&lFlame Sword"
@@ -72,7 +72,7 @@ bosses:
             enchantment: mending
             level: 1
             chance: 15
-      '4':
+      3:
         item: BOW
         amount: 1
         unbreaking: 10

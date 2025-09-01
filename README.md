@@ -1,4 +1,4 @@
-# BossLand v2.2 - v1.16.1-v1.21.5
+# BossLand v2.3 - v1.16.1-v1.21.5
 
 ## Overview
 
@@ -16,6 +16,7 @@ This continuation aims to maintain the original vision while updating compatibil
 
 | Minecraft Version | BossLand Version          | Download Link                                                                                                                  | Notes                                                      |
 |-------------------|---------------------------|--------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------|
+| 1.16.1 - 1.21.5   | 2.3                       | [Download v2.3](https://github.com/TwistyLime/BossLand/releases/download/v2.3-v1.16.1-v1.21.5/bossland2.3-v1.16.1-v1.21.5.jar) | New Guide Book and Shard Effects added and bugs fixed      |
 | 1.16.1 - 1.21.5   | 2.2                       | [Download v2.2](https://github.com/TwistyLime/BossLand/releases/download/v2.2-v1.16.1-v1.21.5/bossland2.2-v1.16.1-v1.21.5.jar) | Compatible throughout 1.16.1 uptill 1.21.5 with bugs fixed |
 | 1.21.3            | 2.1                       | [Download v2.1](https://github.com/TwistyLime/BossLand/releases/download/v2.1-1.21.3/bossland2-0-2.1.jar)                      | Updated for 1.21.3 with new API and support                |
 | 1.19.x            | 0.8 (Final by Eliminator) | [Download v0.8](https://www.spigotmc.org/resources/boss-land.68320/)                                                           | Original discontinued version                              |
@@ -69,6 +70,7 @@ Ultimate endgame encounters:
 - Tier 1 and 2 bosses drop magical shards
 - Shards are used to craft summoning items for higher-tier bosses
 - Physical crafting system - place items in the world, not crafting table
+- On holding a shard, the player will get potion effects, some good, some bad.
 
 #### **Biome-Specific Summoning**
 - Each boss requires specific biome conditions
@@ -98,7 +100,7 @@ Ultimate endgame encounters:
 - `/bl-admin spawn <boss>` - Spawns a specific Boss.
 - `/bl-admin cspawn <boss> [x y z] [world]` - Spawns a Boss at coords in a world.
 - `/bl-admin loot <boss>` - Drops a boss's death loot
-- `/bl-admin sloot <boss> <id>` - Drops specific loot
+- `/bl-admin sloot <boss> <lootname>` - Drops specific loot
 - `/bl-admin setLoot <boss> <id>` - Set loot for a boss
 - `/bl-admin addLoot <boss>` - Add loot for a boss
 - `/bl-admin killBosses <world>` - Remove all bosses in a world
@@ -134,7 +136,7 @@ Ultimate endgame encounters:
 ### Continued Development
 - **Current:** Reviving and updating for modern Minecraft versions
 - **Goal:** Maintain original gameplay while adding quality-of-life improvements
-- **v2.2:** Update for MC v1.16.1 till v1.21.3
+- **v2.3:** Update for MC v1.16.1 till v1.21.5
 
 ## Contributing
 
