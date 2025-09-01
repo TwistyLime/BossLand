@@ -8,6 +8,8 @@ import org.bukkit.plugin.Plugin;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 import java.util.logging.Level;
 
@@ -158,4 +160,44 @@ public class BossLandConfiguration {
             return langFile.getInt(key);
         }
     }
+
+    public Map<String, String> getBossLootIdMap() {
+        Map<String, String> lootIdMap = new HashMap<>();
+
+        ConfigurationSection bosses = plugin.getConfig().getConfigurationSection("bosses");
+        if (bosses == null) {
+            plugin.getLogger().warning("No bosses section found in config.yml!");
+            return lootIdMap;
+        }
+
+        for (String bossKey : bosses.getKeys(false)) {
+            ConfigurationSection bossSection = bosses.getConfigurationSection(bossKey);
+            if (bossSection == null) continue;
+
+            ConfigurationSection lootSection = bossSection.getConfigurationSection("loot");
+            if (lootSection == null) continue;
+
+            for (String lootKey : lootSection.getKeys(false)) {
+                ConfigurationSection lootItem = lootSection.getConfigurationSection(lootKey);
+                if (lootItem == null) continue;
+
+                // Default to item material name
+                String itemId = lootItem.getString("item", "UNKNOWN_ITEM");
+
+                // Prefer custom name if it exists
+                String displayName = lootItem.getString("name");
+                if (displayName != null) {
+                    itemId = displayName.replaceAll("&.","");
+                }
+
+                // Create a unique key so map values don't overwrite each other
+                String mapKey = bossKey + ":" + lootKey;
+
+                lootIdMap.put(mapKey, itemId);
+            }
+        }
+
+        return lootIdMap;
+    }
+
 }
