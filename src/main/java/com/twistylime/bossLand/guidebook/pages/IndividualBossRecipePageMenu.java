@@ -36,7 +36,7 @@ public class IndividualBossRecipePageMenu extends PaginatedMenu {
                     playerWhoClicked.closeInventory();
                     break;
                 case NAME_TAG:
-                    playerWhoClicked.sendMessage("Need to implement search functionality");
+                    playerWhoClicked.sendMessage("This feature is work in progress and will be available in the upcoming updates.");
                     playerWhoClicked.closeInventory();
                     break;
                 case WRITABLE_BOOK:

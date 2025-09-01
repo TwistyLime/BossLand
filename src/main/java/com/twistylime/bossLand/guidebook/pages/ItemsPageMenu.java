@@ -36,7 +36,7 @@ public class ItemsPageMenu extends PaginatedMenu {
                     e.getWhoClicked().closeInventory();
                     break;
                 case NAME_TAG:
-                    e.getWhoClicked().sendMessage("Need to implement search functionality");
+                    e.getWhoClicked().sendMessage("This feature is work in progress and will be available in the upcoming updates.");
                     e.getWhoClicked().closeInventory();
                     break;
                 case WRITABLE_BOOK:

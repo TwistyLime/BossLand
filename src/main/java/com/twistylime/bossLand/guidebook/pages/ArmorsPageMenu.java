@@ -40,7 +40,7 @@ public class ArmorsPageMenu extends PaginatedMenu {
                     playerWhoClicked.closeInventory();
                     break;
                 case NAME_TAG:
-                    playerWhoClicked.sendMessage("Need to implement search functionality");
+                    playerWhoClicked.sendMessage("This feature is work in progress and will be available in the upcoming updates.");
                     playerWhoClicked.closeInventory();
                     break;
                 case ARROW:

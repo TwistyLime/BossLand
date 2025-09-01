@@ -41,7 +41,7 @@ public class GuideMainMenu extends PaginatedMenu {
                 p.closeInventory();
                 break;
             case NAME_TAG:
-                p.sendMessage(ChatColor.GOLD+"Enter the items/bosses to search:");
+                p.sendMessage("This feature is work in progress and will be available in the upcoming updates.");
                 p.closeInventory();
                 break;
             case FIRE_CORAL:
@@ -80,7 +80,7 @@ public class GuideMainMenu extends PaginatedMenu {
         inventory.setItem(13, decorateItem(Material.ENCHANTED_GOLDEN_APPLE, "Recipes", false, "Learn how to craft", "Powerful items"));
         inventory.setItem(14, decorateItem(Material.NETHERITE_CHESTPLATE, "Armors", true, "Custom armor sets", "With special abilities"));
         inventory.setItem(15, decorateItem(Material.PAPER, "Credits", false, "Developed by", "§eTwistyLime"));
-        inventory.setItem(16, decorateItem(Material.NETHER_STAR, "About Plugin", false, "§7BossLand plugin", "§7Version 1.0"));
+        inventory.setItem(16, decorateItem(Material.NETHER_STAR, "About Plugin", false, "§7BossLand plugin", "§7Version 2.3"));
     }
 
 
