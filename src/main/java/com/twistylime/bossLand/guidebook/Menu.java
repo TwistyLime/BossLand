@@ -35,13 +35,3 @@ public abstract class Menu implements InventoryHolder {
         return inventory;
     }
 }
-
-/*
-* Need to add recipes for both bosses and items
-* Need to add lore and description to eveny item
-* Need to have creative pick mode
-* Need to add proper credits and info screen
-* Need to add a guide book on right click opens the menu
-*
-* To-Do: Add a progress thing in the guide book to have everything explored and obtained
-* */
