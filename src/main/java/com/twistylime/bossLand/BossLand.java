@@ -1,5 +1,6 @@
 package com.twistylime.bossLand;
 
+import java.io.File;
 import java.util.*;
 import java.util.logging.Level;
 
@@ -7,10 +8,11 @@ import com.twistylime.bossLand.command.BossLandCommandHandler;
 import com.twistylime.bossLand.config.BossLandConfiguration;
 import com.twistylime.bossLand.core.*;
 import com.twistylime.bossLand.guidebook.MenuListener;
+import com.twistylime.bossLand.guidebook.menuutility.PlayerMenuUtilityManager;
+import com.twistylime.bossLand.guidebook.pages.GuideMainMenu;
 import com.twistylime.bossLand.utility.MCUtility;
 import com.twistylime.bossLand.utility.UtilityCalc;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Color;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -20,12 +22,14 @@ import org.bukkit.Sound;
 import org.bukkit.World;
 import org.bukkit.World.Environment;
 
+import org.bukkit.attribute.Attribute;
+import org.bukkit.attribute.AttributeInstance;
 import org.bukkit.block.Block;
 import org.bukkit.block.Chest;
 import org.bukkit.boss.BossBar;
-import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Damageable;
@@ -115,11 +119,12 @@ public class BossLand extends JavaPlugin implements Listener {
     ArrayList<UUID> hadDeathNote = new ArrayList<>();
     ArrayList<FallingBlock> removeBLockList = new ArrayList<>();
     BossLandConfiguration config = new BossLandConfiguration();
-    BossLandRecipes recipeManager;
-    BossLandItems itemManager;
+    static BossLandRecipes recipeManager;
+    static BossLandItems itemManager;
     BossLandBosses bossManager;
     static BossLandShrines shrinesManager;
     static BossLandLoot lootManager;
+    static boolean lowBossHealthIndicator = false;
 
     public static BossLand getPlugin() {
         return plugin;
@@ -127,7 +132,13 @@ public class BossLand extends JavaPlugin implements Listener {
 
     public static BossLandShrines getShrinesManager() { return shrinesManager; }
 
+    public static BossLandRecipes getRecipeManager() { return recipeManager; }
+
+    public static BossLandItems getItemsManager() { return itemManager; }
+
     public static BossLandLoot getLootManager(){ return lootManager; }
+
+    public static boolean isLowBossHealthIndicator(){ return lowBossHealthIndicator; }
 
     @Override
     public void onEnable() {
@@ -144,16 +155,55 @@ public class BossLand extends JavaPlugin implements Listener {
         new UpdateCheck(this).checkForUpdates();
         new ShardEffectListener(this, config);
         itemManager = new BossLandItems(this,config);
-        recipeManager = new BossLandRecipes(this, config, itemManager);
+        lootManager = new BossLandLoot(itemManager, config);
+        recipeManager = new BossLandRecipes(this, config, itemManager,config.getRecipeConfiguration("item_recipes"),lootManager);
         bossManager = new BossLandBosses(this, config, itemManager);
         recipeManager.addRecipes(config.getRecipeConfiguration("item_recipes"));
         shrinesManager = new BossLandShrines(this,config,itemManager,bossManager,config.getRecipeConfiguration("shrine_recipes"));
-        lootManager = new BossLandLoot(itemManager);
+
+        checkMaxHealth();
+
         timer();
-        Objects.requireNonNull(this.getCommand("bosslandadmin")).setTabCompleter(new BossLandTabCompleter("admin"));
-        Objects.requireNonNull(this.getCommand("bossland")).setTabCompleter(new BossLandTabCompleter("player"));
-        Objects.requireNonNull(getCommand("gui")).setExecutor(new BossLandCommandHandler());
+        getCommand("bosslandadmin").setExecutor(new BossLandCommandHandler(config, this, bossManager, itemManager));
+        getCommand("bossland").setExecutor(new BossLandCommandHandler(config, this, bossManager, itemManager));
+        getCommand("bosslandadmin").setTabCompleter(new BossLandTabCompleter("admin"));
+        getCommand("bossland").setTabCompleter(new BossLandTabCompleter("player"));
         getServer().getPluginManager().registerEvents(new MenuListener(),this);
+    }
+
+    private void checkMaxHealth(){
+        try {
+            World world = Bukkit.getWorlds().get(0);
+            LivingEntity testEntity = (LivingEntity) world.spawnEntity(world.getSpawnLocation(), EntityType.ZOMBIE);
+
+            AttributeInstance maxHealthAttr = testEntity.getAttribute(CompatibilityResolver.resolveAttribute("MAX_HEALTH", "GENERIC_MAX_HEALTH"));
+            if (maxHealthAttr != null) {
+                File spigotFile = new File("spigot.yml");
+                if (!spigotFile.exists()) {
+                    getLogger().warning("spigot.yml not found! Cannot check max health limits.");
+                    return;
+                }
+
+                YamlConfiguration spigotConfig = YamlConfiguration.loadConfiguration(spigotFile);
+
+                // Get the actual max health limit from spigot.yml
+                double serverMaxHealth = spigotConfig.getDouble("settings.attribute.maxHealth.max", 1024.0);
+                if (serverMaxHealth < 2048) {
+                    lowBossHealthIndicator = true;
+                    getLogger().warning("=======================================");
+                    getLogger().warning("STARTUP WARNING: HIGH HEALTH BOSSES DETECTED");
+                    getLogger().warning("Server max health limit: " + serverMaxHealth);
+                    getLogger().warning("Some bosses have health values exceeding this limit!");
+                    getLogger().warning("They will lower the boss health unless spigot.yml is updated.");
+                    getLogger().warning("Change the maxHealth in spigot.yml from "+serverMaxHealth+" to 2048.0");
+                    getLogger().warning("=======================================");
+                }
+            }
+
+            testEntity.remove();
+        } catch (Exception e) {
+            getLogger().warning("Could not check server health limits: " + e.getMessage());
+        }
     }
 
     private String getBossItemName(String b, int l) {
@@ -2199,6 +2249,11 @@ public class BossLand extends JavaPlugin implements Listener {
                 deathList.add(p.getUniqueId());
                 cool(p.getUniqueId());
             }
+            else if (p.getInventory().getItemInMainHand().getItemMeta().getDisplayName()
+                    .equals(config.getLang("items.guidebook"))) {
+                GuideMainMenu menu = new GuideMainMenu(PlayerMenuUtilityManager.getPlayerMenuUtility(p));
+                menu.open();
+            }
         } catch (Exception x) {
         }
     }
@@ -2696,7 +2751,7 @@ public class BossLand extends JavaPlugin implements Listener {
         return s;
     }
 
-    private void setItem(ItemStack s, String path, FileConfiguration fc) {
+    public void setItem(ItemStack s, String path, FileConfiguration fc) {
         fc.set(path, s);
         saveConfig();
     }
@@ -2839,173 +2894,7 @@ public class BossLand extends JavaPlugin implements Listener {
     // return stack;
     // }
 
-    @SuppressWarnings("unchecked")
-    public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-        String version = Objects.requireNonNull(Bukkit.getServer().getPluginManager().getPlugin("BossLand")).getDescription().getVersion();
-        if ((cmd.getName().equals("bosslandadmin")) || (cmd.getName().equals("bl-admin"))) {
-            try {
-                if (args[0].equals("reload")) {
-                    config.reloadConfigs();
-                    sender.sendMessage("§eBossLand: Reloaded config!");
-                    return true;
-                } else if (args[0].equals("spawn") && args.length == 2) {
-                    if (sender instanceof Player) {
-                        Player p = (Player) sender;
-                        if (getConfig().getString("bosses." + args[1]) != null) {
-                            bossManager.spawnBoss(p, p.getLocation(), args[1]);
-                            sender.sendMessage("§eBossLand: Spawned a " + args[1] + " boss!");
-                        } else
-                            bossError(sender);
-                    }
-                    return true;
-                } else if (args[0].equals("cspawn") && args.length == 6) {
-                    if (getConfig().getString("bosses." + args[1]) != null) {
-                        World w = getServer().getWorld(args[5]);
-                        if (w == null) {
-                            sender.sendMessage("§cWorld not found!");
-                            return true;
-                        }
-                        Location l = new Location(w, Integer.parseInt(args[2]), Integer.parseInt(args[3]),
-                                Integer.parseInt(args[4]));
-                        bossManager.spawnBoss(null, l, args[1]);
-                        sender.sendMessage("§eBossLand: Spawned a " + args[1] + " boss at the coords!");
-                    } else
-                        bossError(sender);
-                    return true;
-                } else if (args[0].equals("loot") && args.length == 2) {
-                    if (sender instanceof Player) {
-                        Player p = (Player) sender;
-                        if (getConfig().getString("bosses." + args[1]) != null) {
-                            String bossType = args[1];
-                            ItemStack s = getLoot(p, bossType);
-                            if (s != null && (!s.getType().equals(Material.AIR))) {
-                                p.getInventory().addItem(s);
-                                sender.sendMessage("§eBossLand: Dropped " + bossType + " boss loot!");
-                            } else
-                                sender.sendMessage("§eBossLand: Loot Error!");
-                        } else
-                            bossError(sender);
-                    }
-                    return true;
-                } else if (args[0].equals("sloot") && args.length == 3) {
-                    if (sender instanceof Player) {
-                        Player p = (Player) sender;
-                        if (getConfig().getString("bosses." + args[1]) != null) {
-                            String bossType = args[1];
-                            try {
-                                ItemStack s = itemManager.getItem(bossType, args[2]);
-                                if (s != null && (!s.getType().equals(Material.AIR))) {
-                                    p.getInventory().addItem(s);
-                                    sender.sendMessage("§eBossLand: Dropped " + bossType + " boss loot!");
-                                } else
-                                    sender.sendMessage("§eBossLand: A drop does not exsist for that ID.");
-                            } catch (Exception x) {
-                                sender.sendMessage("§eBossLand: Loot Error!");
-                            }
-                        } else
-                            bossError(sender);
-                        return true;
-                    }
-                } else if ((args[0].equalsIgnoreCase("setLoot") || args[0].equalsIgnoreCase("addLoot"))
-                        && args.length >= 2) {
-                    if (sender instanceof Player) {
-                        Player p = (Player) sender;
-                        if (getConfig().getString("bosses." + args[1]) != null) {
-                            String bossType = args[1];
-                            int id;
-                            if (args[0].equalsIgnoreCase("addLoot")) {
-                                id = 0;
-                                while (getConfig().getString("bosses." + bossType + ".loot." + id) != null) {
-                                    id = id + 1;
-                                    if (id > 999) {
-                                        this.getLogger().log(Level.SEVERE,
-                                                "Add loot count for " + bossType + " exceded max!");
-                                        return true;
-                                    }
-                                }
-                            } else
-                                id = Integer.parseInt(args[2]);
-                            ItemStack s = p.getInventory().getItemInMainHand();
-                            if (!s.getType().equals(Material.AIR)) {
-                                setItem(s, "bosses." + bossType + ".loot." + id, getConfig());
-                                sender.sendMessage("§eBossLand: Loot at " + id + " for boss " + bossType + " set!");
-                            } else
-                                sender.sendMessage("§eBossLand: No item is in your hand!");
-                        } else
-                            bossError(sender);
-                    }
-                    return true;
-                } else if (args[0].equals("killBosses") && args.length == 2) {
-                    World w = getServer().getWorld(args[1]);
-                    if (w == null) {
-                        sender.sendMessage("§cWorld not found!");
-                        return true;
-                    }
-                    HashMap<Entity, BossBar> pm = (HashMap<Entity, BossBar>) bossManager.getBossMapClone();
-                    for (Map.Entry<Entity, BossBar> i : pm.entrySet())
-                        if (Objects.equals(i.getKey().getLocation().getWorld(), w)) {
-                            ((LivingEntity) i.getKey()).damage(999 * 999);
-                        }
-                    sender.sendMessage("§eBossLand: Removed all bosses from the world.");
-                    return true;
-                } else if (args[0].equals("help") && args.length == 1){
-                    sender.sendMessage("§6§lBoss Land §r§bv"+version);
-                    sender.sendMessage("§3===============");
-                    sender.sendMessage("§8■ §e/bl-admin help §7→ §fShows list of available commands");
-                    sender.sendMessage("§8■ §e/bl-admin spawn <boss> §7→ §fSpawns a Boss");
-                    sender.sendMessage("§8■ §e/bl-admin cspawn <boss> <x> <y> <z> <world> §7→ §fSpawns a Boss at coords in a world.");
-                    sender.sendMessage("§8■ §e/bl-admin loot <boss> §7→ §fDrops a random loot");
-                    sender.sendMessage("§8■ §e/bl-admin sloot <boss> <id> §7→ §fDrops specific loot");
-                    sender.sendMessage("§8■ §e/bl-admin setLoot <boss> <id> §7→ §fSet loot for boss");
-                    sender.sendMessage("§8■ §e/bl-admin addLoot <boss> §7→ §fAdd loot for boss");
-                    sender.sendMessage("§8■ §e/bl-admin killBosses <world> §7→ §fRemove bosses");
-                    sender.sendMessage("§8■ §e/bl-admin reload §7→ §fRe-loads the config");
-                    return true;
-                }
-            } catch (Exception e) {
-            }
-            sender.sendMessage("§cInvalid Command! Use /bl-admin help to see the list of available commands.");
-        }
-        if ((cmd.getName().equals("bossland")) || (cmd.getName().equals("bl"))){
-            if (args[0].equals("guide") && args.length == 1) {
-                if (sender instanceof Player) {
-                    Player p = (Player)sender;
-                    ItemStack guideBook = new ItemStack(Material.WRITTEN_BOOK,1);
-                    ItemMeta guideBookMeta = guideBook.getItemMeta();
-                    if(guideBookMeta != null){
-                        guideBookMeta.setDisplayName(ChatColor.BOLD+"The Ultimate Guide to BossLand");
-                        guideBookMeta.setLore(List.of(ChatColor.GRAY+"by TwistyLime, plugin by Eliminator"));
-                    }
-                    guideBook.setItemMeta(guideBookMeta);
-                    p.getInventory().addItem(guideBook);
-                }
-                return true;
-            } else if (args[0].equals("help") && args.length == 1) {
-                if(sender instanceof Player){
-                    sender.sendMessage("§6§lBoss Land §r§bv"+version);
-                    sender.sendMessage("§3===============");
-                    sender.sendMessage("§8■ §e/bl guide §7→ §fProvides Guide book");
-                    sender.sendMessage("§8■ §e/bl help §7→ §fShows list of available commands");
-                    sender.sendMessage("§8■ §e/bl info §7→ §fShows information about plugin.");
-                }
-                return true;
-            } else if (args[0].equals("info") && args.length == 1) {
-                if(sender instanceof Player){
-                    String desc = Objects.requireNonNull(Bukkit.getServer().getPluginManager().getPlugin("BossLand")).getDescription().getDescription();
-                    sender.sendMessage("§6§lBoss Land §r§bv"+version);
-                    sender.sendMessage("§3===============");
-                    sender.sendMessage("§e"+desc);
-                    sender.sendMessage("§8■ §3Former Author §7→ §fEliminator");
-                    sender.sendMessage("§8■ §3Current Author §7→ §fTwistyLime");
-                }
-                return true;
-            }
-            sender.sendMessage("§cInvalid Command! Use /bl help to see the list of available commands.");
-        }
-        return true;
-    }
-
-    private void bossError(CommandSender sender) {
+    public void bossError(CommandSender sender) {
         sender.sendMessage("§cInvalid Boss Type!");
         sender.sendMessage("§eValid Bosses are: ");
         for (String b : getConfig().getConfigurationSection("bosses").getKeys(false))
