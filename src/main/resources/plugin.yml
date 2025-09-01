@@ -17,7 +17,3 @@ commands:
     aliases: [bl]
     description: Boss Land basic commands.
     usage: /<command>
-  gui:
-    aliases: [ blgui ]
-    description: Opens Guide Menu for BossLand
-    usage: /<command>
