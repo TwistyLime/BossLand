@@ -4,6 +4,7 @@ import com.twistylime.bossLand.BossLand;
 import com.twistylime.bossLand.config.BossLandConfiguration;
 import com.twistylime.bossLand.core.BossLandBosses;
 import com.twistylime.bossLand.core.BossLandItems;
+import com.twistylime.bossLand.core.BossLandLoot;
 import com.twistylime.bossLand.guidebook.menuutility.PlayerMenuUtilityManager;
 import com.twistylime.bossLand.guidebook.pages.GuideMainMenu;
 import org.bukkit.*;
@@ -28,13 +29,13 @@ public class BossLandCommandHandler implements CommandExecutor {
     private final BossLandConfiguration config;
     private final BossLand plugin;
     private final BossLandBosses bossManager;
-    private final BossLandItems itemManager;
+    private final BossLandLoot lootManager;
 
-    public BossLandCommandHandler(BossLandConfiguration config, BossLand plugin, BossLandBosses bossManager, BossLandItems itemManager) {
+    public BossLandCommandHandler(BossLandConfiguration config, BossLand plugin, BossLandBosses bossManager, BossLandLoot lootManager) {
         this.config = config;
         this.plugin = plugin;
         this.bossManager = bossManager;
-        this.itemManager = itemManager;
+        this.lootManager = lootManager;
     }
 
     @Override
@@ -96,7 +97,7 @@ public class BossLandCommandHandler implements CommandExecutor {
                         if (plugin.getConfig().getString("bosses." + args[1]) != null) {
                             String bossType = args[1];
                             try {
-                                ItemStack s = itemManager.getItem(bossType, args[2]);
+                                ItemStack s = lootManager.getLootFromName(args[2],bossType);
                                 if (s != null && (!s.getType().equals(Material.AIR))) {
                                     p.getInventory().addItem(s);
                                     sender.sendMessage("§eBossLand: Dropped " + bossType + " boss loot!");

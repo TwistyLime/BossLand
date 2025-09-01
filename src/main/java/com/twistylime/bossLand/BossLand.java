@@ -164,10 +164,10 @@ public class BossLand extends JavaPlugin implements Listener {
         checkMaxHealth();
 
         timer();
-        getCommand("bosslandadmin").setExecutor(new BossLandCommandHandler(config, this, bossManager, itemManager));
-        getCommand("bossland").setExecutor(new BossLandCommandHandler(config, this, bossManager, itemManager));
-        getCommand("bosslandadmin").setTabCompleter(new BossLandTabCompleter("admin"));
-        getCommand("bossland").setTabCompleter(new BossLandTabCompleter("player"));
+        getCommand("bosslandadmin").setExecutor(new BossLandCommandHandler(config, this, bossManager, lootManager));
+        getCommand("bossland").setExecutor(new BossLandCommandHandler(config, this, bossManager, lootManager));
+        getCommand("bosslandadmin").setTabCompleter(new BossLandTabCompleter("admin",lootManager));
+        getCommand("bossland").setTabCompleter(new BossLandTabCompleter("player",lootManager));
         getServer().getPluginManager().registerEvents(new MenuListener(),this);
     }
 
