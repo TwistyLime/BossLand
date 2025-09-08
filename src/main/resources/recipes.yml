@@ -120,9 +120,9 @@ shrine_recipes:
       amount: 1
       display_name: "§6§lPapa Panda"
       lore:
-        - "§7A towering mass of sentient slime,"
-        - "§7formed deep within the swamp's heart."
-        - "§7Its body absorbs attacks and crushes foes."
+        - "§7A wise and ancient panda spirit,"
+        - "§7who guards the sacred bamboo groves."
+        - "§7His fury shakes the earth beneath."
         - ""
         - "§e§lBiome to summon the boss: §fBamboo Forest"
         - "§6§lBoss Tier: §fIV"
@@ -144,9 +144,9 @@ shrine_recipes:
       amount: 1
       display_name: "§7§lKiller Bunny"
       lore:
-        - "§7A towering mass of sentient slime,"
-        - "§7formed deep within the swamp's heart."
-        - "§7Its body absorbs attacks and crushes foes."
+        - "§7A bloodthirsty rabbit of legend,"
+        - "§7lurking in the scorching desert sands."
+        - "§7Its razor teeth tear through armor."
         - ""
         - "§e§lBiome to summon the boss: §fDesert"
         - "§6§lBoss Tier: §fIV"
@@ -168,9 +168,9 @@ shrine_recipes:
       amount: 1
       display_name: "§2§lZombie King"
       lore:
-        - "§7A towering mass of sentient slime,"
-        - "§7formed deep within the swamp's heart."
-        - "§7Its body absorbs attacks and crushes foes."
+        - "§7The undead monarch of the plains,"
+        - "§7commanding legions of rotting flesh."
+        - "§7His crown bears the weight of death."
         - ""
         - "§e§lBiome to summon the boss: §fPlains"
         - "§6§lBoss Tier: §fIV"
@@ -192,9 +192,9 @@ shrine_recipes:
       amount: 1
       display_name: "§8§lWither Skeleton King"
       lore:
-        - "§7A towering mass of sentient slime,"
-        - "§7formed deep within the swamp's heart."
-        - "§7Its body absorbs attacks and crushes foes."
+        - "§7A skeletal ruler from the depths of hell,"
+        - "§7wreathed in flames and shadow."
+        - "§7His bones burn with eternal fire."
         - ""
         - "§e§lBiome to summon the boss: §fNether"
         - "§6§lBoss Tier: §fIV"
@@ -216,9 +216,9 @@ shrine_recipes:
       amount: 1
       display_name: "§f§lGhast Lord"
       lore:
-        - "§7A towering mass of sentient slime,"
-        - "§7formed deep within the swamp's heart."
-        - "§7Its body absorbs attacks and crushes foes."
+        - "§7A colossal phantom of the Nether,"
+        - "§7whose wails echo through lava lakes."
+        - "§7Its tears burn like molten stone."
         - ""
         - "§e§lBiome to summon the boss: §fNether"
         - "§6§lBoss Tier: §fIV"
@@ -240,9 +240,9 @@ shrine_recipes:
       amount: 1
       display_name: "§9§lEvil Wizard"
       lore:
-        - "§7A towering mass of sentient slime,"
-        - "§7formed deep within the swamp's heart."
-        - "§7Its body absorbs attacks and crushes foes."
+        - "§7A master of dark magic and forbidden arts,"
+        - "§7dwelling in the frozen wastelands."
+        - "§7His spells freeze blood and soul alike."
         - ""
         - "§e§lBiome to summon the boss: §fAny Snowy Biome"
         - "§6§lBoss Tier: §fIII"
@@ -265,9 +265,9 @@ shrine_recipes:
       amount: 1
       display_name: "§6§lKing of the Illagers"
       lore:
-        - "§7A towering mass of sentient slime,"
-        - "§7formed deep within the swamp's heart."
-        - "§7Its body absorbs attacks and crushes foes."
+        - "§7The supreme commander of all illager clans,"
+        - "§7ruling from his savanna stronghold."
+        - "§7His banner strikes fear into heroes."
         - ""
         - "§e§lBiome to summon the boss: §fSavanna"
         - "§6§lBoss Tier: §fIII"
@@ -290,9 +290,9 @@ shrine_recipes:
       amount: 1
       display_name: "§2§lGiant"
       lore:
-        - "§7A towering mass of sentient slime,"
-        - "§7formed deep within the swamp's heart."
-        - "§7Its body absorbs attacks and crushes foes."
+        - "§7A colossal undead behemoth,"
+        - "§7towering above the tallest trees."
+        - "§7Each step shakes the very earth."
         - ""
         - "§e§lBiome to summon the boss: §fOverworld"
         - "§6§lBoss Tier: §fIII"
@@ -315,9 +315,9 @@ shrine_recipes:
       amount: 1
       display_name: "§c§lDemon"
       lore:
-        - "§7A towering mass of sentient slime,"
-        - "§7formed deep within the swamp's heart."
-        - "§7Its body absorbs attacks and crushes foes."
+        - "§7An ancient evil from beyond the void,"
+        - "§7summoned only by the most desperate."
+        - "§7Its presence corrupts reality itself."
         - ""
         - "§e§lBiome to summon the boss: §fAny Dimension"
         - "§c§lOnly summonable after all Tier II bosses have been defeated."
@@ -341,9 +341,9 @@ shrine_recipes:
       amount: 1
       display_name: "§b§lThe Aether God"
       lore:
-        - "§7A towering mass of sentient slime,"
-        - "§7formed deep within the swamp's heart."
-        - "§7Its body absorbs attacks and crushes foes."
+        - "§7A divine being of wind and sky,"
+        - "§7dwelling in the highest heavens."
+        - "§7Its wings command storms and lightning."
         - ""
         - "§e§lBiome to summon the boss: §fOverworld"
         - "§6§lBoss Tier: §fII"
@@ -367,9 +367,9 @@ shrine_recipes:
       amount: 1
       display_name: "§0§lThe Pharaoh God"
       lore:
-        - "§7A towering mass of sentient slime,"
-        - "§7formed deep within the swamp's heart."
-        - "§7Its body absorbs attacks and crushes foes."
+        - "§7An ancient ruler of forgotten sands,"
+        - "§7entombed within pyramid depths."
+        - "§7His curse burns like desert sun."
         - ""
         - "§e§lBiome to summon the boss: §fOverworld"
         - "§6§lBoss Tier: §fII"
@@ -392,9 +392,9 @@ shrine_recipes:
       amount: 1
       display_name: "§b§lThe Drowned God"
       lore:
-        - "§7A towering mass of sentient slime,"
-        - "§7formed deep within the swamp's heart."
-        - "§7Its body absorbs attacks and crushes foes."
+        - "§7A primordial deity of the deepest oceans,"
+        - "§7lost beneath crushing waves."
+        - "§7Its heart pulses with tidal fury."
         - ""
         - "§e§lBiome to summon the boss: §fOverworld"
         - "§6§lBoss Tier: §fII"
@@ -418,9 +418,9 @@ shrine_recipes:
       amount: 1
       display_name: "§c§lThe Devil"
       lore:
-        - "§7A towering mass of sentient slime,"
-        - "§7formed deep within the swamp's heart."
-        - "§7Its body absorbs attacks and crushes foes."
+        - "§7The ultimate manifestation of evil,"
+        - "§7ruling over all infernal realms."
+        - "§7His very presence ignites hellfire."
         - ""
         - "§e§lBiome to summon the boss: §fNether"
         - "§6§lBoss Tier: §fI"
@@ -443,9 +443,9 @@ shrine_recipes:
       amount: 1
       display_name: "§5§lDeath"
       lore:
-        - "§7A towering mass of sentient slime,"
-        - "§7formed deep within the swamp's heart."
-        - "§7Its body absorbs attacks and crushes foes."
+        - "§7The inevitable end that awaits all,"
+        - "§7dwelling in the void between worlds."
+        - "§7Its touch brings eternal silence."
         - ""
         - "§e§lBiome to summon the boss: §fEnd"
         - "§6§lBoss Tier: §fI"
